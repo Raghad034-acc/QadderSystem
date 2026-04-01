@@ -24,5 +24,11 @@ class Image(Base):
     najm_damage_area = Column(String(30))
     api_damage_area = Column(String(30))
     api_confidence = Column(Numeric(6, 4))
+    #hadeel added
+    part_damage_area = Column(String(30))
+    accepted_source = Column(String(30))
+    rejection_reason = Column(Text)
+    detected_parts = Column(Text)
+    ##hadeel added
     is_accepted = Column(Boolean)
     created_at = Column(DateTime, server_default=func.current_timestamp())

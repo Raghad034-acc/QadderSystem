@@ -16,6 +16,10 @@ from app.models import (
 import psycopg2
 from dotenv import load_dotenv
 import os
+#hadeel added
+from app.api.routes.step1_najm import router as step1_najm_router
+from app.api.routes.step2_image import router as step2_image_router
+from fastapi.middleware.cors import CORSMiddleware
 
 # تحميل المتغيرات
 load_dotenv()
@@ -27,6 +31,16 @@ DB_PORT = os.getenv("DB_PORT")
 DB_NAME = os.getenv("DB_NAME")
 
 app = FastAPI(title="Qadder Backend")
+#hadeel added
+app.include_router(step1_najm_router)
+app.include_router(step2_image_router)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 # ✅ عند تشغيل السيرفر

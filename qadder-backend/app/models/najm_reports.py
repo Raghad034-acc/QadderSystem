@@ -17,7 +17,6 @@ class NajmReport(Base):
         unique=True,
     )
     report_file_path = Column(Text, nullable=False)
-    report_number = Column(String(100), nullable=False)
     accident_id = Column(String(100), nullable=False)
     accident_date = Column(Date)
     accident_time = Column(DateTime)
