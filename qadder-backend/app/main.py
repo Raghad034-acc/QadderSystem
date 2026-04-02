@@ -20,6 +20,9 @@ import os
 from app.api.routes.step1_najm import router as step1_najm_router
 from app.api.routes.step2_image import router as step2_image_router
 from fastapi.middleware.cors import CORSMiddleware
+from app.api.routes.step3_severity import router as step3_severity_router
+from app.api.routes.step4_damage_type import router as step4_type_router
+from fastapi.staticfiles import StaticFiles
 
 # تحميل المتغيرات
 load_dotenv()
@@ -41,6 +44,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+app.include_router(step3_severity_router)
+app.include_router(step4_type_router)
+app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 
 
 # ✅ عند تشغيل السيرفر

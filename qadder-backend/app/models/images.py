@@ -30,5 +30,13 @@ class Image(Base):
     rejection_reason = Column(Text)
     detected_parts = Column(Text)
     ##hadeel added
+
+    # Step3 additions By Raghad
+    severity_en = Column(String(20))
+    severity_ar = Column(String(20))
+    severity_confidence = Column(Numeric(6, 4))
+    severity_status = Column(String(40))
+    # Step3 additions By Raghad
+    
     is_accepted = Column(Boolean)
     created_at = Column(DateTime, server_default=func.current_timestamp())
