@@ -27,6 +27,8 @@ export default function Home() {
   const [step2Response, setStep2Response] = useState<any>(null);
   const [step3Response, setStep3Response] = useState<any>(null);
   const [step4Response, setStep4Response] = useState<any>(null);
+  const [step5Response, setStep5Response] = useState<any>(null);
+  const [step6Response, setStep6Response] = useState<any>(null);
 
   const [caseId, setCaseId] = useState("");
   const [userProfileId, setUserProfileId] = useState("");
@@ -39,16 +41,22 @@ export default function Home() {
   const [step2Status, setStep2Status] = useState<StepStatus>("idle");
   const [step3Status, setStep3Status] = useState<StepStatus>("idle");
   const [step4Status, setStep4Status] = useState<StepStatus>("idle");
+  const [step5Status, setStep5Status] = useState<StepStatus>("idle");
+  const [step6Status, setStep6Status] = useState<StepStatus>("idle");
 
   const [step1Message, setStep1Message] = useState("");
   const [step2Message, setStep2Message] = useState("");
   const [step3Message, setStep3Message] = useState("");
   const [step4Message, setStep4Message] = useState("");
+  const [step5Message, setStep5Message] = useState("");
+  const [step6Message, setStep6Message] = useState("");
 
   const [loadingStep1, setLoadingStep1] = useState(false);
   const [loadingStep2, setLoadingStep2] = useState(false);
   const [loadingStep3, setLoadingStep3] = useState(false);
   const [loadingStep4, setLoadingStep4] = useState(false);
+  const [loadingStep5, setLoadingStep5] = useState(false);
+  const [loadingStep6, setLoadingStep6] = useState(false);
 
   const step2PreviewUrl = useMemo(() => {
     if (!step2File) return "";
@@ -60,6 +68,22 @@ export default function Home() {
   }, [step4Response]);
 
   const step4Damages = step4Response?.step4_result?.damages || [];
+
+
+  const step5AnnotatedUrl = useMemo(() => {
+    return toPublicImageUrl(step5Response?.step5_result?.damage_parts_annotated_path);
+  }, [step5Response]);
+
+  const step5MaskUrl = useMemo(() => {
+    return toPublicImageUrl(step5Response?.step5_result?.parts_mask_path);
+  }, [step5Response]);
+
+  const step5OverlayUrl = useMemo(() => {
+    return toPublicImageUrl(step5Response?.step5_result?.parts_overlay_path);
+  }, [step5Response]);
+
+  const step5Damages = step5Response?.step5_result?.damages || [];
+  const step6Damages = step6Response?.step6_result?.damages || [];
 
   const getBadgeClasses = (status: StepStatus) => {
     if (status === "success") return "bg-green-600 text-white";
@@ -90,6 +114,14 @@ export default function Home() {
     setStep3Message("");
     setStep4Message("");
   };
+  const resetStep5And6 = () => {
+  setStep5Response(null);
+  setStep6Response(null);
+  setStep5Status("idle");
+  setStep6Status("idle");
+  setStep5Message("");
+  setStep6Message("");
+};
 
   const handleStep1 = async () => {
     if (!step1File) {
@@ -208,6 +240,7 @@ const handleStep3 = async (currentCaseId: string) => {
     setLoadingStep3(false);
   }
 };
+  
 
   const handleStep4 = async (currentCaseId: string) => {
     try {
@@ -244,7 +277,76 @@ const handleStep3 = async (currentCaseId: string) => {
       setLoadingStep4(false);
     }
   };
+  const handleStep5 = async (currentCaseId: string) => {
+  try {
+    setLoadingStep5(true);
+    setStep5Status("loading");
+    setStep5Message("Step5 is detecting damaged parts for each damage area...");
 
+    const formData = new FormData();
+    formData.append("case_id", currentCaseId);
+
+    const res = await fetch(`${BACKEND_URL}/step5/detect-damage-part`, {
+      method: "POST",
+      body: formData,
+    });
+
+    const data = await res.json();
+    setStep5Response(data);
+
+    if (!res.ok) {
+      setStep5Status("error");
+      setStep5Message(data?.detail || "Step5 failed.");
+      return false;
+    }
+
+    const count = data?.step5_result?.damages_count ?? 0;
+    setStep5Status("success");
+    setStep5Message(`Step5 finished successfully. ${count} damage part result${count === 1 ? "" : "s"} extracted.`);
+    return true;
+  } catch {
+    setStep5Status("error");
+    setStep5Message("Failed to connect to backend in Step5.");
+    return false;
+  } finally {
+    setLoadingStep5(false);
+  }
+};
+  const handleStep6 = async (currentCaseId: string) => {
+  try {
+    setLoadingStep6(true);
+    setStep6Status("loading");
+    setStep6Message("Step6 is predicting severity for each detected damage...");
+
+    const formData = new FormData();
+    formData.append("case_id", currentCaseId);
+
+    const res = await fetch(`${BACKEND_URL}/step6/predict-damage-severity`, {
+      method: "POST",
+      body: formData,
+    });
+
+    const data = await res.json();
+    setStep6Response(data);
+
+    if (!res.ok) {
+      setStep6Status("error");
+      setStep6Message(data?.detail || "Step6 failed.");
+      return false;
+    }
+
+    const count = data?.step6_result?.damages_count ?? 0;
+    setStep6Status("success");
+    setStep6Message(`Step6 finished successfully. ${count} damage severity result${count === 1 ? "" : "s"} predicted.`);
+    return true;
+  } catch {
+    setStep6Status("error");
+    setStep6Message("Failed to connect to backend in Step6.");
+    return false;
+  } finally {
+    setLoadingStep6(false);
+  }
+};
   const handleStep2 = async () => {
     if (!step2File) {
       setStep2Status("error");
@@ -300,7 +402,17 @@ const handleStep3 = async (currentCaseId: string) => {
       if (!step3Ok) return;
 
       setStep2Message("Step2 completed and image accepted. Step3 finished. Starting Step4 automatically...");
-      await handleStep4(caseId);
+      const step4Ok = await handleStep4(caseId);
+      if (!step4Ok) return;
+
+      setStep2Message("Step4 finished. Starting Step5 automatically...");
+      const step5Ok = await handleStep5(caseId);
+      if (!step5Ok) return;
+
+      setStep2Message("Step5 finished. Starting Step6 automatically...");
+      await handleStep6(caseId);
+
+      setStep2Message("All steps from Step2 to Step6 completed successfully.");
     } catch {
       setStep2Status("error");
       setStep2Message("Failed to connect to backend in Step2.");
@@ -350,6 +462,18 @@ const handleStep3 = async (currentCaseId: string) => {
                 {getBadgeText(step4Status)}
               </span>
             </div>
+             <div className="border border-gray-700 rounded-xl px-4 py-3 min-w-[220px]">
+              <p className="text-sm text-gray-400">Step5 Status</p>
+              <span className={`inline-block mt-2 px-3 py-1 rounded-full text-sm ${getBadgeClasses(step5Status)}`}>
+                {getBadgeText(step5Status)}
+              </span>
+            </div>
+            <div className="border border-gray-700 rounded-xl px-4 py-3 min-w-[220px]">
+             <p className="text-sm text-gray-400">Step6 Status</p>
+             <span className={`inline-block mt-2 px-3 py-1 rounded-full text-sm ${getBadgeClasses(step6Status)}`}>
+               {getBadgeText(step6Status)}
+             </span>
+           </div>
 
             <div className="border border-gray-700 rounded-xl px-4 py-3 min-w-[320px]">
               <p className="text-sm text-gray-400">Current Case ID</p>
@@ -602,6 +726,189 @@ const handleStep3 = async (currentCaseId: string) => {
             </div>
           )}
         </section>
+        <section className="border border-gray-700 rounded-2xl p-6 space-y-4">
+  <div className="flex items-center justify-between flex-wrap gap-3">
+    <h2 className="text-2xl font-semibold">Step5 - Damage Parts</h2>
+    <span className={`px-3 py-1 rounded-full text-sm ${getBadgeClasses(step5Status)}`}>
+      {getBadgeText(step5Status)}
+    </span>
+  </div>
+
+  {loadingStep5 && (
+    <p className="text-sm text-gray-400">
+      Step5 is running automatically...
+    </p>
+  )}
+
+  {step5Message && (
+    <div className={`rounded-lg p-3 text-sm ${getMessageBoxClasses(step5Status)}`}>
+      {step5Message}
+    </div>
+  )}
+
+  {(step5AnnotatedUrl || step5OverlayUrl || step5MaskUrl) && (
+    <div className="grid gap-4 md:grid-cols-3">
+      {step5AnnotatedUrl && (
+        <div className="space-y-2">
+          <h3 className="text-lg font-semibold">Annotated Parts Image</h3>
+          <img
+            src={step5AnnotatedUrl}
+            alt="Step5 annotated parts"
+            className="w-full rounded-xl border border-gray-700 object-contain"
+          />
+        </div>
+      )}
+
+      {step5OverlayUrl && (
+        <div className="space-y-2">
+          <h3 className="text-lg font-semibold">Parts Overlay</h3>
+          <img
+            src={step5OverlayUrl}
+            alt="Step5 parts overlay"
+            className="w-full rounded-xl border border-gray-700 object-contain"
+          />
+        </div>
+      )}
+
+      {step5MaskUrl && (
+        <div className="space-y-2">
+          <h3 className="text-lg font-semibold">Parts Mask</h3>
+          <img
+            src={step5MaskUrl}
+            alt="Step5 parts mask"
+            className="w-full rounded-xl border border-gray-700 object-contain"
+          />
+        </div>
+      )}
+    </div>
+  )}
+
+  {step5Damages.length > 0 && (
+    <div className="grid gap-4 md:grid-cols-2">
+      {step5Damages.map((damage: any) => (
+        <div
+          key={damage.damage_no}
+          className="rounded-2xl border border-gray-700 bg-zinc-900 p-4 space-y-3"
+        >
+          <div className="flex items-center justify-between gap-3">
+            <h4 className="text-lg font-semibold">Damage #{damage.damage_no}</h4>
+            <span className="px-3 py-1 rounded-full bg-indigo-700/70 text-sm">
+              {damage.part_name_ar || prettyLabel(damage.part_name_en)}
+            </span>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3 text-sm">
+            <div>
+              <p className="text-gray-400">Part</p>
+              <p className="font-medium">{prettyLabel(damage.part_name_en)}</p>
+            </div>
+
+            <div>
+              <p className="text-gray-400">Vote Label</p>
+              <p className="font-medium">{prettyLabel(damage.vote_label)}</p>
+            </div>
+
+            <div>
+              <p className="text-gray-400">Vote Ratio</p>
+              <p className="font-medium">
+                {typeof damage.vote_ratio === "number"
+                  ? `${(damage.vote_ratio * 100).toFixed(1)}%`
+                  : "—"}
+              </p>
+            </div>
+
+            <div>
+              <p className="text-gray-400">Part Status</p>
+              <p className="font-medium">{prettyLabel(damage.part_status)}</p>
+            </div>
+          </div>
+
+          <div className="text-sm">
+            <p className="text-gray-400">Reason</p>
+            <p className="font-medium break-words">
+              {damage.part_reason || "—"}
+            </p>
+          </div>
+        </div>
+      ))}
+    </div>
+  )}
+</section>
+   <section className="border border-gray-700 rounded-2xl p-6 space-y-4">
+  <div className="flex items-center justify-between flex-wrap gap-3">
+    <h2 className="text-2xl font-semibold">
+      Step6 - Damage Severity Per Damage
+    </h2>
+    <span className={`px-3 py-1 rounded-full text-sm ${getBadgeClasses(step6Status)}`}>
+      {getBadgeText(step6Status)}
+    </span>
+  </div>
+
+  {loadingStep6 && (
+    <p className="text-sm text-gray-400">
+      Step6 is running automatically...
+    </p>
+  )}
+
+  {step6Message && (
+    <div className={`rounded-lg p-3 text-sm ${getMessageBoxClasses(step6Status)}`}>
+      {step6Message}
+    </div>
+  )}
+
+  {step6Damages.length > 0 && (
+    <div className="grid gap-4 md:grid-cols-2">
+      {step6Damages.map((damage: any) => (
+        <div
+          key={damage.damage_no}
+          className="rounded-2xl border border-gray-700 bg-zinc-900 p-4 space-y-3"
+        >
+          <div className="flex items-center justify-between gap-3">
+            <h4 className="text-lg font-semibold">
+              Damage #{damage.damage_no}
+            </h4>
+
+            <span className="px-3 py-1 rounded-full bg-emerald-700/70 text-sm">
+              {damage.severity_ar || prettyLabel(damage.severity_en)}
+            </span>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3 text-sm">
+            <div>
+              <p className="text-gray-400">Severity</p>
+              <p className="font-medium">
+                {prettyLabel(damage.severity_en)}
+              </p>
+            </div>
+
+            <div>
+              <p className="text-gray-400">Status</p>
+              <p className="font-medium">
+                {prettyLabel(damage.severity_status)}
+              </p>
+            </div>
+
+            <div>
+              <p className="text-gray-400">Arabic Severity</p>
+              <p className="font-medium">
+                {damage.severity_ar || "—"}
+              </p>
+            </div>
+
+            <div>
+              <p className="text-gray-400">Confidence</p>
+              <p className="font-medium">
+                {typeof damage.severity_confidence === "number"
+                  ? `${(damage.severity_confidence * 100).toFixed(1)}%`
+                  : "—"}
+              </p>
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  )}
+</section>
       </div>
     </main>
   );

@@ -1,5 +1,5 @@
 import uuid
-from sqlalchemy import Column, String, Text, Integer, DateTime, ForeignKey, Numeric, UniqueConstraint
+from sqlalchemy import Column, String, Text, Integer, DateTime, ForeignKey, Numeric, UniqueConstraint, Boolean
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.sql import func
 
@@ -39,7 +39,23 @@ class Damage(Base):
     vote_ratio = Column(Numeric)
     vote_label = Column(String(100))
     created_at = Column(DateTime, server_default=func.current_timestamp())
+    # Step 5 add by shroug
+    part_status = Column(String(40))
+    part_reason = Column(Text)
+    part_method = Column(String(120))
+    part_post_rules = Column(Text)
+    allowed_groups = Column(Text, nullable=True)
+    unsupported_by_parts_model = Column(Boolean, default=False)
+    
+    # Step 6 add by shroug
+    severity_status = Column(String(40), nullable=True)
+    severity_raw_label = Column(String(50), nullable=True)
+    severity_policy_status = Column(String(20), nullable=True)
+    severity_probabilities = Column(Text, nullable=True)
 
     __table_args__ = (
         UniqueConstraint("case_id", "damage_no", name="unique_damage_per_case"),
     )
+
+
+  

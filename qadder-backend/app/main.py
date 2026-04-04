@@ -23,6 +23,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.api.routes.step3_severity import router as step3_severity_router
 from app.api.routes.step4_damage_type import router as step4_type_router
 from fastapi.staticfiles import StaticFiles
+from app.api.routes.step5_damage_part import router as step5_router
+from app.api.routes.step6_damage_severity import router as step6_router
 
 # تحميل المتغيرات
 load_dotenv()
@@ -47,7 +49,9 @@ app.add_middleware(
 app.include_router(step3_severity_router)
 app.include_router(step4_type_router)
 app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
-
+#BY SHROUG
+app.include_router(step5_router)
+app.include_router(step6_router)
 
 # ✅ عند تشغيل السيرفر
 @app.on_event("startup")
