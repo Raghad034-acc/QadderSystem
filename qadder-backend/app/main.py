@@ -25,6 +25,8 @@ from app.api.routes.step4_damage_type import router as step4_type_router
 from fastapi.staticfiles import StaticFiles
 from app.api.routes.step5_damage_part import router as step5_router
 from app.api.routes.step6_damage_severity import router as step6_router
+from app.api.routes import step7_pricing
+from app.api.routes import step8_report
 
 # تحميل المتغيرات
 load_dotenv()
@@ -52,6 +54,8 @@ app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 #BY SHROUG
 app.include_router(step5_router)
 app.include_router(step6_router)
+app.include_router(step7_pricing.router)
+app.include_router(step8_report.router)
 
 # ✅ عند تشغيل السيرفر
 @app.on_event("startup")

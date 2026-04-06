@@ -1,0 +1,22 @@
+﻿part_id,name_en,name_ar,replace_cost_low,replace_cost_medium
+1,front bumper,صدام امامي,300,500
+2,wheel,جنط ألمنيوم,50,50
+3,front left light,شمعة امامي يسار,100,100
+4,back left door,باب خلفي يسار,400,600
+5,back left light,اسطب خلفي يسار,50,50
+6,back bumper,صدام خلفي,300,500
+7,left mirror,مراية جانبية يسار,100,100
+8,front right door,باب امامي يمين,400,600
+9,back right door,باب خلفي يمين,400,600
+10,trunk,باب شنطة,500,600
+11,front right light,شمعة امامي يمين,100,100
+12,hood,كبوت,500,600
+13,front left door,باب امامي يسار,400,600
+14,front glass,زجاج امامي,100,100
+15,right mirror,مراية جانبية يمين,100,100
+16,back right light,اسطب خلفي يمين,50,50
+17,back glass,زجاج خلفي,100,100
+18,front left door glass,زجاج الباب الأمامي الأيسر,50,50
+19,front right door glass,زجاج الباب الأمامي الأيمن,50,50
+20,back left door glass, زجاج الباب الخلفي الأيسر,50,50
+21,back right door glass,زجاج الباب الخلفي الأيمن,50,50

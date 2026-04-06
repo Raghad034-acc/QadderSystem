@@ -29,6 +29,9 @@ export default function Home() {
   const [step4Response, setStep4Response] = useState<any>(null);
   const [step5Response, setStep5Response] = useState<any>(null);
   const [step6Response, setStep6Response] = useState<any>(null);
+  const [step7Response, setStep7Response] = useState<any>(null);
+  const [step8Response, setStep8Response] = useState<any>(null)
+
 
   const [caseId, setCaseId] = useState("");
   const [userProfileId, setUserProfileId] = useState("");
@@ -43,6 +46,8 @@ export default function Home() {
   const [step4Status, setStep4Status] = useState<StepStatus>("idle");
   const [step5Status, setStep5Status] = useState<StepStatus>("idle");
   const [step6Status, setStep6Status] = useState<StepStatus>("idle");
+  const [step7Status, setStep7Status] = useState<StepStatus>("idle");
+  const [step8Status, setStep8Status] = useState<StepStatus>("idle");
 
   const [step1Message, setStep1Message] = useState("");
   const [step2Message, setStep2Message] = useState("");
@@ -50,6 +55,10 @@ export default function Home() {
   const [step4Message, setStep4Message] = useState("");
   const [step5Message, setStep5Message] = useState("");
   const [step6Message, setStep6Message] = useState("");
+  const [step7Message, setStep7Message] = useState("");
+  const [step8Message, setStep8Message] = useState("")
+
+
 
   const [loadingStep1, setLoadingStep1] = useState(false);
   const [loadingStep2, setLoadingStep2] = useState(false);
@@ -57,6 +66,9 @@ export default function Home() {
   const [loadingStep4, setLoadingStep4] = useState(false);
   const [loadingStep5, setLoadingStep5] = useState(false);
   const [loadingStep6, setLoadingStep6] = useState(false);
+  const [loadingStep7, setLoadingStep7] = useState(false);
+  const [loadingStep8, setLoadingStep8] = useState(false)
+
 
   const step2PreviewUrl = useMemo(() => {
     if (!step2File) return "";
@@ -121,6 +133,16 @@ export default function Home() {
   setStep6Status("idle");
   setStep5Message("");
   setStep6Message("");
+  // Lames added
+  resetStep7();
+
+};
+
+
+const resetStep7 = () => {
+  setStep7Response(null);
+  setStep7Status("idle");
+  setStep7Message("");
 };
 
   const handleStep1 = async () => {
@@ -347,6 +369,68 @@ const handleStep3 = async (currentCaseId: string) => {
     setLoadingStep6(false);
   }
 };
+
+const handleStep7 = async (currentCaseId: string) => {
+  try {
+    setLoadingStep7(true);
+    setStep7Status("loading");
+    setStep7Message("Step7 is calculating pricing and saving cost estimates...");
+
+    const res = await fetch(`${BACKEND_URL}/step7/${currentCaseId}`, {
+      method: "POST",
+    });
+
+    const data = await res.json();
+    setStep7Response(data);
+
+    if (!res.ok) {
+      setStep7Status("error");
+      setStep7Message(data?.detail || "Step7 failed.");
+      return false;
+    }
+
+    setStep7Status("success");
+    setStep7Message("Step7 finished successfully. Pricing results are ready.");
+    return true;
+  } catch {
+    setStep7Status("error");
+    setStep7Message("Failed to connect to backend in Step7.");
+    return false;
+  } finally {
+    setLoadingStep7(false);
+  }
+};
+
+const handleStep8 = async (currentCaseId: string) => {
+  try {
+    setLoadingStep8(true);
+    setStep8Status("loading");
+    setStep8Message("Step8 is generating the final PDF report...");
+
+    const res = await fetch(`${BACKEND_URL}/step8/${currentCaseId}`, {
+      method: "POST",
+    });
+
+    const data = await res.json();
+    setStep8Response(data);
+
+    if (!res.ok) {
+      setStep8Status("error");
+      setStep8Message(data?.detail || "Step8 failed.");
+      return false;
+    }
+
+    setStep8Status("success");
+    setStep8Message("Step8 finished successfully. Final report is ready.");
+    return true;
+  } catch {
+    setStep8Status("error");
+    setStep8Message("Failed to connect to backend in Step8.");
+    return false;
+  } finally {
+    setLoadingStep8(false);
+  }
+};
   const handleStep2 = async () => {
     if (!step2File) {
       setStep2Status("error");
@@ -410,9 +494,18 @@ const handleStep3 = async (currentCaseId: string) => {
       if (!step5Ok) return;
 
       setStep2Message("Step5 finished. Starting Step6 automatically...");
-      await handleStep6(caseId);
+      const step6Ok = await handleStep6(caseId);
+      if (!step6Ok) return;
 
-      setStep2Message("All steps from Step2 to Step6 completed successfully.");
+      setStep2Message("Step6 finished. Starting Step7 automatically...");
+      const step7Ok = await handleStep7(caseId);
+      if (!step7Ok) return;
+
+      setStep2Message("Step7 finished. Starting Step8 automatically...");
+      const step8Ok = await handleStep8(caseId);
+      if (!step8Ok) return;
+
+      setStep2Message("All steps from Step2 to Step7 completed successfully.");
     } catch {
       setStep2Status("error");
       setStep2Message("Failed to connect to backend in Step2.");
@@ -474,7 +567,21 @@ const handleStep3 = async (currentCaseId: string) => {
                {getBadgeText(step6Status)}
              </span>
            </div>
+           <div className="border border-gray-700 rounded-xl px-4 py-3 min-w-[220px]">
+            <p className="text-sm text-gray-400">Step7 Status</p>
+            <span className={`inline-block mt-2 px-3 py-1 rounded-full text-sm ${getBadgeClasses(step7Status)}`}>
+              {getBadgeText(step7Status)}
+            </span>
+          </div>
 
+          <div className="border border-gray-700 rounded-xl px-4 py-3 min-w-[220px]">
+          <p className="text-sm text-gray-400">Step8 Status</p>
+          <span className={`inline-block mt-2 px-3 py-1 rounded-full text-sm ${getBadgeClasses(step8Status)}`}>
+            {getBadgeText(step8Status)}
+          </span>
+        </div>
+
+    
             <div className="border border-gray-700 rounded-xl px-4 py-3 min-w-[320px]">
               <p className="text-sm text-gray-400">Current Case ID</p>
               <p className="mt-2 break-all text-sm">{caseId || "No case yet"}</p>
@@ -909,6 +1016,196 @@ const handleStep3 = async (currentCaseId: string) => {
     </div>
   )}
 </section>
+<section className="border border-gray-700 rounded-2xl p-6 space-y-4">
+  <div className="flex items-center justify-between flex-wrap gap-3">
+    <h2 className="text-2xl font-semibold">Step7 - Pricing</h2>
+    <span className={`px-3 py-1 rounded-full text-sm ${getBadgeClasses(step7Status)}`}>
+      {getBadgeText(step7Status)}
+    </span>
+  </div>
+
+  {loadingStep7 && (
+    <p className="text-sm text-gray-400">
+      Step7 is running automatically...
+    </p>
+  )}
+
+  {step7Message && (
+    <div className={`rounded-lg p-3 text-sm ${getMessageBoxClasses(step7Status)}`}>
+      {step7Message}
+    </div>
+  )}
+
+  {step7Response?.summary && (
+    <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+      <div className="rounded-xl border border-gray-700 p-4 bg-zinc-900">
+        <p className="text-sm text-gray-400">Damages Count</p>
+        <p className="text-2xl font-bold mt-2">
+          {step7Response.summary.damages_count ?? "—"}
+        </p>
+      </div>
+
+      <div className="rounded-xl border border-gray-700 p-4 bg-zinc-900">
+        <p className="text-sm text-gray-400">Total Parts</p>
+        <p className="text-2xl font-bold mt-2">
+          {step7Response.summary.total_parts ?? "—"}
+        </p>
+      </div>
+
+      <div className="rounded-xl border border-gray-700 p-4 bg-zinc-900">
+        <p className="text-sm text-gray-400">Total Labor</p>
+        <p className="text-2xl font-bold mt-2">
+          {step7Response.summary.total_labor ?? "—"}
+        </p>
+      </div>
+
+      <div className="rounded-xl border border-gray-700 p-4 bg-zinc-900">
+        <p className="text-sm text-gray-400">Total Estimated Cost</p>
+        <p className="text-2xl font-bold mt-2">
+          {step7Response.summary.total_estimated_cost ?? "—"}
+        </p>
+      </div>
+
+      <div className="rounded-xl border border-gray-700 p-4 bg-zinc-900">
+        <p className="text-sm text-gray-400">Adjusted Cost</p>
+        <p className="text-2xl font-bold mt-2">
+          {step7Response.summary.adjusted_cost ?? "—"}
+        </p>
+      </div>
+
+      <div className="rounded-xl border border-gray-700 p-4 bg-zinc-900">
+        <p className="text-sm text-gray-400">Fault Percentage</p>
+        <p className="text-2xl font-bold mt-2">
+          {step7Response.summary.fault_percentage ?? "—"}
+        </p>
+      </div>
+    </div>
+  )}
+
+  {step7Response?.data?.rows?.length > 0 && (
+    <div className="space-y-4">
+      <h3 className="text-lg font-semibold">Pricing Details Per Damage</h3>
+
+      <div className="grid gap-4 md:grid-cols-2">
+        {step7Response.data.rows.map((row: any) => (
+          <div
+            key={row.damage_id}
+            className="rounded-2xl border border-gray-700 bg-zinc-900 p-4 space-y-3"
+          >
+            <div className="flex items-center justify-between gap-3">
+              <h4 className="text-lg font-semibold">
+                Damage #{row.damage_no ?? "—"}
+              </h4>
+              <span className="px-3 py-1 rounded-full bg-cyan-700/70 text-sm">
+                {row.part_name_ar || prettyLabel(row.part_name_en)}
+              </span>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3 text-sm">
+              <div>
+                <p className="text-gray-400">Damage Type</p>
+                <p className="font-medium">
+                  {row.damage_type_ar || prettyLabel(row.damage_type_en)}
+                </p>
+              </div>
+
+              <div>
+                <p className="text-gray-400">Severity</p>
+                <p className="font-medium">
+                  {row.severity_ar || prettyLabel(row.severity_en)}
+                </p>
+              </div>
+
+              <div>
+                <p className="text-gray-400">Part Price</p>
+                <p className="font-medium">{row.part_price ?? 0}</p>
+              </div>
+
+              <div>
+                <p className="text-gray-400">Labor Cost</p>
+                <p className="font-medium">{row.labor_cost ?? 0}</p>
+              </div>
+
+              <div>
+                <p className="text-gray-400">Subtotal Before Fault</p>
+                <p className="font-medium">{row.subtotal_before_fault ?? 0}</p>
+              </div>
+
+              <div>
+                <p className="text-gray-400">Subtotal After Fault</p>
+                <p className="font-medium">{row.subtotal_after_fault ?? 0}</p>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  )}
+</section>
+
+<section className="border border-gray-700 rounded-2xl p-6 space-y-4">
+  <div className="flex items-center justify-between flex-wrap gap-3">
+    <h2 className="text-2xl font-semibold">Step8 - Final Report</h2>
+    <span className={`px-3 py-1 rounded-full text-sm ${getBadgeClasses(step8Status)}`}>
+      {getBadgeText(step8Status)}
+    </span>
+  </div>
+
+  {loadingStep8 && (
+    <p className="text-sm text-gray-400">
+      Step8 is generating the final PDF report...
+    </p>
+  )}
+
+  {step8Message && (
+    <div className={`rounded-lg p-3 text-sm ${getMessageBoxClasses(step8Status)}`}>
+      {step8Message}
+    </div>
+  )}
+
+  {step8Response?.data && (
+    <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+      <div className="rounded-xl border border-gray-700 p-4 bg-zinc-900">
+        <p className="text-sm text-gray-400">Case ID</p>
+        <p className="mt-2 break-all text-sm font-medium">
+          {step8Response.data.case_id ?? "—"}
+        </p>
+      </div>
+
+      <div className="rounded-xl border border-gray-700 p-4 bg-zinc-900">
+        <p className="text-sm text-gray-400">Case Number</p>
+        <p className="mt-2 break-all text-sm font-medium">
+          {step8Response.data.case_number ?? "—"}
+        </p>
+      </div>
+    </div>
+  )}
+
+  {step8Response?.data?.report_path && (
+    <div className="rounded-xl border border-blue-700 bg-blue-900/20 p-4 space-y-3">
+
+      <div className="flex flex-wrap gap-3">
+        <a
+          href={`${BACKEND_URL}/${step8Response.data.report_path}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-block rounded-lg bg-blue-600 px-5 py-3 text-white hover:bg-blue-700"
+        >
+          Open Final PDF
+        </a>
+        <a
+          href={`${BACKEND_URL}/${step8Response.data.report_path}`}
+          download
+          className="inline-block rounded-lg bg-green-600 px-5 py-3 text-white hover:bg-green-700"
+        >
+          Download PDF
+        </a>
+      </div>
+    </div>
+  )}
+</section>
+
+
       </div>
     </main>
   );
