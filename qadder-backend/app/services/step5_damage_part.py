@@ -8,7 +8,7 @@ from PIL import Image
 
 
 # HuggingFace Space used for parts segmentation
-PARTS_SPACE = "Armandoliv/cars-parts-segmentation-resnet18"
+PARTS_SPACE = os.getenv("PART_SEGMENTATION_MODEL_API_URL", "QadderAI/car-parts-segmentation")
 
 
 # Class labels used in segmentation

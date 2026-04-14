@@ -42,7 +42,8 @@ ROBOFLOW_MODEL_ID = os.getenv("ROBOFLOW_MODEL_ID")
 ROBOFLOW_SERVERLESS_URL = os.getenv("ROBOFLOW_SERVERLESS_URL")
 
 # Hugging Face fallback Space
-PARTS_SPACE = "Armandoliv/cars-parts-segmentation-resnet18"
+PARTS_SPACE = os.getenv("PART_SEGMENTATION_MODEL_API_URL", "QadderAI/car-parts-segmentation")
+
 
 
 # ---------------------------------------------------

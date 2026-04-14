@@ -25,7 +25,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-STEP3_SEVERITY_API_URL = os.getenv("STEP3_SEVERITY_API_URL")
+STEP3_SEVERITY_API_URL = os.getenv("SEVERITY_API_URL")
 
 
 def predict_step3_severity(image_path: str, timeout: int = 60) -> dict[str, Any]:

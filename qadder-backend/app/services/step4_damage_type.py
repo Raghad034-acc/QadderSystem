@@ -25,7 +25,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-STEP4_DAMAGE_TYPE_API_URL = os.getenv("STEP4_DAMAGE_TYPE_API_URL")
+STEP4_DAMAGE_TYPE_API_URL = os.getenv("DAMAGE_TYPE_API_URL")
 
 
 def predict_step4_damage_type(image_path: str, timeout: int = 120) -> dict[str, Any]:

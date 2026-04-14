@@ -11,7 +11,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # HuggingFace / external API endpoint for Step6 severity model
-STEP6_DAMAGE_SEVERITY_API_URL = os.getenv("STEP6_DAMAGE_SEVERITY_API_URL")
+STEP6_DAMAGE_SEVERITY_API_URL = os.getenv("SEVERITY_API_URL")
 
 
 def predict_step6_damage_severity(crop_path: str, timeout: int = 60) -> dict[str, Any]:
