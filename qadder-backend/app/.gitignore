@@ -1,0 +1,8 @@
+# Python virtual environment
+.venv/
+__pycache__/
+
+# Environment variables 
+.env
+# Requirements file
+requirements.txt
