@@ -28,6 +28,9 @@ from app.api.routes.step6_damage_severity import router as step6_router
 from app.api.routes import step7_pricing
 from app.api.routes import step8_report
 
+from app.api.routes.step0_auth import router as auth_router
+from app.api.routes import vehicles
+
 # تحميل المتغيرات
 load_dotenv()
 
@@ -39,6 +42,9 @@ DB_NAME = os.getenv("DB_NAME")
 
 app = FastAPI(title="Qadder Backend")
 #hadeel added
+
+app.include_router(auth_router)
+
 app.include_router(step1_najm_router)
 app.include_router(step2_image_router)
 app.add_middleware(
@@ -56,6 +62,10 @@ app.include_router(step5_router)
 app.include_router(step6_router)
 app.include_router(step7_pricing.router)
 app.include_router(step8_report.router)
+
+app.include_router(vehicles.router)
+
+
 
 # ✅ عند تشغيل السيرفر
 @app.on_event("startup")

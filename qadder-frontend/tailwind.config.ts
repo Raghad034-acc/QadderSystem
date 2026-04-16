@@ -28,6 +28,7 @@ const config: Config = {
           warning: "#F9A825",
           error: "#D32F2F",
           info: "#0288D1",
+
         },
       },
 
