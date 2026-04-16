@@ -7,9 +7,9 @@ import { useRouter } from "next/navigation";
 const steps = ["بيانات الحساب", "البيانات الشخصية", "بيانات المركبة"];
 
 const vehicleOptions = [
-  { brand: "Hyundai", model: "Accent", year: "2013" },
-  { brand: "Hyundai", model: "Elantra", year: "2018" },
-  { brand: "Nissan", model: "Sunny", year: "2020" },
+  { brand: "هونداي", model: "اكسنت", year: "2013" },
+  { brand: "هونداي", model: "النترا", year: "2018" },
+  { brand: "نيسان", model: "صني", year: "2020" },
 ];
 
 const nationalityOptions = [
@@ -30,6 +30,7 @@ const colorOptions = [
   "أسود",
   "فضي",
   "رمادي",
+  "برونزي",
   "أزرق",
   "أحمر",
   "ذهبي",
@@ -176,6 +177,10 @@ export default function RegisterPage() {
         setError("كلمة المرور وتأكيدها غير متطابقين");
         return;
       }
+      if (form.password.length < 6) {
+  setError("كلمة المرور يجب أن تكون 6 أحرف أو أكثر");
+  return;
+}
     }
 
     if (currentStep === 1) {
@@ -203,6 +208,7 @@ export default function RegisterPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
 
     if (currentStep !== 2) return;
 
@@ -260,7 +266,7 @@ export default function RegisterPage() {
         color: form.color,
         plate_number: `${form.plate_letter_1} ${form.plate_letter_2} ${form.plate_letter_3} ${form.plate_numbers}`,
       };
-
+console.log("payload:", payload);
       const res = await fetch("http://127.0.0.1:8000/auth/register", {
         method: "POST",
         headers: {
@@ -275,7 +281,7 @@ export default function RegisterPage() {
         throw new Error(data.detail || "فشل إنشاء الحساب");
       }
 
-      router.push("/login");
+      router.push("/verify-phone");
     } catch (err: unknown) {
       if (err instanceof Error) {
         setError(err.message);

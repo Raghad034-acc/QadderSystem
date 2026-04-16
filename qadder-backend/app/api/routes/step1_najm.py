@@ -18,6 +18,7 @@ Flow
 
 from __future__ import annotations
 import re
+import unicodedata
 # Standard library
 import os
 import shutil
@@ -60,6 +61,62 @@ UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 def generate_case_number() -> str:
     return f"CASE-{uuid4().hex[:10].upper()}"
 
+def normalize_arabic_text(value: str) -> str:
+    if not value:
+        return ""
+
+    value = unicodedata.normalize("NFKC", value)
+    value = value.strip().lower()
+
+    replacements = {
+        "أ": "ا",
+        "إ": "ا",
+        "آ": "ا",
+        "ى": "ي",
+        "ؤ": "و",
+        "ئ": "ي",
+        "ة": "ه",
+    }
+
+    for old, new in replacements.items():
+        value = value.replace(old, new)
+
+    value = " ".join(value.split())
+    return value
+
+
+def normalize_brand(value: str) -> str:
+    value = normalize_arabic_text(value)
+
+    mapping = {
+        "هيونداي": "hyundai",
+        "هونداي": "hyundai",
+        "hyundai": "hyundai",
+
+        "نيسان": "nissan",
+        "nissan": "nissan",
+    }
+
+    return mapping.get(value, value)
+
+
+def normalize_model(value: str) -> str:
+    value = normalize_arabic_text(value)
+
+    mapping = {
+        "اكسنت": "accent",
+        "accent": "accent",
+
+        "النترا": "elantra",
+        "الينترا": "elantra",
+        "النترا": "elantra",
+        "elantra": "elantra",
+
+        "صني": "sunny",
+        "sunny": "sunny",
+    }
+
+    return mapping.get(value, value)
 
 # ---------------------------------------------------
 # Upload Najm Report Endpoint
@@ -180,12 +237,12 @@ def upload_najm_report(
                 == (user.nationality or "").strip().lower()
             ),
             "vehicle_brand_match": (
-                (najm_record["vehicle_brand"] or "").strip().lower()
-                == (vehicle.brand or "").strip().lower()
+            normalize_brand(najm_record["vehicle_brand"])
+            == normalize_brand(vehicle.brand)
             ),
             "vehicle_model_match": (
-                (najm_record["vehicle_model"] or "").strip().lower()
-                == (vehicle.model or "").strip().lower()
+                normalize_model(najm_record["vehicle_model"])
+                == normalize_model(vehicle.model)
             ),
             "vehicle_year_match": (
                 najm_record["vehicle_year"] == vehicle.year

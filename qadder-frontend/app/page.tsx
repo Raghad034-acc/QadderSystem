@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import CountUp from "react-countup";
 import Link from "next/link";
+import AppNavbar from "@/components/AppNavbar";
 
 type StoredUser = {
   first_name?: string;
@@ -50,66 +51,13 @@ export default function HomePage() {
     window.location.reload();
   };
   if (user) {
-    return (
-      <main className="min-h-screen bg-qadder-background text-qadder-dark">
-        <header className="sticky top-0 z-50 border-b border-qadder-border/30 bg-white/90 backdrop-blur">
-          <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
-            <div className="flex items-center gap-1">
-              <img
-                src="/images/logo.png"
-                alt="شعار قدر"
-                className="h-11 w-auto"
-              />
-            </div>
-
-            <button
-              onClick={() => setMenuOpen(true)}
-              className="flex flex-col gap-1"
-            >
-              <span className="block h-0.5 w-6 bg-qadder-dark"></span>
-              <span className="block h-0.5 w-6 bg-qadder-dark"></span>
-              <span className="block h-0.5 w-6 bg-qadder-dark"></span>
-            </button>
-
-          </div>
-        </header>
-        {menuOpen && (
-          <div className="fixed inset-0 z-50 bg-black/40">
-
-            {/* Menu Panel */}
-            <div className="absolute right-0 top-0 h-full w-64 bg-white p-6 shadow-xl">
-
-              {/* Close Button */}
-              <button
-                onClick={() => setMenuOpen(false)}
-                className="mb-6 text-xl"
-              >
-                ✕
-              </button>
-
-              {/* Links */}
-              <div className="flex flex-col gap-4 text-right">
-                <a href="/" className="text-qadder-dark font-medium">الرئيسية</a>
-                <a href="/about" className="text-qadder-dark font-medium">حسابي</a>
-                <a href="/vehicles" className="text-qadder-dark font-medium">مركباتي</a>
-                <a href="/about" className="text-qadder-dark font-medium">عن قدر</a>
-                <a
-                  href="#contact"
-                  onClick={() => setMenuOpen(false)}
-                  className="text-qadder-dark font-medium"
-                >
-                  تواصل معنا
-                </a>
-                <button
-                  onClick={handleLogout}
-                  className="mt-4 block rounded-xl bg-qadder-logout py-3 text-center text-white"
-                >
-                  تسجيل الخروج
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
+  return (
+    <main className="min-h-screen bg-qadder-background text-qadder-dark" >
+      <AppNavbar
+        isLoggedIn={true}
+        handleLogout={handleLogout}
+        contactHref="#contact"
+      />
 
         <section className="relative overflow-hidden">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(173,200,147,0.18),_transparent_35%),radial-gradient(circle_at_top_right,_rgba(39,75,44,0.08),_transparent_30%)]" />
@@ -143,7 +91,7 @@ export default function HomePage() {
               مما يساعدك على تقليل الجهد والحصول على تقدير إصلاح أكثر وضوحًا واتساقًا.
             </p>
 
-            <a href="/">
+            <a href="/upload-report">
               <button className="mt-6 rounded-2xl bg-qadder-primary px-7 py-4 text-sm font-semibold text-white shadow-lg shadow-qadder-primary/20 transition hover:bg-qadder-dark">          ابدأ التقدير الآن
               </button>
             </a>
@@ -409,63 +357,12 @@ export default function HomePage() {
 
 
   return (
-    <main className="min-h-screen bg-qadder-background text-qadder-dark">
-      <header className="sticky top-0 z-50 border-b border-qadder-border/30 bg-white/90 backdrop-blur">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
-          <div className="flex items-center gap-1">
-            <img
-              src="/images/logo.png"
-              alt="شعار قدر"
-              className="h-11 w-auto"
-            />
-          </div>
 
-          <button
-            onClick={() => setMenuOpen(true)}
-            className="flex flex-col gap-1"
-          >
-            <span className="block h-0.5 w-6 bg-qadder-dark"></span>
-            <span className="block h-0.5 w-6 bg-qadder-dark"></span>
-            <span className="block h-0.5 w-6 bg-qadder-dark"></span>
-          </button>
-
-        </div>
-      </header>
-      {menuOpen && (
-        <div className="fixed inset-0 z-50 bg-black/40">
-
-          {/* Menu Panel */}
-          <div className="absolute right-0 top-0 h-full w-64 bg-white p-6 shadow-xl">
-
-            {/* Close Button */}
-            <button
-              onClick={() => setMenuOpen(false)}
-              className="mb-6 text-xl"
-            >
-              ✕
-            </button>
-
-            {/* Links */}
-            <div className="flex flex-col gap-4 text-right">
-              <a href="/" className="text-qadder-dark font-medium">الرئيسية</a>
-              <a href="/" className="text-qadder-dark font-medium">عن قدر</a>
-              <a
-                href="#contact"
-                onClick={() => setMenuOpen(false)}
-                className="text-qadder-dark font-medium"
-              >
-                تواصل معنا
-              </a>
-              <a
-                href="/login"
-                className="mt-4 block rounded-xl bg-qadder-primary py-3 text-center text-white"
-              >
-                تسجيل الدخول
-              </a>
-            </div>
-          </div>
-        </div>
-      )}
+  <main className="min-h-screen bg-qadder-background text-qadder-dark">
+    <AppNavbar
+      isLoggedIn={false}
+      contactHref="#contact"
+    />
 
       <section className="relative overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(173,200,147,0.18),_transparent_35%),radial-gradient(circle_at_top_right,_rgba(39,75,44,0.08),_transparent_30%)]" />

@@ -186,12 +186,14 @@ export default function AddVehiclePage() {
       setTimeout(() => {
         window.location.href = "/vehicles";
       }, 1200);
-    } catch (err: any) {
-      console.error(err);
-      setError(err.message || "حدث خطأ أثناء إضافة المركبة");
-    } finally {
-      setSaving(false);
-    }
+    } catch (err: unknown) {
+  console.error(err);
+  if (err instanceof Error) {
+    setError(err.message);
+  } else {
+    setError("حدث خطأ أثناء إضافة المركبة");
+  }
+}
   };
 
   if (pageLoading) {

@@ -30,6 +30,8 @@ from app.api.routes import step8_report
 
 from app.api.routes.step0_auth import router as auth_router
 from app.api.routes import vehicles
+from app.api.routes.account import router as account_router
+
 
 # تحميل المتغيرات
 load_dotenv()
@@ -64,7 +66,7 @@ app.include_router(step7_pricing.router)
 app.include_router(step8_report.router)
 
 app.include_router(vehicles.router)
-
+app.include_router(account_router)
 
 
 # ✅ عند تشغيل السيرفر

@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import AppNavbar from "@/components/AppNavbar";
 
 type User = {
     auth_account_id?: string;
@@ -118,62 +119,10 @@ export default function VehiclesPage() {
     return (
         <main className="min-h-screen bg-qadder-background text-qadder-dark">
             {/* Header */}
-            <header className="sticky top-0 z-50 border-b border-qadder-border/30 bg-white/90 backdrop-blur">
-                <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
-                    <div className="flex items-center gap-3">
-                        <img
-                            src="/images/logo.png"
-                            alt="شعار قدر"
-                            className="h-11 w-auto"
-                        />
-                    </div>
-
-                    <button
-                        onClick={() => setMenuOpen(true)}
-                        className="flex flex-col gap-1"
-                    >
-                        <span className="block h-0.5 w-6 bg-qadder-dark"></span>
-                        <span className="block h-0.5 w-6 bg-qadder-dark"></span>
-                        <span className="block h-0.5 w-6 bg-qadder-dark"></span>
-                    </button>
-                </div>
-            </header>
-
-            {/* Side Menu */}
-            {menuOpen && (
-                <div className="fixed inset-0 z-50 bg-black/40">
-                    <div className="absolute right-0 top-0 h-full w-72 bg-white p-6 shadow-xl">
-                        <button
-                            onClick={() => setMenuOpen(false)}
-                            className="mb-6 text-xl"
-                        >
-                            ✕
-                        </button>
-
-                        <div className="flex flex-col gap-4 text-right">
-                            <a href="/" className="font-medium text-qadder-dark">
-                                الرئيسية
-                            </a>
-                            <a href="/account" className="font-medium text-qadder-dark">
-                                حسابي
-                            </a>
-                            <a href="/vehicles" className="font-medium text-qadder-dark">
-                                مركباتي
-                            </a>
-                            <a href="/about" className="font-medium text-qadder-dark">
-                                عن قدر
-                            </a>
-
-                            <button
-                                onClick={handleLogout}
-                                className="mt-4 block rounded-xl bg-qadder-logout py-3 text-center text-white"
-                            >
-                                تسجيل الخروج
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
+         <AppNavbar
+  isLoggedIn={true}
+  handleLogout={handleLogout}
+/>
 
             {/* Hero */}
             <section className="relative overflow-hidden border-b border-qadder-border/20">
