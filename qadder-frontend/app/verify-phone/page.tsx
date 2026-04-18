@@ -125,13 +125,6 @@ export default function VerifyPhonePage() {
                   {loading ? "جاري التحقق..." : "تأكيد"}
                 </button>
 
-                <button
-                  type="button"
-                  onClick={() => router.push("/login")}
-                  className="w-full rounded-2xl border border-qadder-border px-7 py-4 text-sm font-semibold text-qadder-dark transition hover:bg-qadder-light"
-                >
-                  الذهاب إلى تسجيل الدخول
-                </button>
               </form>
             </div>
           </div>
