@@ -72,6 +72,34 @@ export default function AppNavbar({
                 </>
               ) : null}
 
+              {isLoggedIn ? (
+                <>
+                  <Link
+                    href="/vehicles"
+                    onClick={() => setMenuOpen(false)}
+                    className="text-qadder-dark font-medium"
+                  >
+                    مركباتي
+                  </Link>
+
+                 
+                </>
+              ) : null}
+
+              {isLoggedIn ? (
+                <>
+                  <Link
+                    href="/reports"
+                    onClick={() => setMenuOpen(false)}
+                    className="text-qadder-dark font-medium"
+                  >
+                    تقاريري
+                  </Link>
+
+                 
+                </>
+              ) : null}
+
               <Link
                 href="/about"
                 onClick={() => setMenuOpen(false)}

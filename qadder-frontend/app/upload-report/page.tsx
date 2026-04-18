@@ -3,6 +3,9 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import AppNavbar from "@/components/AppNavbar";
+import PageLoader from "@/components/PageLoader";
+import ContactUs from "@/components/ContactUs";
+
 import Link from "next/link";
 
 type StoredUser = {
@@ -188,14 +191,14 @@ export default function UploadReportPage() {
     }
   };
 
+
   if (pageLoading) {
     return (
       <main className="min-h-screen bg-qadder-background text-qadder-dark">
         <AppNavbar isLoggedIn={true} handleLogout={handleLogout} />
-        <section className="mx-auto max-w-5xl px-6 py-16" dir="rtl">
-          <div className="rounded-[28px] border border-qadder-border/20 bg-white p-12 text-center shadow-sm">
-            جاري تحميل الصفحة...
-          </div>
+
+        <section className="mx-auto max-w-7xl px-6 py-16">
+          <PageLoader text="   جاري تحميل الصفحة..." />
         </section>
       </main>
     );
@@ -218,7 +221,7 @@ export default function UploadReportPage() {
         <div className="relative mx-auto max-w-6xl px-6 py-12 md:py-16">
           <div className="max-w-4xl text-right">
             <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-qadder-border bg-qadder-light px-4 py-2 text-sm font-semibold text-qadder-primary shadow-sm">
-                   <span>الخطوة الأولى</span>
+              <span>الخطوة الأولى</span>
             </div>
 
             <h1 className="text-3xl font-extrabold leading-tight md:text-5xl">
@@ -240,24 +243,22 @@ export default function UploadReportPage() {
                 return (
                   <div key={step} className="flex flex-1 items-center gap-3">
                     <div
-                      className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-sm font-bold ${
-                        done
-                          ? "bg-qadder-primary text-white"
-                          : active
+                      className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-sm font-bold ${done
+                        ? "bg-qadder-primary text-white"
+                        : active
                           ? "border border-qadder-border bg-white text-qadder-primary"
                           : "bg-white text-qadder-dark/50"
-                      }`}
+                        }`}
                     >
                       {index + 1}
                     </div>
 
                     <div className="min-w-[120px]">
                       <p
-                        className={`text-sm font-semibold ${
-                          active || done
-                            ? "text-qadder-dark"
-                            : "text-qadder-dark/45"
-                        }`}
+                        className={`text-sm font-semibold ${active || done
+                          ? "text-qadder-dark"
+                          : "text-qadder-dark/45"
+                          }`}
                       >
                         {step}
                       </p>
@@ -275,7 +276,7 @@ export default function UploadReportPage() {
       </section>
 
       <section className="mx-auto max-w-5xl px-6 py-10" dir="rtl">
-    
+
 
         <div className="grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
           <div className="rounded-[28px] border border-qadder-border/20 bg-white p-6 shadow-sm md:p-8">
@@ -360,51 +361,47 @@ export default function UploadReportPage() {
             className="rounded-[28px] border border-qadder-border/20 bg-white p-6 shadow-sm md:p-8"
             dir="rtl"
           >
-            <h2 className="mb-4 text-right text-xl font-bold">قبل رفع التقرير</h2>
+            <h2 className="mb-8 text-center text-xl font-bold text-qadder-dark">
+              ملاحظات قبل الرفع
+            </h2>
 
-            <div className="space-y-4 text-right">
-              <div className="rounded-2xl bg-qadder-background/50 p-4">
-                <p className="text-sm font-semibold text-qadder-dark">
-                  1. اختر المركبة الصحيحة
-                </p>
-                <p className="mt-2 text-sm leading-7 text-qadder-dark/65">
+            <div className="grid gap-6 md:grid-cols-3">
+
+              {/* Step 1 */}
+              <div className="rounded-3xl border border-qadder-border/20 bg-white p-6 text-center transition hover:-translate-y-1 hover:shadow-md">
+                <h3 className="text-lg font-bold text-qadder-dark">
+                  1. اختر المركبة
+                </h3>
+                <p className="mt-3 text-sm leading-6 text-qadder-dark/60">
                   تأكد أن المركبة المختارة هي نفس المركبة المذكورة في تقرير نجم.
                 </p>
               </div>
 
-              <div className="rounded-2xl bg-qadder-background/50 p-4">
-                <p className="text-sm font-semibold text-qadder-dark">
-                  2. ارفع التقرير بصيغة PDF
-                </p>
-                <p className="mt-2 text-sm leading-7 text-qadder-dark/65">
-                  النظام لن يقبل أي صيغة أخرى غير PDF.
+              {/* Step 2 */}
+              <div className="rounded-3xl border border-qadder-border/20 bg-white p-6 text-center transition hover:-translate-y-1 hover:shadow-md">
+                <h3 className="text-lg font-bold text-qadder-dark">
+                  2. رفع التقرير
+                </h3>
+                <p className="mt-3 text-sm leading-6 text-qadder-dark/60">
+                  النظام يقبل فقط الملفات بصيغة PDF.
                 </p>
               </div>
 
-              <div className="rounded-2xl bg-qadder-background/50 p-4">
-                <p className="text-sm font-semibold text-qadder-dark">
-                  3. ستتم المطابقة تلقائيًا
-                </p>
-                <p className="mt-2 text-sm leading-7 text-qadder-dark/65">
-                  سيتم مقارنة بيانات التقرير مع بيانات حسابك والمركبة قبل
-                  الانتقال للخطوة التالية.
+              {/* Step 3 */}
+              <div className="rounded-3xl border border-qadder-border/20 bg-white p-6 text-center transition hover:-translate-y-1 hover:shadow-md">
+                <h3 className="text-lg font-bold text-qadder-dark">
+                  3. المطابقة التلقائية
+                </h3>
+                <p className="mt-3 text-sm leading-6 text-qadder-dark/60">
+                  سيتم التحقق من بيانات التقرير ومقارنتها مع حسابك والمركبة.
                 </p>
               </div>
+
             </div>
-
-            {vehicles.length > 0 && (
-              <div className="mt-6 rounded-2xl border border-qadder-border/20 bg-qadder-light/40 p-4 text-right">
-                <p className="text-sm font-semibold text-qadder-dark">
-                  المركبات المتوفرة حاليًا
-                </p>
-                <p className="mt-2 text-sm text-qadder-dark/70">
-                  لديك {vehicles.length} مركبة مسجلة في النظام.
-                </p>
-              </div>
-            )}
           </div>
         </div>
       </section>
+      <ContactUs/>
 
 
     </main>

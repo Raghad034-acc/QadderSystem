@@ -1,6 +1,11 @@
 "use client";
 
 import React, { useEffect, useMemo, useState } from "react";
+import AppNavbar from "@/components/AppNavbar";
+import PageLoader from "@/components/PageLoader";
+import ContactUs from "@/components/ContactUs";
+
+
 
 type User = {
   auth_account_id?: string;
@@ -10,9 +15,9 @@ type User = {
 };
 
 const vehicleOptions = [
-  { brand: "Hyundai", model: "Accent", year: "2013" },
-  { brand: "Hyundai", model: "Elantra", year: "2018" },
-  { brand: "Nissan", model: "Sunny", year: "2020" },
+  { brand: "هونداي", model: "اكسنت", year: "2013" },
+  { brand: "هونداي", model: "النترا", year: "2018" },
+  { brand: "نيسان", model: "صني", year: "2020" },
 ];
 
 const colorOptions = [
@@ -187,27 +192,34 @@ export default function AddVehiclePage() {
         window.location.href = "/vehicles";
       }, 1200);
     } catch (err: unknown) {
-  console.error(err);
-  if (err instanceof Error) {
-    setError(err.message);
-  } else {
-    setError("حدث خطأ أثناء إضافة المركبة");
-  }
-}
+      console.error(err);
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError("حدث خطأ أثناء إضافة المركبة");
+      }
+    }
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem("user");
+    window.location.href = "/";
+  };
   if (pageLoading) {
     return (
       <main className="min-h-screen bg-qadder-background px-6 py-16">
-        <div className="mx-auto max-w-3xl rounded-[28px] border border-qadder-border/20 bg-white p-10 text-center shadow-sm">
-          جاري تحميل الصفحة...
+        <div className="mx-auto max-w-3xl">
+          <PageLoader text="جاري تحميل الصفحة..." />
         </div>
       </main>
     );
   }
 
+
   return (
     <main className="min-h-screen bg-qadder-background text-qadder-dark">
+      <AppNavbar isLoggedIn={true} handleLogout={handleLogout} />
+
       <section className="relative overflow-hidden border-b border-qadder-border/20">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(173,200,147,0.18),_transparent_35%),radial-gradient(circle_at_top_right,_rgba(39,75,44,0.08),_transparent_30%)]" />
 
@@ -215,7 +227,7 @@ export default function AddVehiclePage() {
 
           <div className="text-right">
             <h1 className="text-3xl font-extrabold leading-tight md:text-5xl">
-              أضف مركبتك
+              اضافة مركبة جديدة
             </h1>
 
             <p className="mt-4 max-w-2xl text-base leading-8 text-qadder-dark/70 md:text-lg">
@@ -411,6 +423,8 @@ export default function AddVehiclePage() {
           </form>
         </div>
       </section>
+      <ContactUs />
+
     </main>
   );
 }

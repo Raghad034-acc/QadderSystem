@@ -3,6 +3,9 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import AppNavbar from "@/components/AppNavbar";
+import PageLoader from "@/components/PageLoader";
+import ContactUs from "@/components/ContactUs";
+
 import Link from "next/link";
 
 type NajmReportData = {
@@ -124,10 +127,9 @@ export default function ReportReviewPage() {
     return (
       <main className="min-h-screen bg-qadder-background text-qadder-dark">
         <AppNavbar isLoggedIn={true} handleLogout={handleLogout} />
-        <section className="mx-auto max-w-5xl px-6 py-16" dir="rtl">
-          <div className="rounded-[28px] border border-qadder-border/20 bg-white p-12 text-center shadow-sm">
-            جاري تحميل بيانات التقرير...
-          </div>
+
+        <section className="mx-auto max-w-7xl px-6 py-16">
+          <PageLoader text="  جاري تحميل بيانات التقرير..." />
         </section>
       </main>
     );
@@ -173,10 +175,6 @@ export default function ReportReviewPage() {
 
         <div className="relative mx-auto max-w-6xl px-6 py-12 md:py-16">
           <div className="max-w-4xl text-right">
-            <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-qadder-border bg-qadder-light px-4 py-2 text-sm font-semibold text-qadder-primary shadow-sm">
-           
-              <span>مراجعة التقرير</span>
-            </div>
 
             <h1 className="text-3xl font-extrabold leading-tight md:text-5xl">
               مراجعة بيانات تقرير نجم
@@ -197,24 +195,22 @@ export default function ReportReviewPage() {
                 return (
                   <div key={step} className="flex flex-1 items-center gap-3">
                     <div
-                      className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-sm font-bold ${
-                        done
-                          ? "bg-qadder-primary text-white"
-                          : active
+                      className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-sm font-bold ${done
+                        ? "bg-qadder-primary text-white"
+                        : active
                           ? "border border-qadder-border bg-white text-qadder-primary"
                           : "bg-white text-qadder-dark/50"
-                      }`}
+                        }`}
                     >
                       {index + 1}
                     </div>
 
                     <div className="min-w-[120px]">
                       <p
-                        className={`text-sm font-semibold ${
-                          active || done
-                            ? "text-qadder-dark"
-                            : "text-qadder-dark/45"
-                        }`}
+                        className={`text-sm font-semibold ${active || done
+                          ? "text-qadder-dark"
+                          : "text-qadder-dark/45"
+                          }`}
                       >
                         {step}
                       </p>
@@ -222,9 +218,8 @@ export default function ReportReviewPage() {
 
                     {index < steps.length - 1 && (
                       <div
-                        className={`h-[2px] flex-1 ${
-                          done ? "bg-qadder-primary/40" : "bg-qadder-border/40"
-                        }`}
+                        className={`h-[2px] flex-1 ${done ? "bg-qadder-primary/40" : "bg-qadder-border/40"
+                          }`}
                       />
                     )}
                   </div>
@@ -237,15 +232,15 @@ export default function ReportReviewPage() {
 
       <section className="mx-auto max-w-6xl px-6 py-10" dir="rtl">
         <div className="mb-6 flex flex-wrap gap-3">
-    
 
-   
+
+
         </div>
 
         <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
           <div className="rounded-[28px] border border-qadder-border/20 bg-white p-6 shadow-sm md:p-8">
             <div className="mb-6 flex items-center justify-between">
-             
+
 
               <h2 className="text-right text-2xl font-bold text-qadder-dark">
                 بيانات التقرير المستخرجة
@@ -279,7 +274,7 @@ export default function ReportReviewPage() {
                 label="نسبة الخطأ"
                 value={
                   step1Data.najm_report?.fault_percentage !== null &&
-                  step1Data.najm_report?.fault_percentage !== undefined
+                    step1Data.najm_report?.fault_percentage !== undefined
                     ? `${step1Data.najm_report.fault_percentage}%`
                     : "غير متوفرة"
                 }
@@ -383,24 +378,14 @@ export default function ReportReviewPage() {
                   التالي: رفع الصور
                 </button>
 
-                
+
               </div>
             </div>
           </div>
         </div>
       </section>
+      <ContactUs />
 
-      <section id="contact" className="bg-qadder-primary py-16 text-white" dir="rtl">
-        <div className="mx-auto max-w-6xl px-6 text-center">
-          <h3 className="text-2xl font-bold md:text-3xl">تواصل معنا</h3>
-          <p className="mt-4 text-white/80">
-            📧{" "}
-            <a href="mailto:support@qadder.com" className="hover:text-white">
-              support@qadder.com
-            </a>
-          </p>
-        </div>
-      </section>
     </main>
   );
 }
@@ -428,10 +413,10 @@ function ValidationRow({
     "border-qadder-border/20 bg-qadder-background/40 text-qadder-dark/70";
 
   if (matched === true) {
-    statusText = "مطابق";
+    statusText = "✔️";
     statusClass = "border-green-200 bg-green-50 text-green-700";
   } else if (matched === false) {
-    statusText = "غير مطابق";
+    statusText = "❌";
     statusClass = "border-red-200 bg-red-50 text-red-700";
   }
 

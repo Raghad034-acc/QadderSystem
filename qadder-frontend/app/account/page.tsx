@@ -3,6 +3,9 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import AppNavbar from "@/components/AppNavbar";
+import PageLoader from "@/components/PageLoader";
+import ContactUs from "@/components/ContactUs";
+
 
 type Vehicle = {
   id: string;
@@ -76,8 +79,8 @@ export default function AccountPage() {
         }
 
         setUser(data);
-      }  catch (err: unknown) {
-  setError(err instanceof Error ? err.message : "حدث خطأ أثناء تحميل الحساب");
+      } catch (err: unknown) {
+        setError(err instanceof Error ? err.message : "حدث خطأ أثناء تحميل الحساب");
       } finally {
         setLoading(false);
       }
@@ -102,10 +105,9 @@ export default function AccountPage() {
     return (
       <main className="min-h-screen bg-qadder-background text-qadder-dark">
         <AppNavbar isLoggedIn={true} handleLogout={handleLogout} />
+
         <section className="mx-auto max-w-7xl px-6 py-16">
-          <div className="rounded-[28px] border border-qadder-border/20 bg-white p-12 text-center shadow-sm">
-            جاري تحميل الحساب...
-          </div>
+          <PageLoader text="جاري تحميل الحساب..." />
         </section>
       </main>
     );
@@ -129,7 +131,7 @@ export default function AccountPage() {
   return (
     <main
       className="min-h-screen bg-qadder-background text-qadder-dark"
-  
+
     >
       <AppNavbar
         isLoggedIn={true}
@@ -144,17 +146,26 @@ export default function AccountPage() {
             حسابي
           </h1>
           <p className="mt-4 text-base leading-8 text-qadder-dark/70 md:text-lg">
-            هنا تجد جميع بياناتك الشخصية، مركباتك المسجلة، والتقارير السابقة.
-          </p>
+            هنا يمكنك استعراض جميع بياناتك الشخصية وتحديثها بكل سهولة         </p>
         </div>
       </section>
 
       <section className="mx-auto max-w-7xl px-6 py-10">
         <div className="grid gap-6 lg:grid-cols-2">
           <div className="rounded-[28px] border border-qadder-border/20 bg-white p-6 shadow-sm">
-            <h2 className="mb-6 text-right text-2xl font-bold">
-              البيانات الشخصية
-            </h2>
+            <div className="mb-6 flex flex-row-reverse items-center justify-between">
+              <h2 className="text-2xl font-bold text-qadder-dark">
+                البيانات الشخصية
+              </h2>
+
+              <button
+                type="button"
+                className="flex items-center gap-2 rounded-full bg-qadder-primary px-5 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-qadder-primary hover:text-white"
+              >
+                ✏️ تعديل
+              </button>
+            </div>
+
 
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <InfoCard label="الاسم الكامل" value={fullName || "غير متوفر"} />
@@ -180,139 +191,11 @@ export default function AccountPage() {
               />
             </div>
           </div>
-
-          <div className="grid gap-6">
-            <div className="rounded-[28px] border border-qadder-border/20 bg-white p-6 shadow-sm">
-              <h2 className="mb-6 text-right text-2xl font-bold">
-                ملخص الحساب
-              </h2>
-
-              <div className="grid grid-cols-2 gap-4">
-                <SummaryCard
-                  label="عدد المركبات"
-                  value={user.vehicles?.length || 0}
-                />
-                <SummaryCard
-                  label="عدد التقارير"
-                  value={user.reports_count || 0}
-                />
-              </div>
-            </div>
-
-            <div className="rounded-[28px] border border-qadder-border/30 bg-white p-6 shadow-[0_20px_60px_rgba(16,47,21,0.08)]">
-              <h2 className="mb-4 text-right text-xl font-bold">
-                إجراءات سريعة
-              </h2>
-
-              <div className="grid gap-3">
-                <Link
-                  href="/vehicles"
-                  className="rounded-2xl bg-qadder-primary px-5 py-3 text-center font-semibold text-white transition hover:bg-qadder-dark"
-                >
-                  عرض مركباتي
-                </Link>
-
-           
-
-                <button
-                  type="button"
-                  className="rounded-2xl border border-qadder-border px-5 py-3 text-center font-semibold text-qadder-dark transition hover:bg-qadder-light"
-                >
-                  تعديل معلومات الحساب
-                </button>
-
-               
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="mt-8 rounded-[28px] border border-qadder-border/20 bg-white p-6 shadow-sm">
-          <div className="mb-6 flex items-center justify-between">
-            <span className="rounded-full bg-qadder-light px-4 py-2 text-sm font-semibold text-qadder-primary">
-              {user.vehicles?.length || 0} عدد المركبات
-            </span>
-
-            <h2 className="text-right text-2xl font-bold text-qadder-dark">
-              المركبات المسجلة
-            </h2>
-          </div>
-
-          {user.vehicles?.length === 0 ? (
-            <div className="rounded-[28px] border border-dashed border-qadder-border bg-qadder-background/40 p-10 text-center">
-              لا توجد مركبات مسجلة
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 gap-6">
-              {user.vehicles.map((vehicle) => (
-                <div
-                  key={vehicle.id}
-                  className="rounded-[28px] border border-qadder-border/20 bg-qadder-background/40 p-5"
-                >
-                  <div className="text-right">
-                    <h3 className="text-xl font-bold text-qadder-dark">
-                      {vehicle.brand} {vehicle.model}
-                    </h3>
-                    <p className="mt-2 text-sm font-semibold text-qadder-primary">
-                      رقم اللوحة: {vehicle.plate_number}
-                    </p>
-                    <p className="mt-2 text-sm text-qadder-dark/70">
-                      السنة: {vehicle.year} — اللون:{" "}
-                      {vehicle.color || "غير محدد"}
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-
-        <div className="mt-8 rounded-[28px] border border-qadder-border/20 bg-white p-6 shadow-sm">
-          <div className="mb-6 flex items-center justify-between">
-            <span className="rounded-full bg-qadder-light px-4 py-2 text-sm font-semibold text-qadder-primary">
-              {user.reports_count || 0} تقرير
-            </span>
-
-            <h2 className="text-right text-2xl font-bold text-qadder-dark">
-              التقارير السابقة
-            </h2>
-          </div>
-
-          {user.reports?.length === 0 ? (
-            <div className="rounded-[28px] border border-dashed border-qadder-border bg-qadder-background/40 p-10 text-center">
-              لا توجد تقارير حتى الآن
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 gap-4">
-              {user.reports.map((report) => (
-                <div
-                  key={report.id}
-                  className="rounded-2xl border border-qadder-border/20 bg-qadder-background/40 p-5 text-right"
-                >
-                  <p className="font-bold text-qadder-dark">
-                    رقم الحالة: {report.case_number || "غير متوفر"}
-                  </p>
-                  <p className="mt-2 text-sm text-qadder-dark/70">
-                    الحالة: {report.status || "غير محددة"}
-                  </p>
-                </div>
-              ))}
-            </div>
-          )}
         </div>
       </section>
 
-      <section id="contact" className="bg-qadder-primary py-16 text-white">
-        <div className="mx-auto max-w-6xl px-6 text-center">
-          <h3 className="text-2xl font-bold md:text-3xl">تواصل معنا</h3>
-          <p className="mt-4 text-white/80">
-            📧{" "}
-            <a href="mailto:support@qadder.com" className="hover:text-white">
-              support@qadder.com
-            </a>
-          </p>
-        </div>
-      </section>
+      <ContactUs />
+
     </main>
   );
 }
@@ -322,15 +205,6 @@ function InfoCard({ label, value }: { label: string; value: string }) {
     <div className="rounded-2xl bg-qadder-background/50 p-4 text-right">
       <p className="text-xs font-semibold text-qadder-dark/50">{label}</p>
       <p className="mt-2 text-sm font-bold text-qadder-dark">{value}</p>
-    </div>
-  );
-}
-
-function SummaryCard({ label, value }: { label: string; value: number }) {
-  return (
-    <div className="rounded-2xl bg-qadder-background/50 p-6 text-center">
-      <p className="text-3xl font-extrabold text-qadder-primary">{value}</p>
-      <p className="mt-2 text-sm font-semibold text-qadder-dark/70">{label}</p>
     </div>
   );
 }

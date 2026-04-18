@@ -178,7 +178,7 @@ export default function RegisterPage() {
         return;
       }
       if (form.password.length < 6) {
-  setError("كلمة المرور يجب أن تكون 6 أحرف أو أكثر");
+  setError("كلمة المرور يجب أن تكون 6 خانات أو أكثر");
   return;
 }
     }
