@@ -91,7 +91,10 @@ export default function ReportReviewPage() {
       setLoading(false);
     }
   }, []);
-
+  /////////////////////////////////
+  const caseId = step1Data?.case_id;
+  const damageSide = step1Data?.najm_report?.damage_area_ar;
+  //////////////////////////////////
   const validationItems = [
     {
       label: "مطابقة رقم الهوية",
@@ -372,7 +375,13 @@ export default function ReportReviewPage() {
               <div className="mt-5 grid gap-3">
                 <button
                   type="button"
-                  onClick={() => router.push("/upload-damage-images")}
+                  onClick={() => {
+                    router.push(
+                      `/upload-images?case_id=${caseId}&damage=${encodeURIComponent(
+                        damageSide || ""
+                      )}`
+                    );
+                  }}
                   className="rounded-2xl bg-qadder-primary px-5 py-3 text-center font-semibold text-white transition hover:bg-qadder-dark"
                 >
                   التالي: رفع الصور

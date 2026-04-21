@@ -58,6 +58,7 @@ const arabicPlateLetters = [
   "خ",
   "ت",
   "ج",
+  "ف",
 ];
 
 const inputClass =

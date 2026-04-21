@@ -1,27 +1,21 @@
-export default function contactUs() {
+export default function ContactUs() {
   return (
-    <section id="contact" className="bg-qadder-primary py-16 text-white">
+    <section id="contact" className="bg-white py-16 text-qadder-primary">
       <div className="mx-auto max-w-6xl px-6 text-center">
-
-        {/* Title */}
         <h3 className="text-2xl font-bold md:text-3xl">
           تواصل معنا
         </h3>
-
-        {/* Email */}
-        <p className="mt-4 text-white/80">
-          📧{" "}
-          <a href="mailto:support@qadder.com" className="hover:text-white">
-            support@qadder.com
-          </a>
+        {/* Description */}
+        <p className="mt-3 text-qadder-primary/70 text-sm md:text-base">
+          نسعد بخدمتك من خلال حساباتنا الرسمية
         </p>
-
         <ul className="mt-8 flex items-center justify-center gap-4">
+          {/* Email */}
           <li>
             <a
-              href="#"
-              aria-label="Facebook"
-              className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/10 text-white transition duration-300 hover:-translate-y-1 hover:bg-white/20"
+              href="mailto:support@qadder.com"
+              aria-label="Email"
+              className="flex h-14 w-14 items-center justify-center rounded-2xl bg-qadder-primary/10 text-qadder-primary transition duration-300 hover:-translate-y-1 hover:bg-qadder-primary/20"
             >
               <svg
                 viewBox="0 0 24 24"
@@ -29,20 +23,35 @@ export default function contactUs() {
                 className="h-7 w-7"
                 aria-hidden="true"
               >
-                <path
-                  fillRule="evenodd"
-                  clipRule="evenodd"
-                  d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z"
-                />
+                <path d="M20 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2Zm0 2v.01L12 11 4 6.01V6h16ZM4 18V8.236l7.429 4.643a1 1 0 0 0 1.142 0L20 8.236V18H4Z" />
               </svg>
             </a>
           </li>
 
+          {/* WhatsApp */}
+          <li>
+            <a
+              href="https://wa.me/966XXXXXXXXX"
+              aria-label="WhatsApp"
+              className="flex h-14 w-14 items-center justify-center rounded-2xl bg-qadder-primary/10 text-qadder-primary transition duration-300 hover:-translate-y-1 hover:bg-qadder-primary/20"
+            >
+              <svg
+                viewBox="0 0 24 24"
+                fill="currentColor"
+                className="h-7 w-7"
+                aria-hidden="true"
+              >
+                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.149-.198.297-.767.966-.94 1.164-.173.198-.347.223-.644.074-.297-.149-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.372-.025-.521-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51l-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.48s1.065 2.877 1.213 3.075c.149.198 2.095 3.2 5.076 4.487.709.306 1.262.489 1.693.626.711.226 1.359.194 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347M12.004 2.003h-.008C6.486 2.003 2 6.486 2 11.998c0 1.748.457 3.454 1.325 4.957L2 22l5.182-1.36a9.965 9.965 0 0 0 4.814 1.229h.008C17.514 21.869 22 17.386 22 11.874c0-2.672-1.04-5.184-2.928-7.072a9.93 9.93 0 0 0-7.068-2.799m.004 18.067h-.006a8.33 8.33 0 0 1-4.247-1.164l-.305-.18-3.074.806.82-2.997-.199-.307a8.3 8.3 0 0 1-1.278-4.446c.002-4.59 3.739-8.327 8.334-8.327 2.224 0 4.314.865 5.887 2.437a8.268 8.268 0 0 1 2.44 5.89c-.003 4.59-3.74 8.327-8.332 8.327" />
+              </svg>
+            </a>
+          </li>
+
+          {/* Instagram */}
           <li>
             <a
               href="#"
               aria-label="Instagram"
-              className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/10 text-white transition duration-300 hover:-translate-y-1 hover:bg-white/20"
+              className="flex h-14 w-14 items-center justify-center rounded-2xl bg-qadder-primary/10 text-qadder-primary transition duration-300 hover:-translate-y-1 hover:bg-qadder-primary/20"
             >
               <svg
                 viewBox="0 0 24 24"
@@ -59,11 +68,12 @@ export default function contactUs() {
             </a>
           </li>
 
+          {/* Twitter / X */}
           <li>
             <a
               href="#"
               aria-label="Twitter"
-              className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/10 text-white transition duration-300 hover:-translate-y-1 hover:bg-white/20"
+              className="flex h-14 w-14 items-center justify-center rounded-2xl bg-qadder-primary/10 text-qadder-primary transition duration-300 hover:-translate-y-1 hover:bg-qadder-primary/20"
             >
               <svg
                 viewBox="0 0 24 24"
@@ -71,7 +81,7 @@ export default function contactUs() {
                 className="h-7 w-7"
                 aria-hidden="true"
               >
-                <path d="M8.29 20.251c7.547 0 11.675-6.253 11.675-11.675 0-.178 0-.355-.012-.53A8.348 8.348 0 0022 5.92a8.19 8.19 0 01-2.357.646 4.118 4.118 0 001.804-2.27 8.224 8.224 0 01-2.605.996 4.107 4.107 0 00-6.993 3.743 11.65 11.65 0 01-8.457-4.287 4.106 4.106 0 001.27 5.477A4.072 4.072 0 012.8 9.713v.052a4.105 4.105 0 003.292 4.022 4.095 4.095 0 01-1.853.07 4.108 4.108 0 003.834 2.85A8.233 8.233 0 012 18.407a11.616 11.616 0 006.29 1.84" />
+                <path d="M18.244 2H21.5l-7.19 8.21L22 22h-6.828l-5.343-6.99L3.7 22H.5l7.69-8.78L2 2h6.828l4.843 6.38L18.244 2zm-2.39 18h1.885L8.08 4h-2.03l9.804 16z" />
               </svg>
             </a>
           </li>

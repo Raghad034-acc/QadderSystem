@@ -57,7 +57,10 @@ def upload_step2_image(
     # ---------------------------------------------------
     existing_image = (
         db.query(Image)
-        .filter(Image.case_id == case_id)
+        .filter(
+            Image.case_id == case_id,
+            Image.is_accepted == True
+        )
         .first()
     )
 
