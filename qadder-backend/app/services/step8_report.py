@@ -947,7 +947,12 @@ def build_pdf(report_data: dict, output_path: Path) -> None:
 # MAIN STEP 8
 # ============================================================
 def run_step8(db: Session, case_id: str) -> dict:
-    update_case_status(db, case_id, "completed")
+    #change by shroug
+    report_data = fetch_case_report_data(db, case_id)
+    current_status = report_data["case"].get("status")
+
+    if current_status != "step3_rejected_high_severity":
+     update_case_status(db, case_id, "completed")
     db.flush()
 
     report_data = fetch_case_report_data(db, case_id)

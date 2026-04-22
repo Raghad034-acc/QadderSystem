@@ -319,15 +319,17 @@ export default function AnalysisPage() {
 
   // Go to next page based on severity result
   const goNext = () => {
-    if (isHighSeverity) {
-      router.push(`/report-review?case_id=${caseId}`);
-      return;
-    }
-
+  if (isHighSeverity) {
     router.push(
-  `/cost?case_id=${caseId}&image=${encodeURIComponent(imagePath || "")}`
-);
-  };
+      `/qadder-report?case_id=${caseId}&image=${encodeURIComponent(imagePath || "")}`
+    );
+    return;
+  }
+
+  router.push(
+    `/cost?case_id=${caseId}&image=${encodeURIComponent(imagePath || "")}`
+  );
+};
 
   return (
     <main dir="rtl" className="min-h-screen bg-qadder-background text-qadder-dark">

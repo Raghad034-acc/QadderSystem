@@ -149,8 +149,10 @@ export default function CostPage() {
 
   // Navigate to final report page
   const goNext = () => {
-    router.push(`/report?case_id=${caseId}`);
-  };
+  router.push(
+    `/qadder-report?case_id=${caseId}&image=${encodeURIComponent(imagePath || "")}`
+  );
+};
 
   return (
     <main dir="rtl" className="min-h-screen bg-qadder-background text-qadder-dark">
