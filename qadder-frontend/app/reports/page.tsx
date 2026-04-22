@@ -22,6 +22,9 @@ type ReportItem = {
   created_at?: string;
   vehicle_name?: string;
 };
+type StoredUser = {
+  user_profile_id?: string;
+};
 
 // Function to format date into readable format
 function formatDate(value?: string) {
@@ -46,31 +49,43 @@ export default function ReportsPage() {
   
   // Fetch reports when component mounts
   useEffect(() => {
-    const fetchReports = async () => {
-      try {
-        setPageLoading(true);
-        setPageError("");
+  const fetchReports = async () => {
+    try {
+      setPageLoading(true);
+      setPageError("");
 
-        const res = await fetch(REPORTS_API_URL);
-        const data = await res.json();
+      const storedUser = localStorage.getItem("user");
 
-          // Handle API failure
-        if (!res.ok) {
-          throw new Error("فشل في تحميل التقارير");
-        }
-
-        setReports(Array.isArray(data) ? data : data.reports || []);
-      } catch (error: any) {
-        // Handle errors
-        setPageError(error.message || "حدث خطأ أثناء تحميل التقارير");
-      } finally {
-        setPageLoading(false);
+      if (!storedUser) {
+        throw new Error("بيانات المستخدم غير موجودة، يرجى تسجيل الدخول من جديد");
       }
-    };
 
-    fetchReports();
-  }, []);
+      const parsedUser: StoredUser = JSON.parse(storedUser);
 
+      if (!parsedUser.user_profile_id) {
+        throw new Error("معرّف المستخدم غير موجود");
+      }
+
+      const res = await fetch(
+        `${REPORTS_API_URL}?user_profile_id=${parsedUser.user_profile_id}`
+      );
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data?.detail || "فشل في تحميل التقارير");
+      }
+
+      setReports(Array.isArray(data) ? data : data.reports || []);
+    } catch (error: any) {
+      setPageError(error.message || "حدث خطأ أثناء تحميل التقارير");
+    } finally {
+      setPageLoading(false);
+    }
+  };
+
+  fetchReports();
+}, []);
   // Function to open report in a new tab
   const handleViewReport = (report: ReportItem) => {
     window.open(`${BACKEND_URL}/step8/${report.case_id}/view`, "_blank");

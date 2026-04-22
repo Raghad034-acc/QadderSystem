@@ -1,33 +1,16 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import Link from "next/link";
 import AppNavbar from "@/components/AppNavbar";
 import PageLoader from "@/components/PageLoader";
 import ContactUs from "@/components/ContactUs";
+import { PencilLine, Trash2 } from "lucide-react";
 
-
-type Vehicle = {
-  id: string;
-  brand: string;
-  model: string;
-  year: number;
-  color?: string;
-  plate_number: string;
-};
-
-type Report = {
-  id: string;
-  case_number?: string;
-  status?: string;
-};
-
+// Account data type
 type AccountData = {
-  auth_account_id: string;
   user_profile_id: string;
   email?: string;
   phone_number?: string;
-  account_status?: string;
   national_id?: string;
   first_name?: string;
   second_name?: string;
@@ -35,26 +18,28 @@ type AccountData = {
   last_name?: string;
   nationality?: string;
   date_of_birth?: string;
-  vehicles: Vehicle[];
-  reports: Report[];
-  reports_count: number;
 };
 
+// Account page component
 export default function AccountPage() {
+  // User, loading, and error states
   const [user, setUser] = useState<AccountData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
+  // Handle logout
   const handleLogout = () => {
     localStorage.removeItem("user");
     window.location.href = "/";
   };
 
+  // Fetch account data on mount
   useEffect(() => {
     const fetchAccount = async () => {
       try {
         const storedUser = localStorage.getItem("user");
 
+        // Redirect to login if no user is stored
         if (!storedUser) {
           window.location.href = "/login";
           return;
@@ -62,25 +47,21 @@ export default function AccountPage() {
 
         const parsedUser = JSON.parse(storedUser);
 
-        if (!parsedUser.user_profile_id) {
-          setError("معرف المستخدم غير موجود");
-          setLoading(false);
-          return;
-        }
-
+        // Fetch account data from backend
         const res = await fetch(
           `http://127.0.0.1:8000/account/${parsedUser.user_profile_id}`
         );
 
         const data = await res.json();
 
+        // Handle backend error
         if (!res.ok) {
-          throw new Error(data?.detail || "فشل في تحميل بيانات الحساب");
+          throw new Error(data?.detail || "فشل تحميل الحساب");
         }
 
         setUser(data);
-      } catch (err: unknown) {
-        setError(err instanceof Error ? err.message : "حدث خطأ أثناء تحميل الحساب");
+      } catch {
+        setError("حدث خطأ أثناء تحميل الحساب");
       } finally {
         setLoading(false);
       }
@@ -89,6 +70,7 @@ export default function AccountPage() {
     fetchAccount();
   }, []);
 
+  // Build full name from available name fields
   const fullName = useMemo(() => {
     if (!user) return "";
     return [
@@ -101,110 +83,129 @@ export default function AccountPage() {
       .join(" ");
   }, [user]);
 
+  // Loading state UI
   if (loading) {
     return (
-      <main className="min-h-screen bg-qadder-background text-qadder-dark">
-        <AppNavbar isLoggedIn={true} handleLogout={handleLogout} />
-
-        <section className="mx-auto max-w-7xl px-6 py-16">
+      <main className="min-h-screen bg-qadder-background">
+        <AppNavbar isLoggedIn />
+        <section className="mx-auto max-w-6xl px-6 py-12">
           <PageLoader text="جاري تحميل الحساب..." />
         </section>
       </main>
     );
   }
 
+  // Error state UI
   if (error) {
     return (
-      <main className="min-h-screen bg-qadder-background text-qadder-dark">
-        <AppNavbar isLoggedIn={true} handleLogout={handleLogout} />
-        <section className="mx-auto max-w-7xl px-6 py-16">
-          <div className="rounded-[28px] border border-red-200 bg-red-50 p-12 text-center shadow-sm">
-            <p className="text-lg font-semibold text-red-600">{error}</p>
+      <main className="min-h-screen bg-qadder-background">
+        <AppNavbar isLoggedIn />
+        <section className="mx-auto max-w-6xl px-6 py-12">
+          <div className="rounded-2xl border border-red-200 bg-red-50 p-6 text-center text-red-600">
+            {error}
           </div>
         </section>
       </main>
     );
   }
 
+  // Return nothing if user data is missing
   if (!user) return null;
 
   return (
-    <main
-      className="min-h-screen bg-qadder-background text-qadder-dark"
+    <main dir="rtl" className="min-h-screen bg-qadder-background text-qadder-dark">
+      <AppNavbar isLoggedIn handleLogout={handleLogout} />
 
-    >
-      <AppNavbar
-        isLoggedIn={true}
-        handleLogout={handleLogout}
-        contactHref="#contact"
-      />
-
+      {/* Header */}
       <section className="relative overflow-hidden border-b border-qadder-border/20">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(173,200,147,0.18),_transparent_35%),radial-gradient(circle_at_top_right,_rgba(39,75,44,0.08),_transparent_30%)]" />
-        <div className="relative mx-auto max-w-7xl px-6 py-12 text-right md:py-16">
-          <h1 className="text-3xl font-extrabold leading-tight md:text-5xl">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(173,200,147,0.16),_transparent_35%),radial-gradient(circle_at_top_right,_rgba(39,75,44,0.08),_transparent_30%)]" />
+
+        <div className="relative mx-auto max-w-6xl px-6 py-6 md:py-8 text-right">
+          <h1 className="text-3xl font-extrabold md:text-5xl">
             حسابي
           </h1>
-          <p className="mt-4 text-base leading-8 text-qadder-dark/70 md:text-lg">
-            هنا يمكنك استعراض جميع بياناتك الشخصية وتحديثها بكل سهولة         </p>
+
+          <p className="mt-4 text-base text-qadder-dark/70 md:text-lg">
+            هنا يمكنك استعراض بياناتك الشخصية
+          </p>
         </div>
       </section>
 
-      <section className="mx-auto max-w-7xl px-6 py-10">
-        <div className="grid gap-6 lg:grid-cols-2">
-          <div className="rounded-[28px] border border-qadder-border/20 bg-white p-6 shadow-sm">
-            <div className="mb-6 flex flex-row-reverse items-center justify-between">
-              <h2 className="text-2xl font-bold text-qadder-dark">
-                البيانات الشخصية
-              </h2>
-
-              <button
-                type="button"
-                className="flex items-center gap-2 rounded-full bg-qadder-primary px-5 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-qadder-primary hover:text-white"
-              >
-                ✏️ تعديل
-              </button>
-            </div>
-
-
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <InfoCard label="الاسم الكامل" value={fullName || "غير متوفر"} />
-              <InfoCard
-                label="البريد الإلكتروني"
-                value={user.email || "غير متوفر"}
-              />
-              <InfoCard
-                label="رقم الجوال"
-                value={user.phone_number || "غير متوفر"}
-              />
-              <InfoCard
-                label="رقم الهوية"
-                value={user.national_id || "غير متوفر"}
-              />
-              <InfoCard
-                label="الجنسية"
-                value={user.nationality || "غير متوفر"}
-              />
-              <InfoCard
-                label="تاريخ الميلاد"
-                value={user.date_of_birth || "غير متوفر"}
-              />
-            </div>
+      {/* Main card */}
+      <section className="mx-auto max-w-6xl px-6 py-6 md:py-8">
+        <div className="mx-auto max-w-4xl rounded-[32px] border border-qadder-border/20 bg-white p-6 shadow-sm md:p-8">
+          
+          {/* Section title */}
+          <div className="mb-6 text-right">
+            <h2 className="text-xl font-bold text-qadder-dark">
+              البيانات الشخصية
+            </h2>
           </div>
+
+          {/* Personal information */}
+          <div className="grid gap-4 md:grid-cols-2">
+            <InfoCard label="الاسم الكامل" value={fullName || "-"} />
+            <InfoCard label="البريد الإلكتروني" value={user.email || "-"} />
+            <InfoCard label="رقم الجوال" value={user.phone_number || "-"} />
+            <InfoCard label="رقم الهوية" value={user.national_id || "-"} />
+            <InfoCard label="الجنسية" value={user.nationality || "-"} />
+            <InfoCard label="تاريخ الميلاد" value={user.date_of_birth || "-"} />
+          </div>
+
+          {/* Action buttons */}
+          <div className="mt-6 grid gap-3 sm:grid-cols-2">
+
+            {/* Edit button */}
+            <button
+              type="button"
+              className="inline-flex items-center justify-center gap-2 rounded-2xl border border-qadder-border/50 bg-white px-4 py-3.5 text-sm font-semibold text-qadder-dark transition hover:bg-qadder-light"
+            >
+              <PencilLine size={16} />
+              تعديل البيانات
+            </button>
+
+            {/* Delete account button */}
+            <button
+              type="button"
+              className="inline-flex items-center justify-center gap-2 rounded-2xl border border-red-200 bg-red-50 px-4 py-3.5 text-sm font-semibold text-qadder-error transition hover:bg-red-100"
+            >
+              <Trash2 size={16} />
+              حذف الحساب
+            </button>
+
+          </div>
+
         </div>
       </section>
 
       <ContactUs />
-
     </main>
   );
 }
 
-function InfoCard({ label, value }: { label: string; value: string }) {
+// Reusable info card component
+function InfoCard({
+  label,
+  value,
+}: {
+  label: string;
+  value: string;
+}) {
   return (
-    <div className="rounded-2xl bg-qadder-background/50 p-4 text-right">
-      <p className="text-xs font-semibold text-qadder-dark/50">{label}</p>
-      <p className="mt-2 text-sm font-bold text-qadder-dark">{value}</p>
+    <div className="rounded-2xl border border-qadder-border/20 bg-qadder-background px-4 py-3 text-right">
+
+      <div className="flex items-center gap-2 flex-wrap" dir="rtl">
+        
+        <span className="text-sm font-bold text-qadder-dark whitespace-nowrap">
+          {label}:
+        </span>
+
+        <span className="text-sm text-qadder-dark/80" dir="auto">
+          {value}
+        </span>
+
+      </div>
+
     </div>
   );
 }

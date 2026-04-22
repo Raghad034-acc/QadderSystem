@@ -153,8 +153,12 @@ def view_report_html(
     #to review history in report
 
 # Retrieve all generated reports with related case and vehicle information (reports history)
+from fastapi import APIRouter, Depends, HTTPException, Query
 @router.get("/reports")
-def list_reports(db: Session = Depends(get_db)):
+def list_reports(
+    user_profile_id: str = Query(...),
+    db: Session = Depends(get_db)
+):
     try:
         rows = db.execute(
             text(
@@ -174,11 +178,12 @@ def list_reports(db: Session = Depends(get_db)):
                     ON c.id = qr.case_id
                 LEFT JOIN vehicles v
                     ON v.id = c.vehicle_id
+                WHERE c.user_profile_id = :user_profile_id
                 ORDER BY qr.created_at DESC
                 """
-            )
+            ),
+            {"user_profile_id": user_profile_id}
         ).mappings().all()
-
         results = []
         for row in rows:
             row_dict = dict(row)
@@ -190,9 +195,10 @@ def list_reports(db: Session = Depends(get_db)):
             ]
             vehicle_name = " ".join([p for p in vehicle_parts if p])
 
-            row_dict["vehicle_name"] = vehicle_name if vehicle_name else "اسم السيارة غير متوفر"
+            row_dict["vehicle_name"] = (
+                vehicle_name if vehicle_name else "اسم السيارة غير متوفر"
+            )
             results.append(row_dict)
-
         return results
 
     except Exception as e:

@@ -4,18 +4,22 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
+// Login page component
 export default function LoginPage() {
   const router = useRouter();
 
+  // Form state
   const [form, setForm] = useState({
     login: "",
     password: "",
     rememberMe: false,
   });
 
+  // Loading and error states
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
+  // Handle input and checkbox changes
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
 
@@ -25,6 +29,7 @@ export default function LoginPage() {
     }));
   };
 
+  // Handle form submit and login request
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError("");
@@ -45,13 +50,16 @@ export default function LoginPage() {
 
       const data = await res.json();
 
+      // Show backend error if login fails
       if (!res.ok) {
         throw new Error(data.detail || "فشل تسجيل الدخول");
       }
 
+      // Save user data and redirect after successful login
       localStorage.setItem("user", JSON.stringify(data));
       router.push("/");
     } catch (err: unknown) {
+      // Handle known and unknown errors
       if (err instanceof Error) {
         setError(err.message);
       } else {
@@ -65,12 +73,15 @@ export default function LoginPage() {
   return (
     <main dir="rtl" className="min-h-screen bg-qadder-background text-qadder-dark">
       <section className="relative overflow-hidden">
+        {/* Background gradient decoration */}
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(173,200,147,0.18),_transparent_35%),radial-gradient(circle_at_top_right,_rgba(39,75,44,0.08),_transparent_30%)]" />
 
-        <div className="relative mx-auto flex min-h-screen max-w-7xl items-center justify-center px-6 py-12 md:py-16">
+        <div className="relative mx-auto flex min-h-screen max-w-7xl items-start justify-center px-6 pt-10 pb-6 md:pt-12 md:pb-8">
           <div className="flex w-full max-w-4xl flex-col gap-8">
             <div className="mx-auto w-full max-w-md">
+              {/* Login card */}
               <div className="rounded-[28px] border border-qadder-border/30 bg-qadder-card p-8 shadow-[0_20px_60px_rgba(16,47,21,0.08)] sm:p-10">
+                {/* Header section */}
                 <div className="mb-8 text-center">
                   <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-qadder-light">
                     <img
@@ -89,13 +100,15 @@ export default function LoginPage() {
                   </p>
                 </div>
 
+                {/* Login form */}
                 <form onSubmit={handleSubmit} className="space-y-5">
                   <div>
                     <label
                       htmlFor="login"
                       className="mb-2 block text-sm font-semibold text-qadder-dark"
                     >
-                      البريد الإلكتروني أو رقم الجوال
+                      البريد الإلكتروني أو رقم الجوال{" "}
+                      <span className="text-red-500">*</span>
                     </label>
                     <input
                       id="login"
@@ -114,7 +127,7 @@ export default function LoginPage() {
                       htmlFor="password"
                       className="mb-2 block text-sm font-semibold text-qadder-dark"
                     >
-                      كلمة المرور
+                      كلمة المرور <span className="text-red-500">*</span>
                     </label>
                     <input
                       id="password"
@@ -128,6 +141,7 @@ export default function LoginPage() {
                     />
                   </div>
 
+                  {/* Remember me and forgot password section */}
                   <div className="flex items-center justify-between gap-4 text-sm">
                     <button
                       type="button"
@@ -148,12 +162,14 @@ export default function LoginPage() {
                     </label>
                   </div>
 
+                  {/* Error message */}
                   {error && (
                     <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
                       {error}
                     </div>
                   )}
 
+                  {/* Submit button */}
                   <button
                     type="submit"
                     disabled={loading}
@@ -163,6 +179,7 @@ export default function LoginPage() {
                   </button>
                 </form>
 
+                {/* Register link */}
                 <div className="mt-6 text-center text-sm text-qadder-dark/70">
                   ليس لديك حساب؟{" "}
                   <Link
@@ -172,6 +189,8 @@ export default function LoginPage() {
                     إنشاء حساب
                   </Link>
                 </div>
+                {/* Empty spacer */}
+                <div className="h-14"></div>
               </div>
             </div>
           </div>
