@@ -242,9 +242,9 @@ def safe_text(value) -> str:
 
 def format_currency(value) -> str:
     try:
-        return f"{float(value):,.2f} SAR"
+        return f"{float(value):,.2f} ريال"
     except Exception:
-        return "0.00 SAR"
+        return "0.00 ريال"
 
 
 def format_percent(value) -> str:
@@ -286,14 +286,11 @@ def font_to_base64(font_path: Path) -> str:
     return base64.b64encode(font_path.read_bytes()).decode("utf-8")
 
 
-def build_label_value_row(label_ar: str, label_en: str, value) -> str:
+def build_label_value_row(label: str, value=None) -> str:
     return f"""
     <div class="info-row">
-        <div class="label">
-            <div>{safe_text(label_ar)}</div>
-            <div class="label-en">{safe_text(label_en)}</div>
-        </div>
-        <div class="value">{safe_text(value)}</div>
+      <div class="label">{safe_text(label)}</div>
+      <div class="value">{safe_text(value) if value not in (None, "") else "—"}</div>
     </div>
     """
 
@@ -341,18 +338,9 @@ def build_html_report(report_data: dict) -> str:
             damages_rows_html += f"""
             <tr>
                 <td>{safe_text(damage.get("damage_no"))}</td>
-                <td>
-                    <div>{safe_text(damage.get("damage_type_ar"))}</div>
-                    <div class="muted">{safe_text(damage.get("damage_type_en"))}</div>
-                </td>
-                <td>
-                    <div>{safe_text(damage.get("severity_ar"))}</div>
-                    <div class="muted">{safe_text(damage.get("severity_en"))}</div>
-                </td>
-                <td>
-                    <div>{safe_text(damage.get("part_name_ar"))}</div>
-                    <div class="muted">{safe_text(damage.get("part_name_en"))}</div>
-                </td>
+                <td>{safe_text(damage.get("damage_type_ar"))}</td>
+                <td>{safe_text(damage.get("severity_ar"))}</td>
+                <td>{safe_text(damage.get("part_name_ar"))}</td>
                 <td>{format_currency(damage.get("part_price"))}</td>
                 <td>{format_currency(damage.get("labor_cost"))}</td>
                 <td>{format_currency(damage.get("subtotal_before_fault"))}</td>
@@ -362,17 +350,9 @@ def build_html_report(report_data: dict) -> str:
     else:
         damages_rows_html = """
         <tr>
-            <td colspan="8" class="empty-cell">لا توجد أضرار مسجلة / No damages found</td>
+            <td colspan="8" class="empty-cell">لا توجد أضرار مسجلة</td>
         </tr>
         """
-
-    other_vehicle_value = " / ".join(
-        [
-            str(case.get("vehicle_brand") or "—"),
-            str(case.get("vehicle_model") or "—"),
-            str(case.get("vehicle_year") or "—"),
-        ]
-    )
 
     font_face_css = ""
     if cairo_base64:
@@ -393,16 +373,11 @@ def build_html_report(report_data: dict) -> str:
         <section class="section rejection-section">
           <div class="section-title">
             <div class="ar">حالة الطلب</div>
-            <div class="en">Request Status</div>
           </div>
-
           <div class="rejection-box">
             <div class="rejection-title">تم رفض الطلب</div>
             <div class="rejection-message">
-              تم رفض الطلب: شدة الضرر مرتفعة. يرجى التوجه إلى أقرب مركز تقدير لإكمال التقييم.
-            </div>
-            <div class="rejection-message-en">
-              Request rejected: The damage severity is high. Please visit the nearest Taqdeer center to complete the assessment.
+              نظرًا لارتفاع شدة الضرر، يرجى التوجه إلى أحد مراكز التقدير المعتمدة لاستكمال إجراءات التقييم ومعاينة المركبة بشكل دقيق.
             </div>
           </div>
         </section>
@@ -414,20 +389,19 @@ def build_html_report(report_data: dict) -> str:
           <section class="section">
             <div class="section-title">
               <div class="ar">تفاصيل الأضرار والتكاليف</div>
-              <div class="en">Damage Details & Cost Breakdown</div>
             </div>
 
             <table>
               <thead>
                 <tr>
                   <th style="width: 6%;">#</th>
-                  <th style="width: 18%;">نوع الضرر<br><span class="small">Damage Type</span></th>
-                  <th style="width: 16%;">الشدة<br><span class="small">Severity</span></th>
-                  <th style="width: 18%;">الجزء المتضرر<br><span class="small">Damaged Part</span></th>
-                  <th style="width: 11%;">سعر القطعة<br><span class="small">Part Price</span></th>
-                  <th style="width: 11%;">أجرة العمل<br><span class="small">Labor</span></th>
-                  <th style="width: 10%;">قبل الخطأ<br><span class="small">Before Fault</span></th>
-                  <th style="width: 10%;">بعد الخطأ<br><span class="small">After Fault</span></th>
+                  <th style="width: 18%;">نوع الضرر</th>
+                  <th style="width: 16%;">الشدة</th>
+                  <th style="width: 18%;">الجزء المتضرر</th>
+                  <th style="width: 11%;">سعر القطعة</th>
+                  <th style="width: 11%;">أجرة العمل</th>
+                  <th style="width: 10%;">الإجمالي قبل نسبة الخطأ</th>
+                  <th style="width: 10%;">الإجمالي بعد نسبة الخطأ</th>
                 </tr>
               </thead>
               <tbody>
@@ -439,32 +413,31 @@ def build_html_report(report_data: dict) -> str:
           <section class="section">
             <div class="section-title">
               <div class="ar">الملخص المالي النهائي</div>
-              <div class="en">Final Pricing Summary</div>
             </div>
 
             <div class="summary-grid">
               <div class="summary-card">
-                <div class="k">عدد الأضرار | Damages Count</div>
+                <div class="k">عدد الأضرار</div>
                 <div class="v">{safe_text(damages_count)}</div>
               </div>
 
               <div class="summary-card">
-                <div class="k">إجمالي القطع | Total Parts</div>
+                <div class="k">إجمالي تكلفة القطع</div>
                 <div class="v">{format_currency(total_parts)}</div>
               </div>
 
               <div class="summary-card">
-                <div class="k">إجمالي العمالة | Total Labor</div>
+                <div class="k">إجمالي شغل اليد</div>
                 <div class="v">{format_currency(total_labor)}</div>
               </div>
 
               <div class="summary-card">
-                <div class="k">الإجمالي قبل نسبة الخطأ | Total Before Fault</div>
+                <div class="k">الإجمالي قبل نسبة الخطأ</div>
                 <div class="v">{format_currency(total_estimated_cost)}</div>
               </div>
 
               <div class="summary-card highlight" style="grid-column: 1 / -1;">
-                <div class="k">الإجمالي النهائي بعد نسبة الخطأ | Final Adjusted Cost</div>
+                <div class="k">الإجمالي النهائي بعد نسبة الخطأ</div>
                 <div class="v">{format_currency(adjusted_cost)}</div>
               </div>
             </div>
@@ -476,11 +449,11 @@ def build_html_report(report_data: dict) -> str:
     <html lang="ar" dir="rtl">
     <head>
       <meta charset="utf-8" />
-      <title>Qadder Final Report</title>
+      <title>تقرير تقدير أضرار المركبة</title>
       <style>
         @page {{
           size: A4;
-          margin: 16mm 12mm 16mm 12mm;
+          margin: 14mm 10mm 14mm 10mm;
         }}
 
         {font_face_css}
@@ -494,127 +467,144 @@ def build_html_report(report_data: dict) -> str:
         body {{
           margin: 0;
           font-family: {font_family_css};
-          background: #FCFFE4;
-          color: #000000;
-          line-height: 1.6;
+          background: #F7FAF7;
+          color: #163020;
+          line-height: 1.7;
           font-size: 12px;
         }}
 
-        .page {{ width: 100%; }}
-        .report-shell {{ background: #FCFFE4; padding: 0; }}
-
-        .header {{
-          background: linear-gradient(135deg, #102F15 0%, #274B2C 100%);
-          color: white;
-          border-radius: 18px;
-          padding: 20px 24px;
-          margin-bottom: 18px;
+        .page {{
+          width: 100%;
         }}
 
-        .header-top {{
+        .report-shell {{
+          background: #F7FAF7;
+          padding: 0;
+        }}
+
+        .hero-top {{
           display: flex;
-          justify-content: space-between;
+          flex-direction: column;
           align-items: center;
-          gap: 18px;
+          justify-content: center;
+          text-align: center;
+          gap: 12px;
+          margin-bottom: 16px;
+        }}
+
+        .logo-box {{
+          display: flex;
+          justify-content: center;
+          width: 100%;
         }}
 
         .logo-box img {{
           max-height: 70px;
-          max-width: 180px;
+          max-width: 190px;
           object-fit: contain;
           display: block;
-          background: white;
-          padding: 8px 10px;
-          border-radius: 12px;
         }}
 
-        .header-title {{
-          flex: 1;
-          text-align: left;
-        }}
-
-        .header-title h1 {{
-          margin: 0 0 4px;
-          font-size: 28px;
-          line-height: 1.2;
-        }}
-
-        .header-title h2 {{
+        .report-main-title {{
           margin: 0;
-          font-size: 16px;
-          font-weight: 500;
-          opacity: 0.95;
+          font-size: 35px;
+          font-weight: 800;
+          line-height: 1.3;
+          color: #1F5F3B;
+          text-align: center;
         }}
 
-        .meta-grid {{
+        .header {{
+          background: linear-gradient(135deg, #1F5F3B 0%, #2E7D4F 100%);
+          border-radius: 22px;
+          padding: 14px 16px;
+          margin: 0 auto 18px auto;
+          width: fit-content;
+          min-width: 100%;
+          max-width: 100%;
+          box-shadow: 0 8px 24px rgba(31, 95, 59, 0.15);
+          color: #ffffff;
+        }}
+
+        .header-cards {{
           display: grid;
-          grid-template-columns: repeat(3, 1fr);
-          gap: 10px;
-          margin-top: 18px;
+          grid-template-columns: repeat(2, minmax(220px, 1fr));
+          gap: 12px;
+          align-items: center;
         }}
 
         .meta-card {{
-          background: rgba(255,255,255,0.12);
-          border: 1px solid rgba(255,255,255,0.18);
-          border-radius: 12px;
-          padding: 10px 12px;
+          background: rgba(255,255,255,0.14);
+          border: 1px solid rgba(255,255,255,0.24);
+          border-radius: 16px;
+          padding: 12px 16px;
+          min-height: auto;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          text-align: center;
         }}
 
-        .meta-card .meta-label {{
-          font-size: 11px;
-          opacity: 0.85;
-          margin-bottom: 4px;
+        .meta-line {{
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 8px;
+          flex-wrap: wrap;
+          text-align: center;
+          line-height: 1.5;
         }}
 
-        .meta-card .meta-value {{
+        .meta-label {{
           font-size: 14px;
+          color: #EAF4EC;
           font-weight: 700;
+          margin: 0;
+        }}
+
+        .meta-value {{
+          font-size: 16px;
+          font-weight: 800;
+          color: #ffffff;
+          word-break: break-word;
+          margin: 0;
         }}
 
         .section {{
-          background: #fcffc4;
-          border: 1px solid #ADC893;
-          border-radius: 16px;
+          background: #FFFFFF;
+          border: 1px solid #D9E8DD;
+          border-radius: 18px;
           padding: 18px;
           margin-bottom: 16px;
           page-break-inside: avoid;
+          box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04);
         }}
 
         .section-title {{
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
           margin-bottom: 14px;
-          border-bottom: 2px solid #ADC893;
+          border-bottom: 2px solid #E5EFE7;
           padding-bottom: 8px;
         }}
 
         .section-title .ar {{
-          color: #102F15;
+          color: #1F5F3B;
           font-size: 18px;
-          font-weight: 700;
-        }}
-
-        .section-title .en {{
-          color: #274B2C;
-          font-size: 13px;
-          font-weight: 600;
-          direction: ltr;
+          font-weight: 800;
         }}
 
         .two-col {{
           display: grid;
           grid-template-columns: 1fr 1fr;
-          gap: 16px;
+          gap: 20px;
         }}
 
         .info-row {{
-            display: flex;
-        justify-content: space-between;
-        align-items: center;
-        background: transparent;
-        padding: 8px 0;
-        border-bottom: 1px solid #cfd8a3;
+          display: grid;
+          grid-template-columns: 150px 1fr;
+          align-items: center;
+          gap: 12px;
+          padding: 8px 0;
+          border-bottom: 1px solid #EDF3EE;
         }}
 
         .info-row:last-child {{
@@ -623,29 +613,31 @@ def build_html_report(report_data: dict) -> str:
 
         .label {{
           font-weight: 700;
-          color: #102F15;
-        }}
-
-        .label-en {{
-          font-size: 11px;
-          color: #274B2C;
-          direction: ltr;
+          color: #1F5F3B;
+          text-align: right;
+          line-height: 1.6;
         }}
 
         .value {{
-          background: #ffffff;
-          border: 1px solid #ADC893;
-          border-radius: 10px;
-          padding: 8px 10px;
-          min-height: 38px;
+          background: #F9FBF9;
+          border: 1px solid #DDE9E0;
+          border-radius: 12px;
+          padding: 8px 12px;
+          min-height: 42px;
+          color: #1E293B;
+          text-align: right;
+          display: flex;
+          align-items: center;
+          justify-content: flex-start;
+          line-height: 1.6;
           word-break: break-word;
         }}
 
         .image-box {{
-          background: #ffffff;
-          border: 1px solid #ADC893;
-          border-radius: 14px;
-          padding: 12px;
+          background: #FFFFFF;
+          border: 1px solid #DDE9E0;
+          border-radius: 16px;
+          padding: 14px;
           text-align: center;
         }}
 
@@ -653,7 +645,7 @@ def build_html_report(report_data: dict) -> str:
           width: 100%;
           max-height: 380px;
           object-fit: contain;
-          border-radius: 10px;
+          border-radius: 12px;
         }}
 
         table {{
@@ -671,27 +663,23 @@ def build_html_report(report_data: dict) -> str:
         }}
 
         th {{
-          background: #274B2C;
+          background: #1F5F3B;
           color: #ffffff;
           padding: 10px 8px;
           font-size: 11px;
-          border: 1px solid #1f3a22;
+          border: 1px solid #18492E;
           text-align: center;
+          font-weight: 700;
         }}
 
         td {{
           background: #ffffff;
-          border: 1px solid #ADC893;
+          border: 1px solid #E3ECE5;
           padding: 8px;
           vertical-align: top;
           font-size: 11px;
+          text-align: center;
           word-wrap: break-word;
-        }}
-
-        .muted {{
-          color: #5f5f5f;
-          font-size: 10px;
-          direction: ltr;
         }}
 
         .summary-grid {{
@@ -702,83 +690,68 @@ def build_html_report(report_data: dict) -> str:
 
         .summary-card {{
           background: #ffffff;
-          border: 1px solid #ADC893;
-          border-radius: 12px;
-          padding: 12px;
+          border: 1px solid #DDE9E0;
+          border-radius: 14px;
+          padding: 14px;
         }}
 
         .summary-card .k {{
-          color: #274B2C;
+          color: #5C7564;
           font-size: 11px;
           margin-bottom: 6px;
         }}
 
         .summary-card .v {{
-          color: #102F15;
+          color: #1F5F3B;
           font-size: 18px;
-          font-weight: 700;
+          font-weight: 800;
         }}
 
         .highlight {{
-          border: 2px solid #274B2C;
-          background: #f7ffe2;
+          border: 2px solid #1F5F3B;
+          background: #F2F8F3;
         }}
 
         .empty-cell {{
           text-align: center;
           padding: 18px;
           font-weight: 700;
+          color: #4B5563;
         }}
 
         .rejection-section {{
-          border: 2px solid #c96b2c;
-          background: #fff6ee;
+          border: 2px solid #D97706;
+          background: #FFF8ED;
         }}
 
         .rejection-box {{
           background: #ffffff;
-          border: 1px solid #f0b58a;
+          border: 1px solid #F3C38B;
           border-radius: 14px;
           padding: 20px;
         }}
 
         .rejection-title {{
-          color: #a94400;
+          color: #B45309;
           font-size: 22px;
           font-weight: 800;
           margin-bottom: 10px;
         }}
 
         .rejection-message {{
-          color: #5c2b00;
+          color: #7C2D12;
           font-size: 15px;
           font-weight: 600;
-          margin-bottom: 8px;
-        }}
-
-        .rejection-message-en {{
-          color: #7a4b25;
-          font-size: 12px;
-          direction: ltr;
         }}
 
         .footer-note {{
-          background: #102F15;
+          background: #1F5F3B;
           color: white;
-          border-radius: 14px;
+          border-radius: 16px;
           padding: 14px 16px;
           margin-top: 10px;
           font-size: 11px;
-        }}
-
-        .footer-note .en {{
-          direction: ltr;
-          margin-top: 4px;
-          opacity: 0.95;
-        }}
-
-        .small {{
-          font-size: 10px;
+          line-height: 1.8;
         }}
 
         @media print {{
@@ -792,29 +765,28 @@ def build_html_report(report_data: dict) -> str:
       <div class="page">
         <div class="report-shell">
 
-          <section class="header">
-            <div class="header-top">
-              <div class="header-title">
-                <h1>تقرير تقدير أضرار المركبة</h1>
-                <h2>Vehicle Damage Assessment Report</h2>
-              </div>
-              <div class="logo-box">
-                {f'<img src="{logo_data_uri}" alt="Qadder Logo" />' if logo_data_uri else ''}
-              </div>
+          <section class="hero-top">
+            <div class="logo-box">
+              {f'<img src="{logo_data_uri}" alt="شعار قدر" />' if logo_data_uri else ''}
             </div>
 
-            <div class="meta-grid">
+            <h1 class="report-main-title">تقرير تقدير أضرار المركبة</h1>
+          </section>
+
+          <section class="header">
+            <div class="header-cards">
               <div class="meta-card">
-                <div class="meta-label">رقم الحالة | Case Number</div>
-                <div class="meta-value">{safe_text(case.get("case_number"))}</div>
+                <div class="meta-line">
+                  <span class="meta-label">رقم الحالة:</span>
+                  <span class="meta-value">{safe_text(case.get("case_number"))}</span>
+                </div>
               </div>
+
               <div class="meta-card">
-                <div class="meta-label">معرّف الحالة | Case ID</div>
-                <div class="meta-value small">{safe_text(case.get("id"))}</div>
-              </div>
-              <div class="meta-card">
-                <div class="meta-label">تاريخ التقرير | Report Date</div>
-                <div class="meta-value">{safe_text(report_date)}</div>
+                <div class="meta-line">
+                  <span class="meta-label">تاريخ التقرير:</span>
+                  <span class="meta-value">{safe_text(report_date)}</span>
+                </div>
               </div>
             </div>
           </section>
@@ -822,18 +794,18 @@ def build_html_report(report_data: dict) -> str:
           <section class="section">
             <div class="section-title">
               <div class="ar">بيانات مالك المركبة</div>
-              <div class="en">Owner Information</div>
             </div>
             <div class="two-col">
               <div>
-                {build_label_value_row("الاسم الكامل", "Full Name", full_name)}
-                {build_label_value_row("رقم الهوية", "National ID", case.get("national_id"))}
-                {build_label_value_row("الجنسية", "Nationality", case.get("nationality"))}
+                {build_label_value_row("الاسم الكامل", full_name)}
+                {build_label_value_row("رقم الهوية", case.get("national_id"))}
+                {build_label_value_row("الجنسية", case.get("nationality"))}
+                {build_label_value_row("نوع الرخصة", case.get("license_type"))}
               </div>
               <div>
-                {build_label_value_row("رقم الجوال", "Phone Number", case.get("phone_number"))}
-                {build_label_value_row("البريد الإلكتروني", "Email", case.get("email"))}
-                {build_label_value_row("حالة الطلب", "Case Status", case.get("status"))}
+                {build_label_value_row("رقم الجوال", case.get("phone_number"))}
+                {build_label_value_row("البريد الإلكتروني", case.get("email"))}
+                {build_label_value_row("تاريخ انتهاء الرخصة", case.get("license_expiry_date"))}
               </div>
             </div>
           </section>
@@ -841,17 +813,16 @@ def build_html_report(report_data: dict) -> str:
           <section class="section">
             <div class="section-title">
               <div class="ar">بيانات المركبة</div>
-              <div class="en">Vehicle Information</div>
             </div>
             <div class="two-col">
               <div>
-                {build_label_value_row("العلامة التجارية", "Brand", case.get("brand"))}
-                {build_label_value_row("الموديل", "Model", case.get("model"))}
-                {build_label_value_row("سنة الصنع", "Year", case.get("year"))}
+                {build_label_value_row("العلامة التجارية", case.get("brand"))}
+                {build_label_value_row("الموديل", case.get("model"))}
+                {build_label_value_row("سنة الصنع", case.get("year"))}
               </div>
               <div>
-                {build_label_value_row("اللون", "Color", case.get("color"))}
-                {build_label_value_row("رقم اللوحة", "Plate Number", case.get("plate_number"))}
+                {build_label_value_row("اللون", case.get("color"))}
+                {build_label_value_row("رقم اللوحة", case.get("plate_number"))}
               </div>
             </div>
           </section>
@@ -859,22 +830,17 @@ def build_html_report(report_data: dict) -> str:
           <section class="section">
             <div class="section-title">
               <div class="ar">معلومات الحادث وتقرير نجم</div>
-              <div class="en">Accident & Najm Information</div>
             </div>
             <div class="two-col">
               <div>
-                {build_label_value_row("رقم الحادث", "Accident ID", case.get("accident_id"))}
-                {build_label_value_row("تاريخ الحادث", "Accident Date", case.get("accident_date"))}
-                {build_label_value_row("وقت الحادث", "Accident Time", case.get("accident_time"))}
-                {build_label_value_row("نسبة الخطأ", "Fault Percentage", format_percent(case.get("fault_percentage")))}
-                {build_label_value_row("منطقة الضرر", "Damage Area", case.get("damage_area_ar") or case.get("damage_area"))}
+                {build_label_value_row("رقم الحادث", case.get("accident_id"))}
+                {build_label_value_row("تاريخ الحادث", case.get("accident_date"))}
+                {build_label_value_row("وقت الحادث", case.get("accident_time"))}
+                {build_label_value_row("نسبة الخطأ", format_percent(case.get("fault_percentage")))}
+                {build_label_value_row("منطقة الضرر", case.get("damage_area_ar") or case.get("damage_area"))}
               </div>
               <div>
-                {build_label_value_row("اسم الطرف الآخر", "Other Party Name", case.get("party_full_name"))}
-                {build_label_value_row("نوع الرخصة", "License Type", case.get("license_type"))}
-                {build_label_value_row("جوال الطرف الآخر", "Other Party Mobile", case.get("party_mobile"))}
-                {build_label_value_row("رقم لوحة الطرف الآخر", "Other Vehicle Plate", case.get("vehicle_plate_number"))}
-                {build_label_value_row("مركبة الطرف الآخر", "Other Vehicle", other_vehicle_value)}
+                {build_label_value_row("إحداثيات الحادث", case.get("accident_coordinates"))}
               </div>
             </div>
           </section>
@@ -882,10 +848,9 @@ def build_html_report(report_data: dict) -> str:
           <section class="section">
             <div class="section-title">
               <div class="ar">الصورة الأصلية للمركبة</div>
-              <div class="en">Original Vehicle Image</div>
             </div>
             <div class="image-box">
-              {f'<img class="vehicle-image" src="{vehicle_image_data_uri}" alt="Vehicle Image" />' if vehicle_image_data_uri else '<div>لا توجد صورة متاحة / No image available</div>'}
+              {f'<img class="vehicle-image" src="{vehicle_image_data_uri}" alt="صورة المركبة" />' if vehicle_image_data_uri else '<div>لا توجد صورة متاحة</div>'}
             </div>
           </section>
 
@@ -894,12 +859,7 @@ def build_html_report(report_data: dict) -> str:
           {normal_sections_html}
 
           <div class="footer-note">
-            <div>
-              هذا التقرير تم توليده آليًا بناءً على البيانات المخزنة في النظام ويُستخدم لأغراض التوثيق والتقدير المالي والمطالبة بالتعويض.
-            </div>
-            <div class="en">
-              This report is automatically generated from the system data and is intended for documentation, financial assessment, and compensation claim purposes.
-            </div>
+            هذا التقرير تم توليده آليًا بناءً على البيانات المخزنة في النظام ويُستخدم لأغراض التوثيق والتقدير المالي والمطالبة بالتعويض.
           </div>
 
         </div>
@@ -947,12 +907,11 @@ def build_pdf(report_data: dict, output_path: Path) -> None:
 # MAIN STEP 8
 # ============================================================
 def run_step8(db: Session, case_id: str) -> dict:
-    #change by shroug
     report_data = fetch_case_report_data(db, case_id)
     current_status = report_data["case"].get("status")
 
     if current_status != "step3_rejected_high_severity":
-     update_case_status(db, case_id, "completed")
+        update_case_status(db, case_id, "completed")
     db.flush()
 
     report_data = fetch_case_report_data(db, case_id)

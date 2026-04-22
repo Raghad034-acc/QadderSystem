@@ -12,6 +12,8 @@ import { ChevronRight, Download, Share2 } from "lucide-react";
 
 // Base URL for the backend server.
 const BACKEND_URL = "http://127.0.0.1:8000";
+// API endpoint to fetch reports
+const REPORTS_API_URL = `${BACKEND_URL}/step8/reports`;
 
 // Type definition for a single report item returned from the backend.
 type OwnerData = {
@@ -437,9 +439,15 @@ setTimeout(() => {
   };
 
   // Save the final report and then fetch its full data
+  // Save the final report and then fetch its full data
   const handleDownloadReport = () => {
-  if (!caseId) return;
-  window.open(`${BACKEND_URL}/step8/${caseId}/view`, "_blank");
+  if (!reportPath) {
+    setPageError("رابط التقرير غير موجود.");
+    return;
+  }
+
+  const reportUrl = `${BACKEND_URL}/${String(reportPath).replace(/\\/g, "/")}`;
+  window.open(reportUrl, "_blank");
 };
 
   return (
