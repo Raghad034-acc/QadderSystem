@@ -250,19 +250,19 @@ export default function UploadImagesPage() {
           </div>
 
           {/* Expected damage side */}
-          <div className="mt-6 flex items-start gap-2 text-right">
-            <div className="mt-1 text-amber-600">
-              <AlertTriangle size={16} />
-            </div>
+       <div className="mt-6 flex items-start gap-2 text-right">
+  <div className="mt-1 text-amber-600">
+    <AlertTriangle size={16} />
+  </div>
 
-            <p className="text-sm leading-7 text-qadder-dark/80">
-              <span className="font-bold text-qadder-dark">جهة الضرر المتوقعة:</span>
-              <span className="mx-2 font-bold text-qadder-primary">
-                {damageSide || "غير متوفرة"}
-              </span>
-              ويجب أن تطابق الصورة الجهة الموضحة في التقرير.
-            </p>
-          </div>
+  <p className="text-sm leading-7 text-qadder-dark/80">
+    <span className="font-bold text-qadder-dark">جهة الضرر المتوقعة: </span>
+    <strong className="px-1 font-bold leading-7 text-qadder-primary">
+      {damageSide || "غير متوفرة"}
+    </strong>
+    <span> ويجب أن تطابق الصورة الجهة الموضحة في التقرير.</span>
+  </p>
+</div>
 
           {/* Errors */}
           {requiredError && (

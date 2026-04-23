@@ -834,8 +834,7 @@ def build_html_report(report_data: dict) -> str:
             <div class="two-col">
               <div>
                 {build_label_value_row("رقم الحادث", case.get("accident_id"))}
-                {build_label_value_row("تاريخ الحادث", case.get("accident_date"))}
-                {build_label_value_row("وقت الحادث", case.get("accident_time"))}
+                {build_label_value_row("تاريخ / وقت الحادث ", case.get("accident_time"))}
                 {build_label_value_row("نسبة الخطأ", format_percent(case.get("fault_percentage")))}
                 {build_label_value_row("منطقة الضرر", case.get("damage_area_ar") or case.get("damage_area"))}
               </div>

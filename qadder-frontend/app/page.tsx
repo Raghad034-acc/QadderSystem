@@ -256,7 +256,7 @@ export default function HomePage() {
             {/* Welcome badge for returning users */}
             {user && (
               <div className="animate-fade-up mb-6 inline-flex items-center gap-2 rounded-full border border-qadder-border bg-white/80 px-4 py-2 text-sm font-semibold text-qadder-dark shadow-sm backdrop-blur">   
-                <span>أهلًا {user.first_name || "بك"}، سعيدين بعودتك</span>
+                <span>الحمدلله على السلامة {user.first_name || ""}، جاهزين نخدمك</span>
                 <Sparkles size={16} className="text-qadder-primary" />
               </div>
             )}

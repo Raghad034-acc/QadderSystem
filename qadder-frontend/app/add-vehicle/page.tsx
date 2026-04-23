@@ -38,16 +38,27 @@ const colorOptions = [
   "أخضر",
 ];
 
-const arabicPlateLetters = [
+const arabicPlateLetters = [ 
   "أ",
   "ب",
+  "ت",
+  "ث",
+  "ج",
   "ح",
+  "خ",
   "د",
+  "ذ",
   "ر",
+  "ز",
   "س",
+  "ش",
   "ص",
+  "ض",
   "ط",
+  "ظ",
   "ع",
+  "غ",
+  "ف",
   "ق",
   "ك",
   "ل",
@@ -56,10 +67,7 @@ const arabicPlateLetters = [
   "هـ",
   "و",
   "ي",
-  "خ",
-  "ت",
-  "ج",
-  "ف",
+  "ى",
 ];
 
 /* Shared input styling */
@@ -528,22 +536,22 @@ export default function AddVehiclePage() {
                 </div>
               </div>
 
-              {/* Plate preview */}
-              <div className="mt-5 rounded-2xl bg-white p-4 text-right shadow-sm">
-                <p className="text-sm font-semibold text-qadder-dark/60">
-                  رقم اللوحة النهائي
-                </p>
+       {/* Plate preview */}
+<div className="mt-5 rounded-2xl bg-white p-4 text-right shadow-sm">
+  <p className="text-sm font-semibold text-qadder-dark/60">
+    رقم اللوحة النهائي
+  </p>
 
-                {fullPlateNumber ? (
-                  <p className="mt-2 text-lg font-bold text-qadder-primary">
-                    {fullPlateNumber}
-                  </p>
-                ) : (
-                  <p className="mt-2 text-lg font-bold text-qadder-dark/35">
-                    ستظهر اللوحة هنا بعد اختيار الحروف والأرقام
-                  </p>
-                )}
-              </div>
+  {fullPlateNumber ? (
+    <p className="mt-2 text-lg font-bold text-qadder-primary">
+      {fullPlateNumber}
+    </p>
+  ) : (
+    <p className="mt-2 text-sm text-gray-400">
+      مثال: ب ب ب 1111
+    </p>
+  )}
+</div>
             </div>
 
             {/* Action buttons */}
