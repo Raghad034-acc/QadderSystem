@@ -4,6 +4,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import AppNavbar from "@/components/AppNavbar";
 import PageLoader from "@/components/PageLoader";
 import ContactUs from "@/components/ContactUs";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 
 
@@ -53,6 +54,10 @@ const arabicPlateLetters = [
   "ت",
   "ج",
 ];
+const inputClass =
+  "w-full rounded-2xl border border-qadder-border bg-qadder-background px-4 py-3.5 text-qadder-dark outline-none transition placeholder:text-qadder-dark/35 focus:border-qadder-secondary focus:bg-qadder-light";
+const selectClass =
+  "w-full rounded-2xl border border-qadder-border bg-qadder-background px-4 py-3.5 text-qadder-dark outline-none transition focus:border-qadder-secondary focus:bg-qadder-light";
 
 export default function AddVehiclePage() {
   const [user, setUser] = useState<User | null>(null);
@@ -217,7 +222,8 @@ export default function AddVehiclePage() {
 
 
   return (
-    <main className="min-h-screen bg-qadder-background text-qadder-dark">
+    <main dir="rtl"
+      className="min-h-screen bg-qadder-background text-qadder-dark">
       <AppNavbar isLoggedIn={true} handleLogout={handleLogout} />
 
       <section className="relative overflow-hidden border-b border-qadder-border/20">
@@ -231,9 +237,7 @@ export default function AddVehiclePage() {
             </h1>
 
             <p className="mt-4 max-w-2xl text-base leading-8 text-qadder-dark/70 md:text-lg">
-              اختار بيانات المركبة من القوائم التالية، ثم أدخل اللوحة، وبعد الحفظ
-              ستظهر مباشرة في صفحة مركباتي
-            </p>
+              أضف مركبتك وسجّل بياناتها لتكون جاهزة للاستفادة من خدمات قدّر.            </p>
           </div>
         </div>
       </section>
@@ -261,7 +265,7 @@ export default function AddVehiclePage() {
                 name="brand"
                 value={brand}
                 onChange={(e) => handleBrandChange(e.target.value)}
-                className="w-full rounded-2xl border border-qadder-border bg-white px-4 py-3 outline-none transition focus:border-qadder-primary"
+                className={selectClass}
               >
                 <option value="">اختر شركة الصنع</option>
                 {availableBrands.map((brand) => (
@@ -279,7 +283,7 @@ export default function AddVehiclePage() {
                 value={model}
                 onChange={(e) => handleModelChange(e.target.value)}
                 disabled={!brand}
-                className="w-full rounded-2xl border border-qadder-border bg-white px-4 py-3 outline-none transition focus:border-qadder-primary disabled:cursor-not-allowed disabled:bg-gray-100"
+                className={`${selectClass} disabled:opacity-60`}
               >
                 <option value="">اختر الموديل</option>
                 {availableModels.map((model) => (
@@ -297,7 +301,7 @@ export default function AddVehiclePage() {
                 value={year}
                 onChange={(e) => setYear(e.target.value)}
                 disabled={!brand || !model}
-                className="w-full rounded-2xl border border-qadder-border bg-white px-4 py-3 outline-none transition focus:border-qadder-primary disabled:cursor-not-allowed disabled:bg-gray-100"
+                className={`${selectClass} disabled:opacity-60`}
               >
                 <option value="">اختر سنة الصنع</option>
                 {availableYears.map((year) => (
@@ -314,7 +318,7 @@ export default function AddVehiclePage() {
               <select
                 value={color}
                 onChange={(e) => setColor(e.target.value)}
-                className="w-full rounded-2xl border border-qadder-border bg-white px-4 py-3 outline-none transition focus:border-qadder-primary"
+                className={selectClass}
               >
                 <option value="">اختر اللون</option>
                 {colorOptions.map((color) => (
@@ -340,7 +344,7 @@ export default function AddVehiclePage() {
                     <select
                       value={plateLetter1}
                       onChange={(e) => setPlateLetter1(e.target.value)}
-                      className="w-full rounded-2xl border border-qadder-border bg-white px-3 py-3 text-center outline-none transition focus:border-qadder-primary"
+                      className={inputClass}
                     >
                       <option value="">الحرف 1</option>
                       {arabicPlateLetters.map((item) => (
@@ -353,7 +357,7 @@ export default function AddVehiclePage() {
                     <select
                       value={plateLetter2}
                       onChange={(e) => setPlateLetter2(e.target.value)}
-                      className="w-full rounded-2xl border border-qadder-border bg-white px-3 py-3 text-center outline-none transition focus:border-qadder-primary"
+                      className={inputClass}
                     >
                       <option value="">الحرف 2</option>
                       {arabicPlateLetters.map((item) => (
@@ -366,7 +370,7 @@ export default function AddVehiclePage() {
                     <select
                       value={plateLetter3}
                       onChange={(e) => setPlateLetter3(e.target.value)}
-                      className="w-full rounded-2xl border border-qadder-border bg-white px-3 py-3 text-center outline-none transition focus:border-qadder-primary"
+                      className={inputClass}
                     >
                       <option value="">الحرف 3</option>
                       {arabicPlateLetters.map((item) => (
@@ -388,7 +392,7 @@ export default function AddVehiclePage() {
                     value={plateNumbers}
                     onChange={(e) => handlePlateNumbersChange(e.target.value)}
                     placeholder="مثال: 1234"
-                    className="w-full rounded-2xl border border-qadder-border bg-white px-4 py-3 outline-none transition focus:border-qadder-primary"
+                    className={inputClass}
                   />
                 </div>
               </div>
@@ -403,21 +407,22 @@ export default function AddVehiclePage() {
               </div>
             </div>
 
-            <div className="flex flex-col gap-3 pt-2 sm:flex-row sm:justify-end">
-              <button
-                type="button"
-                onClick={() => (window.location.href = "/vehicles")}
-                className="rounded-2xl border border-qadder-border px-6 py-3 font-semibold text-qadder-dark transition hover:bg-qadder-light"
-              >
-                رجوع
-              </button>
-
+            <div className="mt-6 space-y-3">
               <button
                 type="submit"
                 disabled={saving}
-                className="rounded-2xl bg-qadder-primary px-6 py-3 font-semibold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
+                className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-qadder-primary px-5 py-4 text-sm font-bold text-white transition hover:bg-qadder-dark disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {saving ? "جاري الإضافة..." : "حفظ المركبة"}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => (window.location.href = "/vehicles")}
+                className="inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-qadder-border/40 bg-white px-5 py-4 text-sm font-bold text-qadder-dark transition hover:bg-qadder-background"
+              >
+                <ChevronRight size={18} />
+                رجوع
               </button>
             </div>
           </form>

@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import AppNavbar from "@/components/AppNavbar";
 import PageLoader from "@/components/PageLoader";
 import ContactUs from "@/components/ContactUs";
+import { Check } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 import Link from "next/link";
 
@@ -194,7 +196,8 @@ export default function UploadReportPage() {
 
   if (pageLoading) {
     return (
-      <main className="min-h-screen bg-qadder-background text-qadder-dark">
+      <main dir="rtl"
+        className="min-h-screen bg-qadder-background text-qadder-dark">
         <AppNavbar isLoggedIn={true} handleLogout={handleLogout} />
 
         <section className="mx-auto max-w-7xl px-6 py-16">
@@ -205,7 +208,8 @@ export default function UploadReportPage() {
   }
 
   return (
-    <main className="min-h-screen bg-qadder-background text-qadder-dark">
+    <main dir="rtl"
+      className="min-h-screen bg-qadder-background text-qadder-dark">
       <AppNavbar
         isLoggedIn={true}
         handleLogout={handleLogout}
@@ -217,56 +221,51 @@ export default function UploadReportPage() {
         dir="rtl"
       >
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(173,200,147,0.18),_transparent_35%),radial-gradient(circle_at_top_right,_rgba(39,75,44,0.08),_transparent_30%)]" />
-
+        
         <div className="relative mx-auto max-w-6xl px-6 py-12 md:py-16">
-          <div className="max-w-4xl text-right">
-            <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-qadder-border bg-qadder-light px-4 py-2 text-sm font-semibold text-qadder-primary shadow-sm">
-              <span>الخطوة الأولى</span>
-            </div>
 
-            <h1 className="text-3xl font-extrabold leading-tight md:text-5xl">
-              رفع تقرير نجم
-            </h1>
-
-            <p className="mt-4 text-base leading-8 text-qadder-dark/70 md:text-lg">
-              ارفع تقرير نجم بصيغة PDF، ثم سيقوم النظام باستخراج البيانات
-              ومقارنتها تلقائيًا مع معلومات حسابك والمركبة التي اخترتها.
-            </p>
-          </div>
-
-          <div className="mt-8 overflow-x-auto">
-            <div className="flex min-w-[850px] items-center gap-3">
+          {/* Steps Progress */}
+          <div className="overflow-x-auto pb-1">
+            <div className="mx-auto flex min-w-[860px] items-start justify-between gap-2">
               {steps.map((step, index) => {
-                const active = index === 0;
-                const done = index < 0;
+                const stepNumber = index + 1;
+                const done = stepNumber < 2;
+                const active = stepNumber === 2;
 
                 return (
-                  <div key={step} className="flex flex-1 items-center gap-3">
-                    <div
-                      className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-sm font-bold ${done
-                        ? "bg-qadder-primary text-white"
-                        : active
-                          ? "border border-qadder-border bg-white text-qadder-primary"
-                          : "bg-white text-qadder-dark/50"
-                        }`}
-                    >
-                      {index + 1}
-                    </div>
+                  <div key={step} className="flex flex-1 items-start">
+                    <div className="flex flex-1 flex-col items-center text-center">
+                      <div
+                        className={`flex h-12 w-12 items-center justify-center rounded-full border text-sm font-bold transition ${done
+                          ? "border-qadder-primary bg-white text-qadder-primary ring-4 ring-qadder-secondary/25"
+                          : active
+                            ? "border-qadder-primary bg-white text-qadder-primary ring-4 ring-qadder-secondary/25"
+                            : "border border-qadder-border/40 bg-white text-qadder-dark/55"
+                          }`}
+                      >
+                        {stepNumber}
+                      </div>
 
-                    <div className="min-w-[120px]">
                       <p
-                        className={`text-sm font-semibold ${active || done
-                          ? "text-qadder-dark"
-                          : "text-qadder-dark/45"
+                        className={`mt-3 text-xs leading-6 md:text-sm ${active || done
+                          ? "font-bold text-qadder-dark"
+                          : "font-medium text-qadder-dark/65"
                           }`}
                       >
                         {step}
                       </p>
                     </div>
 
-                    {index < steps.length - 1 && (
-                      <div className="h-[2px] flex-1 bg-qadder-border/40" />
+                    {/* Progress line */}
+                    {index !== steps.length - 1 && (
+                      <div className="mt-6 h-[2px] flex-1 rounded-full bg-qadder-border/30">
+                        <div
+                          className={`h-full rounded-full ${done ? "bg-qadder-primary" : "bg-transparent"
+                            }`}
+                        />
+                      </div>
                     )}
+
                   </div>
                 );
               })}
@@ -337,73 +336,73 @@ export default function UploadReportPage() {
                 </label>
               </div>
 
-              <div className="flex flex-col gap-3 pt-2 sm:flex-row sm:justify-end">
-                <button
-                  type="button"
-                  onClick={() => router.push("/")}
-                  className="rounded-2xl border border-qadder-border px-6 py-3 font-semibold text-qadder-dark transition hover:bg-qadder-light"
-                >
-                  رجوع
-                </button>
-
+              <div className="mt-6">
                 <button
                   type="submit"
                   disabled={uploading}
-                  className="rounded-2xl bg-qadder-primary px-6 py-3 font-semibold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
+                  className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-qadder-primary px-5 py-4 text-sm font-bold text-white transition hover:bg-qadder-dark disabled:cursor-not-allowed disabled:opacity-60"
                 >
-                  {uploading ? "جاري رفع التقرير..." : "رفع التقرير والمتابعة"}
+                  {uploading ? "جاري رفع التقرير..." : "التالي"}
+                  {!uploading && <ChevronLeft size={18} />}
                 </button>
               </div>
+
             </form>
           </div>
+          <div className="mx-auto max-w-4xl rounded-[32px] border border-qadder-border/20 bg-white p-5 shadow-sm md:p-8">
 
-          <div
-            className="rounded-[28px] border border-qadder-border/20 bg-white p-6 shadow-sm md:p-8"
-            dir="rtl"
-          >
-            <h2 className="mb-8 text-center text-xl font-bold text-qadder-dark">
-              ملاحظات قبل الرفع
-            </h2>
+            {/* Guidelines */}
+            <div>
+              <h2 className="text-right text-xl font-bold text-qadder-dark">
+                إرشادات قبل الرفع
+              </h2>
 
-            <div className="grid gap-6 md:grid-cols-3">
+              <div className="mt-4 grid gap-3 md:grid-cols-2">
+                <GuidelineItem
+                  title="اختر المركبة"
+                  description="تأكد أن المركبة المختارة هي نفس المركبة المذكورة في تقرير نجم."
+                />
 
-              {/* Step 1 */}
-              <div className="rounded-3xl border border-qadder-border/20 bg-white p-6 text-center transition hover:-translate-y-1 hover:shadow-md">
-                <h3 className="text-lg font-bold text-qadder-dark">
-                  1. اختر المركبة
-                </h3>
-                <p className="mt-3 text-sm leading-6 text-qadder-dark/60">
-                  تأكد أن المركبة المختارة هي نفس المركبة المذكورة في تقرير نجم.
-                </p>
+                <GuidelineItem
+                  title="رفع التقرير"
+                  description="النظام يقبل فقط الملفات بصيغة PDF."
+                />
+
+                <GuidelineItem
+                  title="المطابقة التلقائية"
+                  description="سيتم التحقق من بيانات التقرير ومقارنتها مع حسابك والمركبة."
+                />
               </div>
-
-              {/* Step 2 */}
-              <div className="rounded-3xl border border-qadder-border/20 bg-white p-6 text-center transition hover:-translate-y-1 hover:shadow-md">
-                <h3 className="text-lg font-bold text-qadder-dark">
-                  2. رفع التقرير
-                </h3>
-                <p className="mt-3 text-sm leading-6 text-qadder-dark/60">
-                  النظام يقبل فقط الملفات بصيغة PDF.
-                </p>
-              </div>
-
-              {/* Step 3 */}
-              <div className="rounded-3xl border border-qadder-border/20 bg-white p-6 text-center transition hover:-translate-y-1 hover:shadow-md">
-                <h3 className="text-lg font-bold text-qadder-dark">
-                  3. المطابقة التلقائية
-                </h3>
-                <p className="mt-3 text-sm leading-6 text-qadder-dark/60">
-                  سيتم التحقق من بيانات التقرير ومقارنتها مع حسابك والمركبة.
-                </p>
-              </div>
-
             </div>
           </div>
         </div>
+
       </section>
-      <ContactUs/>
+      <ContactUs />
 
 
     </main>
+  );
+}
+function GuidelineItem({
+  title,
+  description,
+}: {
+  title: string;
+  description: string;
+}) {
+  return (
+    <div className="flex items-start gap-3 rounded-2xl bg-qadder-background/45 p-4">
+      <div className="rounded-full bg-white p-2 text-qadder-primary shadow-sm">
+        <Check size={15} />
+      </div>
+
+      <div className="text-right">
+        <p className="text-sm font-bold text-qadder-dark">{title}</p>
+        <p className="mt-1 text-sm leading-7 text-qadder-dark/70">
+          {description}
+        </p>
+      </div>
+    </div>
   );
 }

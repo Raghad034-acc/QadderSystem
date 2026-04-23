@@ -54,7 +54,9 @@ export default function HomePage() {
   };
   if (user) {
     return (
-      <main className="min-h-screen bg-qadder-background text-qadder-dark" >
+      <main dir="rtl"
+        className="min-h-screen bg-qadder-background text-qadder-dark" >
+
         <AppNavbar
           isLoggedIn={true}
           handleLogout={handleLogout}
@@ -67,9 +69,8 @@ export default function HomePage() {
           <div className="relative mx-auto flex max-w-7xl flex-col items-center px-6 pb-20 pt-16 text-center md:pt-24">
             {user && (
               <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-qadder-border bg-white/80 px-4 py-2 text-sm font-semibold text-qadder-dark shadow-sm backdrop-blur">
-                <span>👋</span>
                 <span>
-                  أهلًا {user.first_name || "بك"}، سعيدون بعودتك
+                  أهلًا {user.first_name || "بك"}، سعيدين بعودتك
                 </span>
               </div>
             )}
@@ -79,22 +80,17 @@ export default function HomePage() {
               alt="شعار قدر"
               className="h-50 w-200 object-contain"
             />
-            <div className="mb-6 rounded-full border border-qadder-border bg-qadder-light px-4 py-2 text-xs font-semibold text-qadder-primary shadow-sm">
-              الخيار الذكي لتقدير أضرار المركبات في المملكة
-            </div>
-
             <h2 className="max-w-4xl text-4xl font-extrabold leading-tight tracking-tight text-qadder-dark md:text-6xl">
               قدّر أضرار مركبتك
               <span className="block text-qadder-primary">بسهولة ودقة</span>
             </h2>
 
             <p className="mt-5 max-w-2xl text-base leading-8 text-qadder-dark/70 md:text-lg">
-              تجربة رقمية ذكية لتقييم أضرار المركبات بسرعة ودقة،
-              مما يساعدك على تقليل الجهد والحصول على تقدير إصلاح أكثر وضوحًا واتساقًا.
-            </p>
+              حل رقمي متكامل لتقدير أضرار المركبات في المملكة خلال دقائق          </p>
 
-            <a href="/upload-report">
-              <button className="mt-6 rounded-2xl bg-qadder-primary px-7 py-4 text-sm font-semibold text-white shadow-lg shadow-qadder-primary/20 transition hover:bg-qadder-dark">          ابدأ التقدير الآن
+            <a href="/upload-report" className="block mt-6">
+              <button className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-qadder-primary px-5 py-4 text-sm font-bold text-white transition hover:bg-qadder-dark">
+                ابدأ التقدير الآن
               </button>
             </a>
 
@@ -232,6 +228,7 @@ export default function HomePage() {
               </div>
             </div>
 
+
             <div className="mt-16 grid w-full max-w-6xl gap-6 rounded-[28px] border border-qadder-border/30 bg-white p-6 shadow-[0_20px_60px_rgba(16,47,21,0.08)] md:grid-cols-3 md:p-8">
               <div className="rounded-3xl border border-qadder-border/20 bg-white p-8 text-center transition hover:-translate-y-1 hover:shadow-md">
                 <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-qadder-light text-2xl">
@@ -242,7 +239,7 @@ export default function HomePage() {
                 </h3>
                 <p className="mt-3 text-sm leading-7 text-qadder-dark/60">
                   ارفع تقرير نجم لبدء عملية التقدير بشكل منظم
-                  وسريع.
+                  وسريع
                 </p>
               </div>
 
@@ -251,11 +248,11 @@ export default function HomePage() {
                   ⛶
                 </div>
                 <h3 className="text-xl font-bold text-qadder-dark">
-                  تصوير الأضرار
+                  تصوير الضرر
                 </h3>
                 <p className="mt-3 text-sm leading-7 text-qadder-dark/60">
-                  التقط صورة واضحة للجزء المتضرر حتى يتمكن النظام من تحليل نوع
-                  الضرر ودرجته بدقة.
+                  ارفع صورة واضحة للجزء المتضرر حتى يتمكن النظام من تحليل نوع
+                  الضرر وشدته بدقة
                 </p>
               </div>
 
@@ -264,17 +261,15 @@ export default function HomePage() {
                   ✓
                 </div>
                 <h3 className="text-xl font-bold text-qadder-dark">
-                  الحصول على التقدير
+                  الحصول على التقرير
                 </h3>
                 <p className="mt-3 text-sm leading-7 text-qadder-dark/60">
-                  استلم ملخصًا منظمًا للأضرار وتقديرًا لتكلفة الإصلاح ضمن تجربة
-                  سريعة وسهلة الاستخدام.
-                </p>
+                  استلم تقريرًا واضحًا للأضرار وتكلفة الإصلاح خلال دقائق             </p>
               </div>
             </div>
           </div>
         </section>
-              <ContactUs />
+        <ContactUs />
 
       </main>
     );
@@ -284,7 +279,8 @@ export default function HomePage() {
 
   return (
 
-    <main className="min-h-screen bg-qadder-background text-qadder-dark">
+    <main dir="rtl"
+      className="min-h-screen bg-qadder-background text-qadder-dark">
       <AppNavbar
         isLoggedIn={false}
         contactHref="#contact"
@@ -294,9 +290,6 @@ export default function HomePage() {
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(173,200,147,0.18),_transparent_35%),radial-gradient(circle_at_top_right,_rgba(39,75,44,0.08),_transparent_30%)]" />
 
         <div className="relative mx-auto flex max-w-7xl flex-col items-center px-6 pb-20 pt-16 text-center md:pt-24">
-          <div className="mb-6 rounded-full border border-qadder-border bg-qadder-light px-4 py-2 text-xs font-semibold text-qadder-primary shadow-sm">
-            الخيار الذكي لتقدير أضرار المركبات في المملكة
-          </div>
 
           <img
             src="/images/logo.png"
@@ -310,11 +303,11 @@ export default function HomePage() {
           </h2>
 
           <p className="mt-5 max-w-2xl text-base leading-8 text-qadder-dark/70 md:text-lg">
-            تجربة رقمية ذكية لتقييم أضرار المركبات بسرعة ودقة،
-            مما يساعدك على تقليل الجهد والحصول على تقدير إصلاح أكثر وضوحًا واتساقًا.
-          </p>
-          <a href="/login">
-            <button className="mt-6 rounded-2xl bg-qadder-primary px-7 py-4 text-sm font-semibold text-white shadow-lg shadow-qadder-primary/20 transition hover:bg-qadder-dark">          ابدأ التقدير الآن
+            حل رقمي متكامل لتقدير أضرار المركبات في المملكة خلال دقائق          </p>
+
+          <a href="/login" className="mt-8 block">
+            <button className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-qadder-primary px-5 py-4 text-sm font-bold text-white transition hover:bg-qadder-dark">
+              ابدأ التقدير الآن
             </button>
           </a>
 
@@ -410,7 +403,7 @@ export default function HomePage() {
               </h3>
               <p className="mt-3 text-sm leading-7 text-qadder-dark/60">
                 ارفع تقرير نجم لبدء عملية التقدير بشكل منظم
-                وسريع.
+                وسريع
               </p>
             </div>
 
@@ -419,11 +412,11 @@ export default function HomePage() {
                 ⛶
               </div>
               <h3 className="text-xl font-bold text-qadder-dark">
-                تصوير الأضرار
+                تصوير الضرر
               </h3>
               <p className="mt-3 text-sm leading-7 text-qadder-dark/60">
-                التقط صورة واضحة للجزء المتضرر حتى يتمكن النظام من تحليل نوع
-                الضرر ودرجته بدقة.
+                ارفع صورة واضحة للجزء المتضرر حتى يتمكن النظام من تحليل نوع
+                الضرر وشدته بدقة
               </p>
             </div>
 
@@ -432,17 +425,15 @@ export default function HomePage() {
                 ✓
               </div>
               <h3 className="text-xl font-bold text-qadder-dark">
-                الحصول على التقدير
+                الحصول على التقرير
               </h3>
               <p className="mt-3 text-sm leading-7 text-qadder-dark/60">
-                استلم ملخصًا منظمًا للأضرار وتقديرًا لتكلفة الإصلاح ضمن تجربة
-                سريعة وسهلة الاستخدام.
-              </p>
+                استلم تقريرًا واضحًا للأضرار وتكلفة الإصلاح خلال دقائق       </p>
             </div>
           </div>
         </div>
       </section>
-      <ContactUs/>
+      <ContactUs />
     </main>
   );
 }

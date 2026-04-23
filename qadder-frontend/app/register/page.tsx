@@ -3,6 +3,8 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { Check } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 const steps = ["بيانات الحساب", "البيانات الشخصية", "بيانات المركبة"];
 
@@ -179,9 +181,9 @@ export default function RegisterPage() {
         return;
       }
       if (form.password.length < 6) {
-  setError("كلمة المرور يجب أن تكون 6 خانات أو أكثر");
-  return;
-}
+        setError("كلمة المرور يجب أن تكون 6 خانات أو أكثر");
+        return;
+      }
     }
 
     if (currentStep === 1) {
@@ -209,7 +211,7 @@ export default function RegisterPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
 
     if (currentStep !== 2) return;
 
@@ -267,7 +269,7 @@ export default function RegisterPage() {
         color: form.color,
         plate_number: `${form.plate_letter_1} ${form.plate_letter_2} ${form.plate_letter_3} ${form.plate_numbers}`,
       };
-console.log("payload:", payload);
+      console.log("payload:", payload);
       const res = await fetch("http://127.0.0.1:8000/auth/register", {
         method: "POST",
         headers: {
@@ -323,33 +325,47 @@ console.log("payload:", payload);
                 </p>
               </div>
 
-              <div className="mb-8">
-                <div className="flex items-center justify-between gap-3">
+              <div className="mb-8 overflow-x-auto pb-1">
+                <div className="flex min-w-[600px] items-start justify-between">
                   {steps.map((step, index) => {
                     const active = index === currentStep;
                     const done = index < currentStep;
 
                     return (
-                      <div key={step} className="flex flex-1 items-center gap-2">
-                        <div
-                          className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-sm font-bold ${done
+                      <div key={step} className="flex flex-1 items-start">
+                        <div className="flex flex-1 flex-col items-center text-center">
+
+                          {/* Circle */}
+                          <div
+                            className={`flex h-10 w-10 items-center justify-center rounded-full text-sm font-bold transition ${done
                               ? "bg-qadder-primary text-white"
                               : active
-                                ? "border border-qadder-border bg-qadder-light text-qadder-primary"
-                                : "bg-gray-100 text-gray-500"
-                            }`}
-                        >
-                          {index + 1}
-                        </div>
+                                ? "border border-qadder-primary bg-white text-qadder-primary ring-4 ring-qadder-secondary/25"
+                                : "border border-qadder-border/40 bg-white text-qadder-dark/55"
+                              }`}
+                          >
+                            {done ? <Check size={16} /> : index + 1}                          </div>
 
-                        <div className="hidden sm:block">
+                          {/* Text */}
                           <p
-                            className={`text-sm font-medium ${active || done ? "text-qadder-dark" : "text-gray-400"
+                            className={`mt-2 text-xs md:text-sm ${active
+                              ? "font-bold text-qadder-dark"
+                              : "font-medium text-qadder-dark/60"
                               }`}
                           >
                             {step}
                           </p>
                         </div>
+
+                        {/* Line */}
+                        {index !== steps.length - 1 && (
+                          <div className="mt-5 h-[2px] flex-1 bg-qadder-border/30">
+                            <div
+                              className={`h-full ${done ? "bg-qadder-primary" : "bg-transparent"
+                                }`}
+                            />
+                          </div>
+                        )}
                       </div>
                     );
                   })}
@@ -606,66 +622,73 @@ console.log("payload:", payload);
                       <h2 className="mb-4 text-right text-lg font-bold text-qadder-dark">
                         بيانات اللوحة
                       </h2>
-                      <div>
 
-                        <div className="grid grid-cols-4 gap-3">
-                          <select
-                            name="plate_letter_1"
-                            value={form.plate_letter_1}
-                            onChange={handleChange}
-                            className={selectClass}
-                          >
-                            <option value="">الحرف 1</option>
-                            {arabicPlateLetters.map((letter) => (
-                              <option key={`1-${letter}`} value={letter}>
-                                {letter}
-                              </option>
-                            ))}
-                          </select>
+                      <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+                        <div>
+                          <label className="mb-2 block text-sm font-semibold text-qadder-dark">
+                            حروف اللوحة
+                          </label>
 
-                          <select
-                            name="plate_letter_2"
-                            value={form.plate_letter_2}
-                            onChange={handleChange}
-                            className={selectClass}
-                          >
-                            <option value="">الحرف 2</option>
-                            {arabicPlateLetters.map((letter) => (
-                              <option key={`2-${letter}`} value={letter}>
-                                {letter}
-                              </option>
-                            ))}
-                          </select>
+                          <div className="grid grid-cols-3 gap-3">
+                            <select
+                              name="plate_letter_1"
+                              value={form.plate_letter_1}
+                              onChange={handleChange}
+                              className={inputClass}
+                            >
+                              <option value="">حرف1</option>
+                              {arabicPlateLetters.map((letter) => (
+                                <option key={`1-${letter}`} value={letter}>
+                                  {letter}
+                                </option>
+                              ))}
+                            </select>
 
-                          <select
-                            name="plate_letter_3"
-                            value={form.plate_letter_3}
-                            onChange={handleChange}
-                            className={selectClass}
-                          >
-                            <option value="">الحرف 3</option>
-                            {arabicPlateLetters.map((letter) => (
-                              <option key={`3-${letter}`} value={letter}>
-                                {letter}
-                              </option>
-                            ))}
-                          </select>
+                            <select
+                              name="plate_letter_2"
+                              value={form.plate_letter_2}
+                              onChange={handleChange}
+                              className={inputClass}
+                            >
+                              <option value="">حرف2</option>
+                              {arabicPlateLetters.map((letter) => (
+                                <option key={`2-${letter}`} value={letter}>
+                                  {letter}
+                                </option>
+                              ))}
+                            </select>
 
+                            <select
+                              name="plate_letter_3"
+                              value={form.plate_letter_3}
+                              onChange={handleChange}
+                              className={inputClass}
+                            >
+                              <option value="">حرف3</option>
+                              {arabicPlateLetters.map((letter) => (
+                                <option key={`3-${letter}`} value={letter}>
+                                  {letter}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+                        </div>
 
+                        <div>
+                          <label className="mb-2 block text-sm font-semibold text-qadder-dark">
+                            أرقام اللوحة
+                          </label>
                           <input
                             name="plate_numbers"
                             type="text"
                             value={form.plate_numbers}
                             onChange={handleChange}
-                            placeholder="0098"
-                            className={`${inputClass} text-center`}
+                            placeholder="مثال: 1234"
+                            className={inputClass}
                           />
                         </div>
-
-                        <p className="mt-2 text-xs text-qadder-dark/60">
-                          الصيغة المطلوبة: خ ن ت 0098
-                        </p>
                       </div>
+
                       <div className="mt-5 rounded-2xl bg-white p-4 text-right shadow-sm">
                         <p className="text-sm font-semibold text-qadder-dark/60">
                           رقم اللوحة النهائي
@@ -685,22 +708,7 @@ console.log("payload:", payload);
                   </div>
                 )}
 
-                <div className="flex items-center justify-between gap-3 pt-2">
-                  {currentStep > 0 ? (
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        prevStep();
-                      }}
-                      className="rounded-2xl border border-qadder-border px-6 py-3 text-qadder-dark transition hover:bg-qadder-light"
-                    >
-                      السابق
-                    </button>
-                  ) : (
-                    <div />
-                  )}
-
+                <div className="mt-6 space-y-3">
                   {currentStep < steps.length - 1 ? (
                     <button
                       type="button"
@@ -708,17 +716,33 @@ console.log("payload:", payload);
                         e.preventDefault();
                         nextStep();
                       }}
-                      className="rounded-2xl bg-qadder-primary px-7 py-3 font-semibold text-white transition hover:bg-qadder-dark"
+                      disabled={loading}
+                      className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-qadder-primary px-5 py-4 text-sm font-bold text-white transition hover:bg-qadder-dark disabled:cursor-not-allowed disabled:opacity-60"
                     >
-                      التالي
+                      {loading ? "جاري التنفيذ..." : "التالي"}
+                      {!loading && <ChevronLeft size={18} />}
                     </button>
                   ) : (
                     <button
                       type="submit"
                       disabled={loading}
-                      className="rounded-2xl bg-qadder-primary px-7 py-3 font-semibold text-white transition hover:bg-qadder-dark disabled:opacity-60"
+                      className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-qadder-primary px-5 py-4 text-sm font-bold text-white transition hover:bg-qadder-dark disabled:cursor-not-allowed disabled:opacity-60"
                     >
                       {loading ? "جاري الإنشاء..." : "إنشاء حساب"}
+                    </button>
+                  )}
+
+                  {currentStep > 0 && (
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        prevStep();
+                      }}
+                      className="inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-qadder-border/40 bg-white px-5 py-4 text-sm font-bold text-qadder-dark transition hover:bg-qadder-background"
+                    >
+                      <ChevronRight size={18} />
+                      السابق
                     </button>
                   )}
                 </div>

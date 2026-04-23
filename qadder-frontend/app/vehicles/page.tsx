@@ -97,7 +97,8 @@ export default function VehiclesPage() {
 
     if (loading) {
         return (
-            <main className="min-h-screen bg-qadder-background text-qadder-dark">
+            <main dir="rtl"
+                className="min-h-screen bg-qadder-background text-qadder-dark">
                 <AppNavbar isLoggedIn={true} handleLogout={handleLogout} />
 
                 <section className="mx-auto max-w-7xl px-6 py-16">
@@ -109,7 +110,8 @@ export default function VehiclesPage() {
 
     if (error) {
         return (
-            <main className="min-h-screen bg-qadder-background text-qadder-dark">
+            <main dir="rtl"
+                className="min-h-screen bg-qadder-background text-qadder-dark">
                 <section className="mx-auto max-w-7xl px-6 py-16">
                     <div className="rounded-[28px] border border-red-200 bg-red-50 p-12 text-center shadow-sm">
                         <p className="text-lg font-semibold text-red-600">{error}</p>
@@ -120,7 +122,8 @@ export default function VehiclesPage() {
     }
 
     return (
-        <main className="min-h-screen bg-qadder-background text-qadder-dark">
+        <main dir="rtl"
+            className="min-h-screen bg-qadder-background text-qadder-dark">
             {/* Header */}
             <AppNavbar
                 isLoggedIn={true}

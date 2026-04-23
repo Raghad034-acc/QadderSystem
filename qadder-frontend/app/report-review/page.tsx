@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import AppNavbar from "@/components/AppNavbar";
 import PageLoader from "@/components/PageLoader";
 import ContactUs from "@/components/ContactUs";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 import Link from "next/link";
 
@@ -128,7 +129,8 @@ export default function ReportReviewPage() {
 
   if (loading) {
     return (
-      <main className="min-h-screen bg-qadder-background text-qadder-dark">
+      <main dir="rtl"
+        className="min-h-screen bg-qadder-background text-qadder-dark">
         <AppNavbar isLoggedIn={true} handleLogout={handleLogout} />
 
         <section className="mx-auto max-w-7xl px-6 py-16">
@@ -140,7 +142,8 @@ export default function ReportReviewPage() {
 
   if (error || !step1Data) {
     return (
-      <main className="min-h-screen bg-qadder-background text-qadder-dark">
+      <main dir="rtl"
+        className="min-h-screen bg-qadder-background text-qadder-dark">
         <AppNavbar isLoggedIn={true} handleLogout={handleLogout} />
         <section className="mx-auto max-w-5xl px-6 py-16" dir="rtl">
           <div className="rounded-[28px] border border-red-200 bg-red-50 p-12 text-center shadow-sm">
@@ -163,7 +166,8 @@ export default function ReportReviewPage() {
   }
 
   return (
-    <main className="min-h-screen bg-qadder-background text-qadder-dark">
+    <main dir="rtl"
+      className="min-h-screen bg-qadder-background text-qadder-dark">
       <AppNavbar
         isLoggedIn={true}
         handleLogout={handleLogout}
@@ -192,38 +196,42 @@ export default function ReportReviewPage() {
           <div className="mt-8 overflow-x-auto">
             <div className="flex min-w-[850px] items-center gap-3">
               {steps.map((step, index) => {
-                const done = index === 0;
-                const active = index === 1;
+                const stepNumber = index + 1;
+                const done = stepNumber < 2;
+                const active = stepNumber === 2;
 
                 return (
-                  <div key={step} className="flex flex-1 items-center gap-3">
-                    <div
-                      className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-sm font-bold ${done
-                        ? "bg-qadder-primary text-white"
-                        : active
-                          ? "border border-qadder-border bg-white text-qadder-primary"
-                          : "bg-white text-qadder-dark/50"
-                        }`}
-                    >
-                      {index + 1}
-                    </div>
+                  <div key={step} className="flex flex-1 items-start">
+                    <div className="flex flex-1 flex-col items-center text-center">
+                      <div
+                        className={`flex h-12 w-12 items-center justify-center rounded-full border text-sm font-bold transition ${done
+                          ? "border-qadder-primary bg-white text-qadder-primary ring-4 ring-qadder-secondary/25"
+                          : active
+                            ? "border-qadder-primary bg-white text-qadder-primary ring-4 ring-qadder-secondary/25"
+                            : "border border-qadder-border/40 bg-white text-qadder-dark/55"
+                          }`}
+                      >
+                        {stepNumber}
+                      </div>
 
-                    <div className="min-w-[120px]">
                       <p
-                        className={`text-sm font-semibold ${active || done
-                          ? "text-qadder-dark"
-                          : "text-qadder-dark/45"
+                        className={`mt-3 text-xs leading-6 md:text-sm ${active || done
+                          ? "font-bold text-qadder-dark"
+                          : "font-medium text-qadder-dark/65"
                           }`}
                       >
                         {step}
                       </p>
                     </div>
 
-                    {index < steps.length - 1 && (
-                      <div
-                        className={`h-[2px] flex-1 ${done ? "bg-qadder-primary/40" : "bg-qadder-border/40"
-                          }`}
-                      />
+                    {/* Progress line */}
+                    {index !== steps.length - 1 && (
+                      <div className="mt-6 h-[2px] flex-1 rounded-full bg-qadder-border/30">
+                        <div
+                          className={`h-full rounded-full ${done ? "bg-qadder-primary" : "bg-transparent"
+                            }`}
+                        />
+                      </div>
                     )}
                   </div>
                 );
@@ -346,7 +354,7 @@ export default function ReportReviewPage() {
           </div>
 
           <div className="grid gap-6">
-            <div className="rounded-[28px] border border-qadder-border/20 bg-white p-6 shadow-sm md:p-8">
+            {/* <div className="rounded-[28px] border border-qadder-border/20 bg-white p-6 shadow-sm md:p-8">
               <h2 className="mb-4 text-right text-2xl font-bold text-qadder-dark">
                 نتيجة المطابقة
               </h2>
@@ -360,19 +368,15 @@ export default function ReportReviewPage() {
                   />
                 ))}
               </div>
-            </div>
+            </div> */}
 
             <div className="rounded-[28px] border border-qadder-border/20 bg-white p-6 shadow-sm md:p-8">
-              <h2 className="mb-4 text-right text-xl font-bold text-qadder-dark">
-                الخطوة التالية
-              </h2>
-
+ 
               <p className="text-right text-sm leading-7 text-qadder-dark/70">
-                إذا كانت البيانات صحيحة، يمكنك المتابعة إلى خطوة رفع صور الأضرار
-                حتى يبدأ النظام بتحليلها.
+                إذا كانت البيانات صحيحة، يمكنك المتابعة إلى خطوة رفع صورة الضرر
               </p>
 
-              <div className="mt-5 grid gap-3">
+              <div className="mt-6 space-y-3">
                 <button
                   type="button"
                   onClick={() => {
@@ -382,13 +386,23 @@ export default function ReportReviewPage() {
                       )}`
                     );
                   }}
-                  className="rounded-2xl bg-qadder-primary px-5 py-3 text-center font-semibold text-white transition hover:bg-qadder-dark"
+                  className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-qadder-primary px-5 py-4 text-sm font-bold text-white transition hover:bg-qadder-dark"
                 >
-                  التالي: رفع الصور
+                  التالي
+                  <ChevronLeft size={18} />
                 </button>
 
-
+                <button
+                  type="button"
+                  onClick={() => router.back()}
+                  className="inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-qadder-border/40 bg-white px-5 py-4 text-sm font-bold text-qadder-dark transition hover:bg-qadder-background"
+                >
+                  <ChevronRight size={18} />
+                  السابق
+                </button>
               </div>
+
+
             </div>
           </div>
         </div>

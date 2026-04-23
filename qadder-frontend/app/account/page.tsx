@@ -86,7 +86,8 @@ export default function AccountPage() {
   // Loading state UI
   if (loading) {
     return (
-      <main className="min-h-screen bg-qadder-background">
+      <main dir="rtl"
+        className="min-h-screen bg-qadder-background">
         <AppNavbar isLoggedIn />
         <section className="mx-auto max-w-6xl px-6 py-12">
           <PageLoader text="جاري تحميل الحساب..." />
@@ -98,7 +99,8 @@ export default function AccountPage() {
   // Error state UI
   if (error) {
     return (
-      <main className="min-h-screen bg-qadder-background">
+      <main dir="rtl"
+        className="min-h-screen bg-qadder-background">
         <AppNavbar isLoggedIn />
         <section className="mx-auto max-w-6xl px-6 py-12">
           <div className="rounded-2xl border border-red-200 bg-red-50 p-6 text-center text-red-600">
@@ -134,7 +136,7 @@ export default function AccountPage() {
       {/* Main card */}
       <section className="mx-auto max-w-6xl px-6 py-6 md:py-8">
         <div className="mx-auto max-w-4xl rounded-[32px] border border-qadder-border/20 bg-white p-6 shadow-sm md:p-8">
-          
+
           {/* Section title */}
           <div className="mb-6 text-right">
             <h2 className="text-xl font-bold text-qadder-dark">
@@ -195,7 +197,7 @@ function InfoCard({
     <div className="rounded-2xl border border-qadder-border/20 bg-qadder-background px-4 py-3 text-right">
 
       <div className="flex items-center gap-2 flex-wrap" dir="rtl">
-        
+
         <span className="text-sm font-bold text-qadder-dark whitespace-nowrap">
           {label}:
         </span>
