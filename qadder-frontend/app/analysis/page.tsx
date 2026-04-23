@@ -146,9 +146,9 @@ export default function AnalysisPage() {
   const steps = isHighSeverity
     ? ["رفع التقرير", "رفع الصورة", "تحليل الأضرار", "التقرير النهائي"]
     : ["رفع التقرير", "رفع الصورة", "تحليل الأضرار", "حساب التكلفة", "التقرير النهائي"];
-  
-    // Severity label fallback
-    const step3SeverityAr =
+
+  // Severity label fallback
+  const step3SeverityAr =
     step3Response?.step3_result?.severity_ar ||
     step3Response?.step3_result?.severity_en ||
     "غير معروف";
@@ -319,17 +319,17 @@ export default function AnalysisPage() {
 
   // Go to next page based on severity result
   const goNext = () => {
-  if (isHighSeverity) {
-    router.push(
-      `/qadder-report?case_id=${caseId}&image=${encodeURIComponent(imagePath || "")}`
-    );
-    return;
-  }
+    if (isHighSeverity) {
+      router.push(
+        `/qadder-report?case_id=${caseId}&image=${encodeURIComponent(imagePath || "")}`
+      );
+      return;
+    }
 
-  router.push(
-    `/cost?case_id=${caseId}&image=${encodeURIComponent(imagePath || "")}`
-  );
-};
+    router.push(
+      `/cost?case_id=${caseId}&image=${encodeURIComponent(imagePath || "")}`
+    );
+  };
 
   return (
     <main dir="rtl" className="min-h-screen bg-qadder-background text-qadder-dark">
@@ -351,23 +351,21 @@ export default function AnalysisPage() {
                   <div key={step} className="flex flex-1 items-start">
                     <div className="flex flex-1 flex-col items-center text-center">
                       <div
-                        className={`flex h-12 w-12 items-center justify-center rounded-full border text-sm font-bold transition ${
-                          done
+                        className={`flex h-12 w-12 items-center justify-center rounded-full border text-sm font-bold transition ${done
                             ? "border-qadder-primary bg-qadder-primary text-white"
                             : active
-                            ? "border-qadder-primary bg-white text-qadder-primary ring-4 ring-qadder-secondary/25"
-                            : "border border-qadder-border/40 bg-white text-qadder-dark/55"
-                        }`}
+                              ? "border-qadder-primary bg-white text-qadder-primary ring-4 ring-qadder-secondary/25"
+                              : "border border-qadder-border/40 bg-white text-qadder-dark/55"
+                          }`}
                       >
                         {done ? <Check size={18} /> : stepNumber}
                       </div>
 
                       <p
-                        className={`mt-3 text-xs leading-6 md:text-sm ${
-                          active
+                        className={`mt-3 text-xs leading-6 md:text-sm ${active
                             ? "font-bold text-qadder-dark"
                             : "font-medium text-qadder-dark/65"
-                        }`}
+                          }`}
                       >
                         {step}
                       </p>
@@ -377,9 +375,8 @@ export default function AnalysisPage() {
                     {index !== steps.length - 1 && (
                       <div className="mt-6 h-[2px] flex-1 rounded-full bg-qadder-border/30">
                         <div
-                          className={`h-full rounded-full ${
-                            done ? "bg-qadder-primary" : "bg-transparent"
-                          }`}
+                          className={`h-full rounded-full ${done ? "bg-qadder-primary" : "bg-transparent"
+                            }`}
                         />
                       </div>
                     )}
@@ -479,13 +476,13 @@ export default function AnalysisPage() {
                     >
                       <div className="mb-3 flex items-center gap-2">
                         <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-green-100 text-sm font-bold text-green-700">
-                            {item.damageNo}
+                          {item.damageNo}
                         </div>
 
                         <h3 className="text-lg font-bold text-qadder-dark">
-                            الضرر
+                          الضرر
                         </h3>
-                        </div>
+                      </div>
 
                       <div className="space-y-3">
                         <div className="rounded-2xl border border-qadder-border/20 bg-qadder-background px-4 py-3">

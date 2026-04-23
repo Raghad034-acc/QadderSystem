@@ -92,18 +92,16 @@ function CustomDropdown({
         type="button"
         disabled={disabled}
         onClick={() => setOpen((prev) => !prev)}
-        className={`${dropdownButtonClass} ${
-          disabled ? "cursor-not-allowed opacity-60" : ""
-        }`}
+        className={`${dropdownButtonClass} ${disabled ? "cursor-not-allowed opacity-60" : ""
+          }`}
       >
         <span className={value ? "text-qadder-dark" : "text-qadder-dark/35"}>
           {selectedOption?.label || placeholder}
         </span>
 
         <ChevronDown
-          className={`h-5 w-5 shrink-0 text-qadder-dark/45 transition ${
-            open ? "rotate-180" : ""
-          }`}
+          className={`h-5 w-5 shrink-0 text-qadder-dark/45 transition ${open ? "rotate-180" : ""
+            }`}
         />
       </button>
 
@@ -118,11 +116,10 @@ function CustomDropdown({
                   key={option.value}
                   type="button"
                   onClick={() => handleSelect(option.value)}
-                  className={`flex w-full items-center justify-between px-4 py-3 text-right text-sm transition ${
-                    isSelected
-                      ? "bg-qadder-light font-bold text-qadder-primary"
-                      : "text-qadder-dark hover:bg-qadder-background"
-                  }`}
+                  className={`flex w-full items-center justify-between px-4 py-3 text-right text-sm transition ${isSelected
+                    ? "bg-qadder-light font-bold text-qadder-primary"
+                    : "text-qadder-dark hover:bg-qadder-background"
+                    }`}
                 >
                   <span>{option.label}</span>
                   {isSelected && <Check className="h-4 w-4" />}
@@ -304,7 +301,8 @@ export default function UploadReportPage() {
 
   if (pageLoading) {
     return (
-      <main className="min-h-screen bg-qadder-background text-qadder-dark">
+      <main dir="rtl"
+        className="min-h-screen bg-qadder-background text-qadder-dark">
         <AppNavbar isLoggedIn={true} handleLogout={handleLogout} />
 
         <section className="mx-auto max-w-7xl px-6 py-16">
@@ -342,23 +340,21 @@ export default function UploadReportPage() {
                   <div key={step} className="flex flex-1 items-start">
                     <div className="flex flex-1 flex-col items-center text-center">
                       <div
-                        className={`flex h-12 w-12 items-center justify-center rounded-full border text-sm font-bold transition ${
-                          done
-                            ? "border-qadder-primary bg-qadder-primary text-white"
-                            : active
+                        className={`flex h-12 w-12 items-center justify-center rounded-full border text-sm font-bold transition ${done
+                          ? "border-qadder-primary bg-qadder-primary text-white"
+                          : active
                             ? "border-qadder-primary bg-white text-qadder-primary ring-4 ring-qadder-secondary/25"
                             : "border border-qadder-border/40 bg-white text-qadder-dark/55"
-                        }`}
+                          }`}
                       >
                         {done ? <Check size={18} /> : stepNumber}
                       </div>
 
                       <p
-                        className={`mt-3 text-xs leading-6 md:text-sm ${
-                          active
-                            ? "font-bold text-qadder-dark"
-                            : "font-medium text-qadder-dark/65"
-                        }`}
+                        className={`mt-3 text-xs leading-6 md:text-sm ${active
+                          ? "font-bold text-qadder-dark"
+                          : "font-medium text-qadder-dark/65"
+                          }`}
                       >
                         {step}
                       </p>
@@ -368,9 +364,8 @@ export default function UploadReportPage() {
                     {index !== steps.length - 1 && (
                       <div className="mt-6 h-[2px] flex-1 rounded-full bg-qadder-border/30">
                         <div
-                          className={`h-full rounded-full ${
-                            done ? "bg-qadder-primary" : "bg-transparent"
-                          }`}
+                          className={`h-full rounded-full ${done ? "bg-qadder-primary" : "bg-transparent"
+                            }`}
                         />
                       </div>
                     )}
@@ -411,7 +406,7 @@ export default function UploadReportPage() {
                 title="صيغة الملف"
                 description="يجب أن يكون التقرير المرفوع بصيغة PDF فقط."
               />
-               <GuidelineItem
+              <GuidelineItem
                 title="المطابقة التلقائية"
                 description="سيتم التحقق من بيانات التقرير ومقارنتها مع الحساب والمركبة تلقائيًا."
               />
@@ -436,26 +431,26 @@ export default function UploadReportPage() {
           {/* Form */}
           <form onSubmit={handleSubmit} className="mt-6 space-y-6" dir="rtl">
             {/* Vehicle selection field */}
-           {/* Vehicle selection field */}
-<div className="min-w-0">
-  <label className="mb-2 block text-sm font-semibold text-qadder-dark">
-    اختر المركبة <span className="text-red-500">*</span>
-  </label>
+            {/* Vehicle selection field */}
+            <div className="min-w-0">
+              <label className="mb-2 block text-sm font-semibold text-qadder-dark">
+                اختر المركبة <span className="text-red-500">*</span>
+              </label>
 
-  <CustomDropdown
-    value={selectedVehicleId}
-    placeholder="اختر المركبة"
-    options={vehicles.map((vehicle) => ({
-      value: vehicle.id,
-      label: `${vehicle.brand} ${vehicle.model} - ${vehicle.plate_number}`,
-    }))}
-    onChange={setSelectedVehicleId}
-  />
-</div>
+              <CustomDropdown
+                value={selectedVehicleId}
+                placeholder="اختر المركبة"
+                options={vehicles.map((vehicle) => ({
+                  value: vehicle.id,
+                  label: `${vehicle.brand} ${vehicle.model} - ${vehicle.plate_number}`,
+                }))}
+                onChange={setSelectedVehicleId}
+              />
+            </div>
 
             {/* PDF upload field */}
             <div>
-              
+
 
               <label className="flex cursor-pointer flex-col items-center justify-center rounded-[30px] border-2 border-dashed border-qadder-border/70 bg-qadder-background/60 px-6 py-10 text-center transition hover:border-qadder-primary hover:bg-qadder-light/35">
                 <div className="mb-5 rounded-full bg-white p-5 text-qadder-primary shadow-sm transition">
@@ -464,7 +459,7 @@ export default function UploadReportPage() {
 
                 <p className="text-lg font-bold text-qadder-dark">
                   {selectedFile ? selectedFile.name : "اضغط لاختيار ملف التقرير "}
-                   <span className="text-red-500">*</span>
+                  <span className="text-red-500">*</span>
                 </p>
 
                 <p className="mt-2 text-sm leading-7 text-qadder-dark/65">
@@ -488,7 +483,7 @@ export default function UploadReportPage() {
                 className="inline-flex w-full items-center justify-center rounded-2xl bg-qadder-primary px-5 py-4 text-sm font-bold text-white transition hover:bg-qadder-dark disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {uploading ? "جاري الرفع..." : "التالي"}
-                    {!uploading && <ChevronLeft size={18} />}
+                {!uploading && <ChevronLeft size={18} />}
               </button>
 
               <button

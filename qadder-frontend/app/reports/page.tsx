@@ -46,46 +46,46 @@ export default function ReportsPage() {
   const [pageLoading, setPageLoading] = useState(true);
   const [pageError, setPageError] = useState("");
 
-  
+
   // Fetch reports when component mounts
   useEffect(() => {
-  const fetchReports = async () => {
-    try {
-      setPageLoading(true);
-      setPageError("");
+    const fetchReports = async () => {
+      try {
+        setPageLoading(true);
+        setPageError("");
 
-      const storedUser = localStorage.getItem("user");
+        const storedUser = localStorage.getItem("user");
 
-      if (!storedUser) {
-        throw new Error("بيانات المستخدم غير موجودة، يرجى تسجيل الدخول من جديد");
+        if (!storedUser) {
+          throw new Error("بيانات المستخدم غير موجودة، يرجى تسجيل الدخول من جديد");
+        }
+
+        const parsedUser: StoredUser = JSON.parse(storedUser);
+
+        if (!parsedUser.user_profile_id) {
+          throw new Error("معرّف المستخدم غير موجود");
+        }
+
+        const res = await fetch(
+          `${REPORTS_API_URL}?user_profile_id=${parsedUser.user_profile_id}`
+        );
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          throw new Error(data?.detail || "فشل في تحميل التقارير");
+        }
+
+        setReports(Array.isArray(data) ? data : data.reports || []);
+      } catch (error: any) {
+        setPageError(error.message || "حدث خطأ أثناء تحميل التقارير");
+      } finally {
+        setPageLoading(false);
       }
+    };
 
-      const parsedUser: StoredUser = JSON.parse(storedUser);
-
-      if (!parsedUser.user_profile_id) {
-        throw new Error("معرّف المستخدم غير موجود");
-      }
-
-      const res = await fetch(
-        `${REPORTS_API_URL}?user_profile_id=${parsedUser.user_profile_id}`
-      );
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data?.detail || "فشل في تحميل التقارير");
-      }
-
-      setReports(Array.isArray(data) ? data : data.reports || []);
-    } catch (error: any) {
-      setPageError(error.message || "حدث خطأ أثناء تحميل التقارير");
-    } finally {
-      setPageLoading(false);
-    }
-  };
-
-  fetchReports();
-}, []);
+    fetchReports();
+  }, []);
   // Function to open report in a new tab
   const handleViewReport = (report: ReportItem) => {
     window.open(`${BACKEND_URL}/step8/${report.case_id}/view`, "_blank");
@@ -105,18 +105,28 @@ export default function ReportsPage() {
       dir="rtl"
       className="min-h-screen bg-qadder-background text-qadder-dark"
     >
-         {/* Navigation bar */}
+      {/* Navigation bar */}
       <AppNavbar isLoggedIn />
 
-        {/* Page title */}
-      <section className="mx-auto max-w-5xl px-4 py-4 md:px-6 md:py-6">
-        <h1 className="mb-2 text-right text-[28px] font-bold text-qadder-dark md:text-[32px]">
-          التقارير السابقة
-        </h1>
+      {/* Page title */}
+      <section className="relative overflow-hidden border-b border-qadder-border/20">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(173,200,147,0.18),_transparent_35%),radial-gradient(circle_at_top_right,_rgba(39,75,44,0.08),_transparent_30%)]" />
 
-        <p className="mb-4 text-right text-sm text-qadder-dark/70 md:text-base">
-          اطّلع على تقاريرك السابقة أو قم بتحميلها
-        </p>
+        <div className="relative mx-auto max-w-5xl px-6 py-12 md:py-16">
+          <div className="text-right">
+
+            <h1 className="text-3xl font-extrabold leading-tight md:text-5xl">
+              التقارير السابقة
+            </h1>
+
+            <p className="mt-4 max-w-2xl text-base leading-8 text-qadder-dark/70 md:text-lg">
+              اطّلع على تقاريرك السابقة أو قم بتحميلها
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-5xl px-4 py-4 md:px-6 md:py-6">
 
         {pageLoading ? (
           <div className="flex min-h-[220px] items-center justify-center rounded-[32px] border border-[#E6E8D9] bg-white p-6 shadow-sm">
@@ -129,11 +139,11 @@ export default function ReportsPage() {
             </div>
             <p className="font-semibold">{pageError}</p>
           </div>
-       ) : reports.length === 0 ? (
-  <div className="rounded-[28px] border border-dashed border-[#B8D58D] bg-white min-h-[400px] flex flex-col items-center justify-center text-xl text-qadder-dark/80 shadow-sm">
-    لا توجد تقارير
-  </div>
-): (
+        ) : reports.length === 0 ? (
+          <div className="rounded-[28px] border border-dashed border-[#B8D58D] bg-white min-h-[400px] flex flex-col items-center justify-center text-xl text-qadder-dark/80 shadow-sm">
+            لا توجد تقارير
+          </div>
+        ) : (
           <div className="rounded-[32px] border border-[#E8E9DC] bg-white p-4 shadow-sm sm:p-6">
             <div className="space-y-5">
               {reports.map((report, index) => (
@@ -141,7 +151,7 @@ export default function ReportsPage() {
                   key={report.id}
                   className="rounded-[28px] border border-[#E8E9DC] bg-white p-4 shadow-sm sm:p-5"
                 >
-                      
+
                   <div className="space-y-4">
                     {/* Header */}
                     <div className="flex items-center gap-3 text-right">
@@ -153,12 +163,12 @@ export default function ReportsPage() {
                         التقرير
                       </span>
                     </div>
-                    
+
                     {/* Case number */}
-             <InfoRow
-  label="رقم الحالة"
-  value={report.case_number || "-"}
-/>
+                    <InfoRow
+                      label="رقم الحالة"
+                      value={report.case_number || "-"}
+                    />
                     {/* Car name */}
                     <InfoRow
                       label="اسم السيارة"
@@ -173,7 +183,7 @@ export default function ReportsPage() {
 
                     {/* Action buttons */}
                     <div className="grid grid-cols-1 gap-3 pt-1 sm:grid-cols-2">
-                     
+
 
                       <button
                         onClick={() => handleDownloadReport(report)}
@@ -182,7 +192,7 @@ export default function ReportsPage() {
                         <Download size={20} />
                         تنزيل التقرير
                       </button>
-                       <button
+                      <button
                         onClick={() => handleViewReport(report)}
                         className="inline-flex h-[58px] w-full items-center justify-center gap-2 rounded-[20px] border border-qadder-primary bg-white px-5 text-[16px] font-bold text-qadder-primary transition hover:bg-qadder-light"
                       >

@@ -69,7 +69,7 @@ export default function AppNavbar({
           {/* Logo */}
           <div className="flex items-center gap-1">
             <img
-              src="/images/logo.png"
+              src="/images/LetterLogo.png"
               alt="Qadder Logo"
               className="h-11 w-auto"
             />

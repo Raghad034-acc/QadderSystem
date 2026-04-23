@@ -167,11 +167,6 @@ export default function VehiclesPage() {
         <div className="relative mx-auto max-w-7xl px-6 py-12 md:py-16">
           <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
             <div className="max-w-2xl text-right">
-              {/* Page badge */}
-              <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-qadder-border bg-white/80 px-4 py-2 text-sm font-semibold text-qadder-dark shadow-sm backdrop-blur">
-                <CarFront size={16} className="text-qadder-primary" />
-                <span>إدارة المركبات</span>
-              </div>
 
               <h1 className="text-3xl font-extrabold leading-tight md:text-5xl">
                 مركباتي
@@ -250,7 +245,6 @@ export default function VehiclesPage() {
                         </h3>
 
                         <p className="mt-2 inline-flex items-center gap-2 text-sm font-semibold text-qadder-primary">
-                          <BadgeInfo size={15} />
                           رقم اللوحة: {vehicle.plate_number}
                         </p>
                       </div>

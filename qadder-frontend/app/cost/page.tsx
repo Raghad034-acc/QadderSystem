@@ -149,10 +149,10 @@ export default function CostPage() {
 
   // Navigate to final report page
   const goNext = () => {
-  router.push(
-    `/qadder-report?case_id=${caseId}&image=${encodeURIComponent(imagePath || "")}`
-  );
-};
+    router.push(
+      `/qadder-report?case_id=${caseId}&image=${encodeURIComponent(imagePath || "")}`
+    );
+  };
 
   return (
     <main dir="rtl" className="min-h-screen bg-qadder-background text-qadder-dark">
@@ -176,24 +176,22 @@ export default function CostPage() {
                     <div className="flex flex-1 flex-col items-center text-center">
                       {/* Step circle */}
                       <div
-                        className={`flex h-12 w-12 items-center justify-center rounded-full border text-sm font-bold transition ${
-                          done
+                        className={`flex h-12 w-12 items-center justify-center rounded-full border text-sm font-bold transition ${done
                             ? "border-qadder-primary bg-qadder-primary text-white"
                             : active
-                            ? "border-qadder-primary bg-white text-qadder-primary ring-4 ring-qadder-secondary/25"
-                            : "border border-qadder-border/40 bg-white text-qadder-dark/55"
-                        }`}
+                              ? "border-qadder-primary bg-white text-qadder-primary ring-4 ring-qadder-secondary/25"
+                              : "border border-qadder-border/40 bg-white text-qadder-dark/55"
+                          }`}
                       >
                         {done ? <Check size={18} /> : stepNumber}
                       </div>
 
                       {/* Step label */}
                       <p
-                        className={`mt-3 text-xs leading-6 md:text-sm ${
-                          active
+                        className={`mt-3 text-xs leading-6 md:text-sm ${active
                             ? "font-bold text-qadder-dark"
                             : "font-medium text-qadder-dark/65"
-                        }`}
+                          }`}
                       >
                         {step}
                       </p>
@@ -203,9 +201,8 @@ export default function CostPage() {
                     {index !== steps.length - 1 && (
                       <div className="mt-6 h-[2px] flex-1 rounded-full bg-qadder-border/30">
                         <div
-                          className={`h-full rounded-full ${
-                            done ? "bg-qadder-primary" : "bg-transparent"
-                          }`}
+                          className={`h-full rounded-full ${done ? "bg-qadder-primary" : "bg-transparent"
+                            }`}
                         />
                       </div>
                     )}
@@ -282,14 +279,14 @@ export default function CostPage() {
                   >
                     {/* Damage header */}
                     <div className="mb-3 flex items-center gap-2">
-                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-green-100 text-sm font-bold text-green-700">
-                            {item.damage_no ?? index + 1}
-                        </div>
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-green-100 text-sm font-bold text-green-700">
+                        {item.damage_no ?? index + 1}
+                      </div>
 
-                        <h3 className="text-lg font-bold text-qadder-dark">
-                            الضرر
-                        </h3>
-                        </div>
+                      <h3 className="text-lg font-bold text-qadder-dark">
+                        الضرر
+                      </h3>
+                    </div>
 
                     {/* Damage details */}
                     <div className="space-y-3">
@@ -304,12 +301,12 @@ export default function CostPage() {
 
                       <div className="rounded-2xl border border-qadder-border/20 bg-qadder-background px-4 py-3">
                         <span className="text-sm font-bold text-qadder-dark">
-                            الشدة:
+                          الشدة:
                         </span>
                         <span className="mr-2 text-sm text-qadder-dark/80">
-                            {item.severity_ar || item.severity_en || "غير معروف"}
+                          {item.severity_ar || item.severity_en || "غير معروف"}
                         </span>
-                        </div>
+                      </div>
 
                       <div className="rounded-2xl border border-qadder-border/20 bg-qadder-background px-4 py-3">
                         <span className="text-sm font-bold text-qadder-dark">
@@ -365,12 +362,12 @@ export default function CostPage() {
                 </div>
 
                 <div className="rounded-2xl border border-qadder-border/20 bg-green-100 px-4 py-3">
-                <div className="text-sm font-bold text-qadder-dark">
+                  <div className="text-sm font-bold text-qadder-dark">
                     التكلفة النهائية بعد نسبة الخطأ:
-                </div>
-                <div className="mt-2 text-sm text-qadder-dark/80">
+                  </div>
+                  <div className="mt-2 text-sm text-qadder-dark/80">
                     {formatCurrency(summary?.adjusted_cost)}
-                </div>
+                  </div>
                 </div>
               </div>
             </div>

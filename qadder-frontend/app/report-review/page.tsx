@@ -180,7 +180,8 @@ export default function ReportReviewPage() {
   }
 
   return (
-    <main className="min-h-screen bg-qadder-background text-qadder-dark">
+    <main dir="rtl"
+      className="min-h-screen bg-qadder-background text-qadder-dark">
       <AppNavbar
         isLoggedIn={true}
         handleLogout={handleLogout}
@@ -207,23 +208,21 @@ export default function ReportReviewPage() {
                   <div key={step} className="flex flex-1 items-start">
                     <div className="flex flex-1 flex-col items-center text-center">
                       <div
-                        className={`flex h-12 w-12 items-center justify-center rounded-full border text-sm font-bold transition ${
-                          done
-                            ? "border-qadder-primary bg-qadder-primary text-white"
-                            : active
+                        className={`flex h-12 w-12 items-center justify-center rounded-full border text-sm font-bold transition ${done
+                          ? "border-qadder-primary bg-qadder-primary text-white"
+                          : active
                             ? "border-qadder-primary bg-white text-qadder-primary ring-4 ring-qadder-secondary/25"
                             : "border border-qadder-border/40 bg-white text-qadder-dark/55"
-                        }`}
+                          }`}
                       >
                         {done ? <Check size={18} /> : stepNumber}
                       </div>
 
                       <p
-                        className={`mt-3 text-xs leading-6 md:text-sm ${
-                          active
-                            ? "font-bold text-qadder-dark"
-                            : "font-medium text-qadder-dark/65"
-                        }`}
+                        className={`mt-3 text-xs leading-6 md:text-sm ${active
+                          ? "font-bold text-qadder-dark"
+                          : "font-medium text-qadder-dark/65"
+                          }`}
                       >
                         {step}
                       </p>
@@ -233,9 +232,8 @@ export default function ReportReviewPage() {
                     {index !== steps.length - 1 && (
                       <div className="mt-6 h-[2px] flex-1 rounded-full bg-qadder-border/30">
                         <div
-                          className={`h-full rounded-full ${
-                            done ? "bg-qadder-primary" : "bg-transparent"
-                          }`}
+                          className={`h-full rounded-full ${done ? "bg-qadder-primary" : "bg-transparent"
+                            }`}
                         />
                       </div>
                     )}
@@ -259,23 +257,21 @@ export default function ReportReviewPage() {
         <div className="mx-auto max-w-4xl rounded-[32px] border border-qadder-border/20 bg-white p-5 shadow-sm md:p-8">
           {/* Matching result */}
           <div
-            className={`rounded-[28px] border p-5 shadow-sm md:p-6 ${
-              hasAllTrue
-                ? "border-green-200 bg-green-50"
-                : hasAnyFalse
+            className={`rounded-[28px] border p-5 shadow-sm md:p-6 ${hasAllTrue
+              ? "border-green-200 bg-green-50"
+              : hasAnyFalse
                 ? "border-amber-200 bg-amber-50"
                 : "border-qadder-border/20 bg-qadder-background/40"
-            }`}
+              }`}
           >
             <div className="flex items-start gap-3">
               <div
-                className={`mt-1 ${
-                  hasAllTrue
-                    ? "text-green-600"
-                    : hasAnyFalse
+                className={`mt-1 ${hasAllTrue
+                  ? "text-green-600"
+                  : hasAnyFalse
                     ? "text-amber-600"
                     : "text-qadder-primary"
-                }`}
+                  }`}
               >
                 {hasAllTrue ? (
                   <CircleCheckBig size={22} />
@@ -328,7 +324,7 @@ export default function ReportReviewPage() {
                 label="نسبة الخطأ"
                 value={
                   step1Data.najm_report?.fault_percentage !== null &&
-                  step1Data.najm_report?.fault_percentage !== undefined
+                    step1Data.najm_report?.fault_percentage !== undefined
                     ? `${step1Data.najm_report.fault_percentage}%`
                     : "غير متوفرة"
                 }
@@ -402,31 +398,30 @@ export default function ReportReviewPage() {
           {/* Actions */}
           <div className="mt-6 space-y-3">
             {hasAnyFalse && (
-  <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600 text-right">
-    يوجد بيانات غير متطابقة، لا يمكن المتابعة. يرجى رفع تقرير نجم مرة أخرى.
-  </div>
-)}
-<button
-  type="button"
-  disabled={hasAnyFalse} // Disable if any mismatch exists
-  onClick={() => {
-    if (hasAnyFalse) return; // Extra safety
-    router.push(
-      `/upload-images?case_id=${caseId}&damage=${encodeURIComponent(
-        damageSide || ""
-      )}`
-    );
-  }}
-  className={`inline-flex w-full items-center justify-center gap-2 rounded-2xl px-5 py-4 text-sm font-bold text-white transition
-    ${
-      hasAnyFalse
-        ? "cursor-not-allowed bg-gray-300 text-white"
-        : "bg-qadder-primary hover:bg-qadder-dark"
-    }`}
->
-  التالي
-  <ChevronLeft size={18} />
-</button>
+              <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600 text-right">
+                يوجد بيانات غير متطابقة، لا يمكن المتابعة. يرجى رفع تقرير نجم مرة أخرى.
+              </div>
+            )}
+            <button
+              type="button"
+              disabled={hasAnyFalse} // Disable if any mismatch exists
+              onClick={() => {
+                if (hasAnyFalse) return; // Extra safety
+                router.push(
+                  `/upload-images?case_id=${caseId}&damage=${encodeURIComponent(
+                    damageSide || ""
+                  )}`
+                );
+              }}
+              className={`inline-flex w-full items-center justify-center gap-2 rounded-2xl px-5 py-4 text-sm font-bold text-white transition
+    ${hasAnyFalse
+                  ? "cursor-not-allowed bg-gray-300 text-white"
+                  : "bg-qadder-primary hover:bg-qadder-dark"
+                }`}
+            >
+              التالي
+              <ChevronLeft size={18} />
+            </button>
 
             <button
               type="button"
@@ -456,16 +451,14 @@ function InfoCard({
 }) {
   return (
     <div
-      className={`rounded-2xl border p-4 text-right ${
-        isMismatch
-          ? "border-red-200 bg-red-50"
-          : "border-transparent bg-qadder-background/50"
-      }`}
+      className={`rounded-2xl border p-4 text-right ${isMismatch
+        ? "border-red-200 bg-red-50"
+        : "border-transparent bg-qadder-background/50"
+        }`}
     >
       <p
-        className={`text-xs font-semibold ${
-          isMismatch ? "text-red-500" : "text-qadder-dark/50"
-        }`}
+        className={`text-xs font-semibold ${isMismatch ? "text-red-500" : "text-qadder-dark/50"
+          }`}
       >
         {label}
       </p>
@@ -478,9 +471,8 @@ function InfoCard({
       )}
 
       <p
-        className={`mt-2 break-words text-sm font-bold ${
-          isMismatch ? "text-red-600" : "text-qadder-dark"
-        }`}
+        className={`mt-2 break-words text-sm font-bold ${isMismatch ? "text-red-600" : "text-qadder-dark"
+          }`}
       >
         {value}
       </p>

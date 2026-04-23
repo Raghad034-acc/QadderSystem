@@ -179,23 +179,21 @@ export default function UploadImagesPage() {
                   <div key={step} className="flex flex-1 items-start">
                     <div className="flex flex-1 flex-col items-center text-center">
                       <div
-                        className={`flex h-12 w-12 items-center justify-center rounded-full border text-sm font-bold transition ${
-                          done
+                        className={`flex h-12 w-12 items-center justify-center rounded-full border text-sm font-bold transition ${done
                             ? "border-qadder-primary bg-qadder-primary text-white"
                             : active
-                            ? "border-qadder-primary bg-white text-qadder-primary ring-4 ring-qadder-secondary/25"
-                            : "border border-qadder-border/40 bg-white text-qadder-dark/55"
-                        }`}
+                              ? "border-qadder-primary bg-white text-qadder-primary ring-4 ring-qadder-secondary/25"
+                              : "border border-qadder-border/40 bg-white text-qadder-dark/55"
+                          }`}
                       >
                         {done ? <Check size={18} /> : stepNumber}
                       </div>
 
                       <p
-                        className={`mt-3 text-xs leading-6 md:text-sm ${
-                          active
+                        className={`mt-3 text-xs leading-6 md:text-sm ${active
                             ? "font-bold text-qadder-dark"
                             : "font-medium text-qadder-dark/65"
-                        }`}
+                          }`}
                       >
                         {step}
                       </p>
@@ -205,9 +203,8 @@ export default function UploadImagesPage() {
                     {index !== steps.length - 1 && (
                       <div className="mt-6 h-[2px] flex-1 rounded-full bg-qadder-border/30">
                         <div
-                          className={`h-full rounded-full ${
-                            done ? "bg-qadder-primary" : "bg-transparent"
-                          }`}
+                          className={`h-full rounded-full ${done ? "bg-qadder-primary" : "bg-transparent"
+                            }`}
                         />
                       </div>
                     )}
@@ -234,7 +231,7 @@ export default function UploadImagesPage() {
       {/* Upload Section */}
       <section className="mx-auto max-w-6xl px-6 py-6 md:py-8">
         <div className="mx-auto max-w-4xl rounded-[32px] border border-qadder-border/20 bg-white p-5 shadow-sm md:p-8">
-          
+
           {/* Guidelines */}
           <div>
             <h2 className="text-right text-xl font-bold text-qadder-dark">
@@ -250,19 +247,19 @@ export default function UploadImagesPage() {
           </div>
 
           {/* Expected damage side */}
-       <div className="mt-6 flex items-start gap-2 text-right">
-  <div className="mt-1 text-amber-600">
-    <AlertTriangle size={16} />
-  </div>
+          <div className="mt-6 flex items-start gap-2 text-right">
+            <div className="mt-1 text-amber-600">
+              <AlertTriangle size={16} />
+            </div>
 
-  <p className="text-sm leading-7 text-qadder-dark/80">
-    <span className="font-bold text-qadder-dark">جهة الضرر المتوقعة: </span>
-    <strong className="px-1 font-bold leading-7 text-qadder-primary">
-      {damageSide || "غير متوفرة"}
-    </strong>
-    <span> ويجب أن تطابق الصورة الجهة الموضحة في التقرير.</span>
-  </p>
-</div>
+            <p className="text-sm leading-7 text-qadder-dark/80">
+              <span className="font-bold text-qadder-dark">جهة الضرر المتوقعة: </span>
+              <strong className="px-1 font-bold leading-7 text-qadder-primary">
+                {damageSide || "غير متوفرة"}
+              </strong>
+              <span> ويجب أن تطابق الصورة الجهة الموضحة في التقرير.</span>
+            </p>
+          </div>
 
           {/* Errors */}
           {requiredError && (
@@ -300,7 +297,7 @@ export default function UploadImagesPage() {
 
                   <p className="text-lg font-bold text-qadder-dark">
                     اضغط لرفع صورة الضرر
-                  <span className="mr-1 text-red-500">*</span>
+                    <span className="mr-1 text-red-500">*</span>
                   </p>
 
                   <p className="mt-2 text-sm leading-7 text-qadder-dark/65">

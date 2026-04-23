@@ -301,12 +301,7 @@ export default function HomePage() {
                 }`}
                 style={{ transitionDelay: "180ms" }}
               >
-                 ابدأ التقدير الآن
-                <Sparkles
-                  size={18}
-                  className="transition duration-300 group-hover:rotate-12"
-                />
-               
+                 ابدأ التقدير الآن               
               </button>
             </a>
 

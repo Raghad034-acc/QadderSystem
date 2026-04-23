@@ -38,7 +38,7 @@ const colorOptions = [
   "أخضر",
 ];
 
-const arabicPlateLetters = [ 
+const arabicPlateLetters = [
   "أ",
   "ب",
   "ت",
@@ -128,18 +128,16 @@ function CustomDropdown({
         type="button"
         disabled={disabled}
         onClick={() => setOpen((prev) => !prev)}
-        className={`${dropdownButtonClass} ${
-          disabled ? "cursor-not-allowed opacity-60" : ""
-        }`}
+        className={`${dropdownButtonClass} ${disabled ? "cursor-not-allowed opacity-60" : ""
+          }`}
       >
         <span className={value ? "text-qadder-dark" : "text-qadder-dark/35"}>
           {value || placeholder}
         </span>
 
         <ChevronDown
-          className={`h-5 w-5 shrink-0 text-qadder-dark/45 transition ${
-            open ? "rotate-180" : ""
-          }`}
+          className={`h-5 w-5 shrink-0 text-qadder-dark/45 transition ${open ? "rotate-180" : ""
+            }`}
         />
       </button>
 
@@ -154,11 +152,10 @@ function CustomDropdown({
                   key={option}
                   type="button"
                   onClick={() => handleSelect(option)}
-                  className={`flex w-full items-center justify-between px-4 py-3 text-right text-sm transition ${
-                    isSelected
+                  className={`flex w-full items-center justify-between px-4 py-3 text-right text-sm transition ${isSelected
                       ? "bg-qadder-light font-bold text-qadder-primary"
                       : "text-qadder-dark hover:bg-qadder-background"
-                  }`}
+                    }`}
                 >
                   <span>{option}</span>
                   {isSelected && <Check className="h-4 w-4" />}
@@ -390,10 +387,7 @@ export default function AddVehiclePage() {
 
         <div className="relative mx-auto max-w-5xl px-6 py-12 md:py-16">
           <div className="text-right">
-            <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-qadder-border bg-white/80 px-4 py-2 text-sm font-semibold text-qadder-dark shadow-sm backdrop-blur">
-              <BadgePlus size={16} className="text-qadder-primary" />
-              <span>إضافة مركبة جديدة</span>
-            </div>
+
 
             <h1 className="text-3xl font-extrabold leading-tight md:text-5xl">
               إضافة مركبة جديدة
@@ -536,22 +530,22 @@ export default function AddVehiclePage() {
                 </div>
               </div>
 
-       {/* Plate preview */}
-<div className="mt-5 rounded-2xl bg-white p-4 text-right shadow-sm">
-  <p className="text-sm font-semibold text-qadder-dark/60">
-    رقم اللوحة النهائي
-  </p>
+              {/* Plate preview */}
+              <div className="mt-5 rounded-2xl bg-white p-4 text-right shadow-sm">
+                <p className="text-sm font-semibold text-qadder-dark/60">
+                  رقم اللوحة النهائي
+                </p>
 
-  {fullPlateNumber ? (
-    <p className="mt-2 text-lg font-bold text-qadder-primary">
-      {fullPlateNumber}
-    </p>
-  ) : (
-    <p className="mt-2 text-sm text-gray-400">
-      مثال: ب ب ب 1111
-    </p>
-  )}
-</div>
+                {fullPlateNumber ? (
+                  <p className="mt-2 text-lg font-bold text-qadder-primary">
+                    {fullPlateNumber}
+                  </p>
+                ) : (
+                  <p className="mt-2 text-sm text-gray-400">
+                    مثال: ب ب ب 1111
+                  </p>
+                )}
+              </div>
             </div>
 
             {/* Action buttons */}

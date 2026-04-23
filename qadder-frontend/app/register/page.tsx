@@ -44,7 +44,7 @@ const colorOptions = [
 ];
 
 const arabicPlateLetters = [
- "أ",
+  "أ",
   "ب",
   "ت",
   "ث",
@@ -136,18 +136,16 @@ function CustomDropdown({
         type="button"
         disabled={disabled}
         onClick={() => setOpen((prev) => !prev)}
-        className={`${dropdownButtonClass} ${
-          disabled ? "cursor-not-allowed opacity-60" : ""
-        }`}
+        className={`${dropdownButtonClass} ${disabled ? "cursor-not-allowed opacity-60" : ""
+          }`}
       >
         <span className={value ? "text-qadder-dark" : "text-qadder-dark/35"}>
           {value || placeholder}
         </span>
 
         <ChevronDown
-          className={`h-5 w-5 shrink-0 text-qadder-dark/45 transition ${
-            open ? "rotate-180" : ""
-          }`}
+          className={`h-5 w-5 shrink-0 text-qadder-dark/45 transition ${open ? "rotate-180" : ""
+            }`}
         />
       </button>
 
@@ -162,11 +160,10 @@ function CustomDropdown({
                   key={option}
                   type="button"
                   onClick={() => handleSelect(option)}
-                  className={`flex w-full items-center justify-between px-4 py-3 text-right text-sm transition ${
-                    isSelected
+                  className={`flex w-full items-center justify-between px-4 py-3 text-right text-sm transition ${isSelected
                       ? "bg-qadder-light font-bold text-qadder-primary"
                       : "text-qadder-dark hover:bg-qadder-background"
-                  }`}
+                    }`}
                 >
                   <span>{option}</span>
                   {isSelected && <Check className="h-4 w-4" />}
@@ -467,24 +464,22 @@ export default function RegisterPage() {
                         <div className="flex flex-1 flex-col items-center text-center">
                           {/* Step circle */}
                           <div
-                            className={`flex h-10 w-10 items-center justify-center rounded-full text-sm font-bold transition ${
-                              done
+                            className={`flex h-10 w-10 items-center justify-center rounded-full text-sm font-bold transition ${done
                                 ? "bg-qadder-primary text-white"
                                 : active
-                                ? "border border-qadder-primary bg-white text-qadder-primary ring-4 ring-qadder-secondary/25"
-                                : "border border-qadder-border/40 bg-white text-qadder-dark/55"
-                            }`}
+                                  ? "border border-qadder-primary bg-white text-qadder-primary ring-4 ring-qadder-secondary/25"
+                                  : "border border-qadder-border/40 bg-white text-qadder-dark/55"
+                              }`}
                           >
                             {done ? <Check size={16} /> : index + 1}
                           </div>
 
                           {/* Step label */}
                           <p
-                            className={`mt-2 text-[11px] leading-5 sm:text-sm ${
-                              active
+                            className={`mt-2 text-[11px] leading-5 sm:text-sm ${active
                                 ? "font-bold text-qadder-dark"
                                 : "font-medium text-qadder-dark/60"
-                            }`}
+                              }`}
                           >
                             {step}
                           </p>
@@ -494,9 +489,8 @@ export default function RegisterPage() {
                         {index !== steps.length - 1 && (
                           <div className="mt-5 h-[2px] flex-1 bg-qadder-border/30">
                             <div
-                              className={`h-full ${
-                                done ? "bg-qadder-primary" : "bg-transparent"
-                              }`}
+                              className={`h-full ${done ? "bg-qadder-primary" : "bg-transparent"
+                                }`}
                             />
                           </div>
                         )}
@@ -796,22 +790,22 @@ export default function RegisterPage() {
                       </div>
 
                       {/* Plate preview */}
-                     {/* Plate preview */}
-<div className="mt-5 rounded-2xl bg-white p-4 text-right shadow-sm">
-  <p className="text-sm font-semibold text-qadder-dark/60">
-    رقم اللوحة النهائي
-  </p>
+                      {/* Plate preview */}
+                      <div className="mt-5 rounded-2xl bg-white p-4 text-right shadow-sm">
+                        <p className="text-sm font-semibold text-qadder-dark/60">
+                          رقم اللوحة النهائي
+                        </p>
 
-  {fullPlateNumber ? (
-    <p className="mt-2 text-lg font-bold text-qadder-primary">
-      {fullPlateNumber}
-    </p>
-  ) : (
-    <p className="mt-2 text-sm text-gray-400">
-      مثال: ب ب ب 1111
-    </p>
-  )}
-</div>
+                        {fullPlateNumber ? (
+                          <p className="mt-2 text-lg font-bold text-qadder-primary">
+                            {fullPlateNumber}
+                          </p>
+                        ) : (
+                          <p className="mt-2 text-sm text-gray-400">
+                            مثال: ب ب ب 1111
+                          </p>
+                        )}
+                      </div>
                     </div>
                   </>
                 )}

@@ -105,7 +105,7 @@ export default function VerifyPhonePage() {
 
               {/* Verification form */}
               <form onSubmit={handleSubmit} className="space-y-6">
-                
+
                 {/* OTP inputs */}
                 <div className="flex items-center justify-center gap-3" dir="ltr">
                   {code.map((item, index) => (

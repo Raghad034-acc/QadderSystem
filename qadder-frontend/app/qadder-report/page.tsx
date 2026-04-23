@@ -221,8 +221,8 @@ export default function QadderReportPage() {
       setPageLoading(false);
       return;
     }
-     
-   // Prevent duplicate API calls if the report has already been saved
+
+    // Prevent duplicate API calls if the report has already been saved
     if (hasSavedRef.current) return;
     hasSavedRef.current = true;
 
@@ -245,17 +245,17 @@ export default function QadderReportPage() {
         if (!postRes.ok) {
           throw new Error(
             postResult.detail ||
-              postResult.message ||
-              "فشل في حفظ التقرير النهائي"
+            postResult.message ||
+            "فشل في حفظ التقرير النهائي"
           );
         }
 
         // Show success message after report is generated successfully
         setSaveMessage("تم الانتهاء من إعداد التقرير بنجاح");
 
-setTimeout(() => {
-  setSaveMessage("");
-}, 4000);
+        setTimeout(() => {
+          setSaveMessage("");
+        }, 4000);
         setReportPath(postResult?.data?.report_path || "");
 
         // Fetch full report data (case info, damages, totals)
@@ -441,14 +441,14 @@ setTimeout(() => {
   // Save the final report and then fetch its full data
   // Save the final report and then fetch its full data
   const handleDownloadReport = () => {
-  if (!reportPath) {
-    setPageError("رابط التقرير غير موجود.");
-    return;
-  }
+    if (!reportPath) {
+      setPageError("رابط التقرير غير موجود.");
+      return;
+    }
 
-  const reportUrl = `${BACKEND_URL}/${String(reportPath).replace(/\\/g, "/")}`;
-  window.open(reportUrl, "_blank");
-};
+    const reportUrl = `${BACKEND_URL}/${String(reportPath).replace(/\\/g, "/")}`;
+    window.open(reportUrl, "_blank");
+  };
 
   return (
     <main dir="rtl" className="min-h-screen bg-qadder-background text-qadder-dark">
@@ -469,23 +469,21 @@ setTimeout(() => {
                   <div key={step} className="flex flex-1 items-start">
                     <div className="flex flex-1 flex-col items-center text-center">
                       <div
-                        className={`flex h-12 w-12 items-center justify-center rounded-full border text-sm font-bold transition ${
-                          done && !active
+                        className={`flex h-12 w-12 items-center justify-center rounded-full border text-sm font-bold transition ${done && !active
                             ? "border-qadder-primary bg-qadder-primary text-white"
                             : active
-                            ? "border-qadder-primary bg-white text-qadder-primary ring-4 ring-qadder-secondary/25"
-                            : "border border-qadder-border/40 bg-white text-qadder-dark/55"
-                        }`}
+                              ? "border-qadder-primary bg-white text-qadder-primary ring-4 ring-qadder-secondary/25"
+                              : "border border-qadder-border/40 bg-white text-qadder-dark/55"
+                          }`}
                       >
                         {done && !active ? <Check size={18} /> : stepNumber}
                       </div>
 
                       <p
-                        className={`mt-3 text-xs leading-6 md:text-sm ${
-                          active
+                        className={`mt-3 text-xs leading-6 md:text-sm ${active
                             ? "font-bold text-qadder-dark"
                             : "font-medium text-qadder-dark/65"
-                        }`}
+                          }`}
                       >
                         {step}
                       </p>
@@ -505,8 +503,8 @@ setTimeout(() => {
           <div className="mt-5 text-right">
             <h1 className="text-2xl font-bold md:text-4xl">التقرير النهائي</h1>
             <p className="mt-2 text-center text-sm text-gray-500">
-  يتضمن هذا التقرير كافة تفاصيل الحالة والتقدير المالي للأضرار
-</p>
+              يتضمن هذا التقرير كافة تفاصيل الحالة والتقدير المالي للأضرار
+            </p>
           </div>
         </div>
       </section>
@@ -532,254 +530,254 @@ setTimeout(() => {
           </div>
         ) : (
           <>
-    {saveMessage && (
-      <div className="mb-4 rounded-[20px] border border-green-200 bg-green-50 px-4 py-3 text-center text-sm font-medium text-green-700">
-        {saveMessage}
-      </div>
-    )}
-          <div className="rounded-[32px] border border-qadder-border/30 bg-white p-5 shadow-sm md:p-8">
-  <div className="space-y-5">
-            
-
-         
-            {/* Report Information Section */}
-            <CardSection title="معلومات التقرير">
-              <InfoGrid>
-                <InfoCard label="رقم الحالة" value={formatValue(caseInfo?.case_number)} />
-                <InfoCard label="تاريخ الإنشاء" value={formatDate(caseInfo?.created_at)} />
-              </InfoGrid>
-            </CardSection>
-             
-             {/* Owner Information Section */}
-            <CardSection title="معلومات مالك المركبة">
-              <InfoGrid>
-                <InfoCard label="الاسم" value={formatValue(ownerData.full_name)} />
-                <InfoCard label="الجنسية" value={formatValue(ownerData.nationality)} />
-                <InfoCard
-                  label="رقم الهوية / الإقامة"
-                  value={formatValue(ownerData.national_id_or_iqama)}
-                />
-                <InfoCard label="رقم الجوال" value={formatValue(ownerData.phone)} />
-                <InfoCard label="الإيميل" value={formatValue(ownerData.email)} />
-                <InfoCard label="نوع الرخصة" value={formatValue(ownerData.license_type)} />
-                <InfoCard
-                  label="تاريخ انتهاء الرخصة"
-                  value={formatDate(ownerData.license_expiry_date)}
-                />
-                
-                <InfoCard
-                  label="حالة الطلب"
-                  value={requestStatusText}
-                  badgeClass={
-                    isHighSeverity
-                      ? "bg-red-50 text-red-700 border-red-200"
-                      : "bg-green-50 text-green-700 border-green-200"
-                  }
-                />
-              </InfoGrid>
-            </CardSection>
-
-              {/* Vehicle Information Section */}
-            <CardSection title="معلومات المركبة">
-              <InfoGrid>
-                <InfoCard label="العلامة التجارية" value={formatValue(vehicleData.make)} />
-                <InfoCard label="الموديل" value={formatValue(vehicleData.model)} />
-                <InfoCard label="اللون" value={formatValue(vehicleData.color)} />
-                <InfoCard
-                  label="سنة الصنع"
-                  value={formatValue(vehicleData.manufacture_year)}
-                />
-                <InfoCard label="رقم اللوحة" value={formatValue(vehicleData.plate_number)} />
-              </InfoGrid>
-            </CardSection>
-
-              {/* Accident Information Section */}
-            <CardSection title="معلومات الحادث من تقرير نجم">
-              <InfoGrid>
-                <InfoCard
-                  label="رقم الحادث"
-                  value={formatValue(accidentData.accident_number)}
-                />
-                <InfoCard
-                  label="إحداثيات الحادث"
-                  value={formatValue(accidentData.accident_coordinates)}
-                />
-                <InfoCard
-                  label="وقت الحادث"
-                  value={formatValue(accidentData.accident_time)}
-                />
-                <InfoCard
-                  label="تاريخ الحادث"
-                  value={formatDate(accidentData.accident_date)}
-                />
-                <InfoCard
-                  label="جهة الضرر"
-                  value={formatValue(accidentData.damage_side)}
-                />
-                <InfoCard
-                  label="نسبة الخطأ"
-                  value={
-                    accidentData.fault_percentage !== undefined &&
-                    accidentData.fault_percentage !== null &&
-                    accidentData.fault_percentage !== ""
-                      ? `${accidentData.fault_percentage}%`
-                      : "-"
-                  }
-                />
-              </InfoGrid>
-              
-            </CardSection>
-               {imageUrl && (
-              <div className="rounded-[28px] border border-qadder-border/30 bg-white p-5 md:p-6">
-                
-                {/* Damage Image Section */}
-                <div className="overflow-hidden rounded-[24px] border border-qadder-border/20 bg-qadder-background">
-                  <img
-                    src={imageUrl}
-                    alt="صورة الضرر"
-                    className="h-[260px] w-full object-contain md:h-[420px]"
-                  />
-                </div>
+            {saveMessage && (
+              <div className="mb-4 rounded-[20px] border border-green-200 bg-green-50 px-4 py-3 text-center text-sm font-medium text-green-700">
+                {saveMessage}
               </div>
             )}
+            <div className="rounded-[32px] border border-qadder-border/30 bg-white p-5 shadow-sm md:p-8">
+              <div className="space-y-5">
 
-            {/* Case Status Section (High Severity Rejection) */}
-            {isHighSeverity ? (
-              <CardSection title="حالة الطلب">
-                <div className="rounded-[24px] border border-red-200 bg-red-50 p-5">
-                  <h3 className="text-lg font-bold text-red-700">تم رفض الطلب</h3>
-                  <p className="mt-3 text-sm leading-7 text-red-700/90">
-                 نظرًا لارتفاع شدة الضرر، يرجى التوجه إلى أحد مراكز التقدير المعتمدة لاستكمال إجراءات التقييم ومعاينة المركبة بشكل دقيق.
-                  </p>
-                </div>
-              </CardSection>
-            ) : (
-              <>
-              {/* Damages Details Section */}
-                <CardSection title="تفاصيل الأضرار والتكاليف">
-                  <div className="space-y-4">
-                    {damages.length > 0 ? (
-                      damages.map((item, index) => (
-                        <div
-                          key={item.id || item.damage_no || index}
-                          className="rounded-[24px] border border-qadder-border/25 bg-white p-4 shadow-sm md:p-5"
-                        >
-                          <div className="mb-4 flex items-center gap-2">
-                            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-green-100 text-sm font-bold text-green-700">
-                              {item.damage_no || index + 1}
-                            </div>
 
-                            <h3 className="text-lg font-bold text-qadder-dark">
-                              الضرر
-                            </h3>
-                          </div>
 
-                          <InfoGrid>
-                            <InfoCard
-                              label="نوع الضرر"
-                              value={formatValue(item.damage_type_ar || item.damage_type_en)}
-                            />
-                            <InfoCard
-                              label="الجزء المتضرر"
-                              value={formatValue(item.part_name_ar || item.part_name_en)}
-                            />
-                            <InfoCard
-                              label="الشدة"
-                              value={formatValue(item.severity_ar || item.severity_en)}
-                              badgeClass={severityBadgeClass(
-                                item.severity_ar || item.severity_en || "-"
-                              )}
-                            />
-                            <InfoCard
-                              label="تكلفة القطعة"
-                              value={formatCurrency(item.part_price)}
-                            />
-                            <InfoCard
-                              label="تكلفة شغل اليد"
-                              value={formatCurrency(item.labor_cost)}
-                            />
-                          </InfoGrid>
-                        </div>
-                      ))
-                    ) : (
-                      <div className="rounded-3xl border border-qadder-border/30 bg-qadder-background p-4 text-sm text-qadder-dark/70">
-                        لا توجد أضرار مكتشفة لعرضها.
-                      </div>
-                    )}
-                  </div>
+                {/* Report Information Section */}
+                <CardSection title="معلومات التقرير">
+                  <InfoGrid>
+                    <InfoCard label="رقم الحالة" value={formatValue(caseInfo?.case_number)} />
+                    <InfoCard label="تاريخ الإنشاء" value={formatDate(caseInfo?.created_at)} />
+                  </InfoGrid>
                 </CardSection>
-                
-                {/* Final Cost Summary Section */}
-                <CardSection title="الملخص المالي النهائي">
+
+                {/* Owner Information Section */}
+                <CardSection title="معلومات مالك المركبة">
+                  <InfoGrid>
+                    <InfoCard label="الاسم" value={formatValue(ownerData.full_name)} />
+                    <InfoCard label="الجنسية" value={formatValue(ownerData.nationality)} />
+                    <InfoCard
+                      label="رقم الهوية / الإقامة"
+                      value={formatValue(ownerData.national_id_or_iqama)}
+                    />
+                    <InfoCard label="رقم الجوال" value={formatValue(ownerData.phone)} />
+                    <InfoCard label="الإيميل" value={formatValue(ownerData.email)} />
+                    <InfoCard label="نوع الرخصة" value={formatValue(ownerData.license_type)} />
+                    <InfoCard
+                      label="تاريخ انتهاء الرخصة"
+                      value={formatDate(ownerData.license_expiry_date)}
+                    />
+
+                    <InfoCard
+                      label="حالة الطلب"
+                      value={requestStatusText}
+                      badgeClass={
+                        isHighSeverity
+                          ? "bg-red-50 text-red-700 border-red-200"
+                          : "bg-green-50 text-green-700 border-green-200"
+                      }
+                    />
+                  </InfoGrid>
+                </CardSection>
+
+                {/* Vehicle Information Section */}
+                <CardSection title="معلومات المركبة">
+                  <InfoGrid>
+                    <InfoCard label="العلامة التجارية" value={formatValue(vehicleData.make)} />
+                    <InfoCard label="الموديل" value={formatValue(vehicleData.model)} />
+                    <InfoCard label="اللون" value={formatValue(vehicleData.color)} />
+                    <InfoCard
+                      label="سنة الصنع"
+                      value={formatValue(vehicleData.manufacture_year)}
+                    />
+                    <InfoCard label="رقم اللوحة" value={formatValue(vehicleData.plate_number)} />
+                  </InfoGrid>
+                </CardSection>
+
+                {/* Accident Information Section */}
+                <CardSection title="معلومات الحادث من تقرير نجم">
                   <InfoGrid>
                     <InfoCard
-                      label="عدد الأضرار"
-                      value={formatValue(total?.damages_count || damages.length || 0)}
+                      label="رقم الحادث"
+                      value={formatValue(accidentData.accident_number)}
                     />
                     <InfoCard
-                      label="إجمالي تكلفة القطع"
-                      value={formatCurrency(total?.total_parts)}
+                      label="إحداثيات الحادث"
+                      value={formatValue(accidentData.accident_coordinates)}
                     />
                     <InfoCard
-                      label="إجمالي تكلفة شغل اليد"
-                      value={formatCurrency(total?.total_labor)}
+                      label="وقت الحادث"
+                      value={formatValue(accidentData.accident_time)}
                     />
                     <InfoCard
-                      label="إجمالي التكلفة"
-                      value={formatCurrency(total?.total_estimated_cost)}
+                      label="تاريخ الحادث"
+                      value={formatDate(accidentData.accident_date)}
+                    />
+                    <InfoCard
+                      label="جهة الضرر"
+                      value={formatValue(accidentData.damage_side)}
                     />
                     <InfoCard
                       label="نسبة الخطأ"
                       value={
                         accidentData.fault_percentage !== undefined &&
-                        accidentData.fault_percentage !== null &&
-                        accidentData.fault_percentage !== ""
+                          accidentData.fault_percentage !== null &&
+                          accidentData.fault_percentage !== ""
                           ? `${accidentData.fault_percentage}%`
                           : "-"
                       }
                     />
-                    <InfoCard
-                      label="التكلفة النهائية بعد نسبة الخطأ"
-                      value={formatCurrency(total?.adjusted_cost)}
-                      badgeClass="bg-green-50 text-green-700 border-green-200"
-                    />
                   </InfoGrid>
+
                 </CardSection>
-              </>
-            )}
-            {/* Action Buttons Section */}
-            <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
+                {imageUrl && (
+                  <div className="rounded-[28px] border border-qadder-border/30 bg-white p-5 md:p-6">
 
-  {/* تنزيل */}
-  <button
-    onClick={handleDownloadReport}
-    className="inline-flex items-center justify-center gap-2 rounded-2xl bg-qadder-primary px-6 py-3 font-semibold text-white transition hover:bg-qadder-dark"
-  >
-    <Download size={18} />
-    تنزيل التقرير
-  </button>
+                    {/* Damage Image Section */}
+                    <div className="overflow-hidden rounded-[24px] border border-qadder-border/20 bg-qadder-background">
+                      <img
+                        src={imageUrl}
+                        alt="صورة الضرر"
+                        className="h-[260px] w-full object-contain md:h-[420px]"
+                      />
+                    </div>
+                  </div>
+                )}
 
-  {/* مشاركة */}
-  <button
-    className="inline-flex items-center justify-center gap-2 rounded-2xl border border-qadder-primary px-6 py-3 font-semibold text-qadder-primary transition hover:bg-qadder-light"
-  >
-    <Share2 size={18} />
-    مشاركة التقرير
-  </button>
+                {/* Case Status Section (High Severity Rejection) */}
+                {isHighSeverity ? (
+                  <CardSection title="حالة الطلب">
+                    <div className="rounded-[24px] border border-red-200 bg-red-50 p-5">
+                      <h3 className="text-lg font-bold text-red-700">تم رفض الطلب</h3>
+                      <p className="mt-3 text-sm leading-7 text-red-700/90">
+                        نظرًا لارتفاع شدة الضرر، يرجى التوجه إلى أحد مراكز التقدير المعتمدة لاستكمال إجراءات التقييم ومعاينة المركبة بشكل دقيق.
+                      </p>
+                    </div>
+                  </CardSection>
+                ) : (
+                  <>
+                    {/* Damages Details Section */}
+                    <CardSection title="تفاصيل الأضرار والتكاليف">
+                      <div className="space-y-4">
+                        {damages.length > 0 ? (
+                          damages.map((item, index) => (
+                            <div
+                              key={item.id || item.damage_no || index}
+                              className="rounded-[24px] border border-qadder-border/25 bg-white p-4 shadow-sm md:p-5"
+                            >
+                              <div className="mb-4 flex items-center gap-2">
+                                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-green-100 text-sm font-bold text-green-700">
+                                  {item.damage_no || index + 1}
+                                </div>
 
-  {/* السابق */}
-  <button
-    onClick={goPrevious}
-    className="inline-flex items-center justify-center gap-2 rounded-2xl border border-qadder-primary px-6 py-3 font-semibold text-qadder-primary transition hover:bg-qadder-light"
-  >
-    <ChevronRight size={18} />
-    السابق
-  </button>
+                                <h3 className="text-lg font-bold text-qadder-dark">
+                                  الضرر
+                                </h3>
+                              </div>
 
-</div>
-          </div>
-          </div>
-           </>
+                              <InfoGrid>
+                                <InfoCard
+                                  label="نوع الضرر"
+                                  value={formatValue(item.damage_type_ar || item.damage_type_en)}
+                                />
+                                <InfoCard
+                                  label="الجزء المتضرر"
+                                  value={formatValue(item.part_name_ar || item.part_name_en)}
+                                />
+                                <InfoCard
+                                  label="الشدة"
+                                  value={formatValue(item.severity_ar || item.severity_en)}
+                                  badgeClass={severityBadgeClass(
+                                    item.severity_ar || item.severity_en || "-"
+                                  )}
+                                />
+                                <InfoCard
+                                  label="تكلفة القطعة"
+                                  value={formatCurrency(item.part_price)}
+                                />
+                                <InfoCard
+                                  label="تكلفة شغل اليد"
+                                  value={formatCurrency(item.labor_cost)}
+                                />
+                              </InfoGrid>
+                            </div>
+                          ))
+                        ) : (
+                          <div className="rounded-3xl border border-qadder-border/30 bg-qadder-background p-4 text-sm text-qadder-dark/70">
+                            لا توجد أضرار مكتشفة لعرضها.
+                          </div>
+                        )}
+                      </div>
+                    </CardSection>
+
+                    {/* Final Cost Summary Section */}
+                    <CardSection title="الملخص المالي النهائي">
+                      <InfoGrid>
+                        <InfoCard
+                          label="عدد الأضرار"
+                          value={formatValue(total?.damages_count || damages.length || 0)}
+                        />
+                        <InfoCard
+                          label="إجمالي تكلفة القطع"
+                          value={formatCurrency(total?.total_parts)}
+                        />
+                        <InfoCard
+                          label="إجمالي تكلفة شغل اليد"
+                          value={formatCurrency(total?.total_labor)}
+                        />
+                        <InfoCard
+                          label="إجمالي التكلفة"
+                          value={formatCurrency(total?.total_estimated_cost)}
+                        />
+                        <InfoCard
+                          label="نسبة الخطأ"
+                          value={
+                            accidentData.fault_percentage !== undefined &&
+                              accidentData.fault_percentage !== null &&
+                              accidentData.fault_percentage !== ""
+                              ? `${accidentData.fault_percentage}%`
+                              : "-"
+                          }
+                        />
+                        <InfoCard
+                          label="التكلفة النهائية بعد نسبة الخطأ"
+                          value={formatCurrency(total?.adjusted_cost)}
+                          badgeClass="bg-green-50 text-green-700 border-green-200"
+                        />
+                      </InfoGrid>
+                    </CardSection>
+                  </>
+                )}
+                {/* Action Buttons Section */}
+                <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
+
+                  {/* تنزيل */}
+                  <button
+                    onClick={handleDownloadReport}
+                    className="inline-flex items-center justify-center gap-2 rounded-2xl bg-qadder-primary px-6 py-3 font-semibold text-white transition hover:bg-qadder-dark"
+                  >
+                    <Download size={18} />
+                    تنزيل التقرير
+                  </button>
+
+                  {/* مشاركة */}
+                  <button
+                    className="inline-flex items-center justify-center gap-2 rounded-2xl border border-qadder-primary px-6 py-3 font-semibold text-qadder-primary transition hover:bg-qadder-light"
+                  >
+                    <Share2 size={18} />
+                    مشاركة التقرير
+                  </button>
+
+                  {/* السابق */}
+                  <button
+                    onClick={goPrevious}
+                    className="inline-flex items-center justify-center gap-2 rounded-2xl border border-qadder-primary px-6 py-3 font-semibold text-qadder-primary transition hover:bg-qadder-light"
+                  >
+                    <ChevronRight size={18} />
+                    السابق
+                  </button>
+
+                </div>
+              </div>
+            </div>
+          </>
         )}
       </section>
 
