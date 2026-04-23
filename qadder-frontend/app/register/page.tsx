@@ -1,10 +1,14 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Check } from "lucide-react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import {
+  Check,
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
 
 const steps = ["بيانات الحساب", "البيانات الشخصية", "بيانات المركبة"];
 
@@ -63,11 +67,110 @@ const arabicPlateLetters = [
   "ف",
 ];
 
+/* Shared input styling */
 const inputClass =
-  "w-full rounded-2xl border border-qadder-border bg-qadder-background px-4 py-3.5 text-qadder-dark outline-none transition placeholder:text-qadder-dark/35 focus:border-qadder-secondary focus:bg-qadder-light";
+  "block w-full min-w-0 rounded-2xl border border-qadder-border bg-qadder-background px-4 py-3.5 text-base text-qadder-dark outline-none transition placeholder:text-qadder-dark/35 focus:border-qadder-secondary focus:bg-qadder-light";
 
-const selectClass =
-  "w-full rounded-2xl border border-qadder-border bg-qadder-background px-4 py-3.5 text-qadder-dark outline-none transition focus:border-qadder-secondary focus:bg-qadder-light";
+/* Shared dropdown button styling */
+const dropdownButtonClass =
+  "flex w-full min-w-0 items-center justify-between rounded-2xl border border-qadder-border bg-qadder-background px-4 py-3.5 text-base text-qadder-dark outline-none transition hover:border-qadder-secondary focus:border-qadder-secondary focus:bg-qadder-light";
+
+/* Shared dropdown menu styling */
+const dropdownMenuClass =
+  "absolute z-30 mt-2 w-full overflow-hidden rounded-2xl border border-qadder-border bg-white shadow-[0_12px_30px_rgba(16,47,21,0.12)]";
+
+/**
+ * Reusable custom dropdown component
+ * This gives full control over width and layout across devices.
+ */
+function CustomDropdown({
+  value,
+  placeholder,
+  options,
+  onChange,
+  disabled = false,
+}: {
+  value: string;
+  placeholder: string;
+  options: string[];
+  onChange: (value: string) => void;
+  disabled?: boolean;
+}) {
+  const [open, setOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement | null>(null);
+
+  /* Close dropdown when clicking outside */
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
+        setOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  /* Close dropdown on option selection */
+  const handleSelect = (selectedValue: string) => {
+    onChange(selectedValue);
+    setOpen(false);
+  };
+
+  return (
+    <div ref={dropdownRef} className="relative min-w-0">
+      <button
+        type="button"
+        disabled={disabled}
+        onClick={() => setOpen((prev) => !prev)}
+        className={`${dropdownButtonClass} ${
+          disabled ? "cursor-not-allowed opacity-60" : ""
+        }`}
+      >
+        <span className={value ? "text-qadder-dark" : "text-qadder-dark/35"}>
+          {value || placeholder}
+        </span>
+
+        <ChevronDown
+          className={`h-5 w-5 shrink-0 text-qadder-dark/45 transition ${
+            open ? "rotate-180" : ""
+          }`}
+        />
+      </button>
+
+      {open && !disabled && (
+        <div className={dropdownMenuClass}>
+          <div className="max-h-60 overflow-y-auto py-1">
+            {options.map((option) => {
+              const isSelected = value === option;
+
+              return (
+                <button
+                  key={option}
+                  type="button"
+                  onClick={() => handleSelect(option)}
+                  className={`flex w-full items-center justify-between px-4 py-3 text-right text-sm transition ${
+                    isSelected
+                      ? "bg-qadder-light font-bold text-qadder-primary"
+                      : "text-qadder-dark hover:bg-qadder-background"
+                  }`}
+                >
+                  <span>{option}</span>
+                  {isSelected && <Check className="h-4 w-4" />}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -100,10 +203,12 @@ export default function RegisterPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
+  /* Get all available vehicle brands */
   const availableBrands = useMemo(() => {
     return [...new Set(vehicleOptions.map((v) => v.brand))];
   }, []);
 
+  /* Get available models based on selected brand */
   const availableModels = useMemo(() => {
     if (!form.brand) return [];
     return [
@@ -115,6 +220,7 @@ export default function RegisterPage() {
     ];
   }, [form.brand]);
 
+  /* Get available years based on selected brand and model */
   const availableYears = useMemo(() => {
     if (!form.brand || !form.model) return [];
     return [
@@ -126,9 +232,8 @@ export default function RegisterPage() {
     ];
   }, [form.brand, form.model]);
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  ) => {
+  /* Handle regular input changes */
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
 
     if (name === "plate_numbers") {
@@ -137,6 +242,14 @@ export default function RegisterPage() {
       return;
     }
 
+    setForm((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  /* Handle custom dropdown changes */
+  const handleDropdownChange = (name: string, value: string) => {
     if (name === "brand") {
       setForm((prev) => ({
         ...prev,
@@ -162,6 +275,7 @@ export default function RegisterPage() {
     }));
   };
 
+  /* Validate current step before moving forward */
   const nextStep = () => {
     setError("");
 
@@ -172,7 +286,7 @@ export default function RegisterPage() {
         !form.password ||
         !form.confirmPassword
       ) {
-        setError("أكملي بيانات الحساب");
+        setError("أكمل بيانات الحساب");
         return;
       }
 
@@ -180,6 +294,7 @@ export default function RegisterPage() {
         setError("كلمة المرور وتأكيدها غير متطابقين");
         return;
       }
+
       if (form.password.length < 6) {
         setError("كلمة المرور يجب أن تكون 6 خانات أو أكثر");
         return;
@@ -196,7 +311,7 @@ export default function RegisterPage() {
         !form.nationality ||
         !form.date_of_birth
       ) {
-        setError("أكملي البيانات الشخصية");
+        setError("أكمل البيانات الشخصية");
         return;
       }
     }
@@ -204,41 +319,42 @@ export default function RegisterPage() {
     setCurrentStep((prev) => prev + 1);
   };
 
+  /* Move back to previous step */
   const prevStep = () => {
     setError("");
     setCurrentStep((prev) => prev - 1);
   };
 
+  /* Submit registration payload */
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
 
     if (currentStep !== 2) return;
 
     setError("");
 
     if (!form.brand) {
-      setError("اختاري شركة الصنع");
+      setError("اختر شركة الصنع");
       return;
     }
 
     if (!form.model) {
-      setError("اختاري موديل السيارة");
+      setError("اختر موديل السيارة");
       return;
     }
 
     if (!form.year) {
-      setError("اختاري سنة الصنع");
+      setError("اختر سنة الصنع");
       return;
     }
 
     if (!form.color) {
-      setError("اختاري لون السيارة");
+      setError("اختر لون السيارة");
       return;
     }
 
     if (!form.plate_letter_1 || !form.plate_letter_2 || !form.plate_letter_3) {
-      setError("اختاري حروف اللوحة");
+      setError("اختر حروف اللوحة");
       return;
     }
 
@@ -269,7 +385,9 @@ export default function RegisterPage() {
         color: form.color,
         plate_number: `${form.plate_letter_1} ${form.plate_letter_2} ${form.plate_letter_3} ${form.plate_numbers}`,
       };
+
       console.log("payload:", payload);
+
       const res = await fetch("http://127.0.0.1:8000/auth/register", {
         method: "POST",
         headers: {
@@ -295,7 +413,10 @@ export default function RegisterPage() {
       setLoading(false);
     }
   };
+
+  /* Build the final plate preview value */
   const fullPlateNumber = `${form.plate_letter_1 || ""} ${form.plate_letter_2 || ""} ${form.plate_letter_3 || ""} ${form.plate_numbers || ""}`.trim();
+
   return (
     <main
       dir="rtl"
@@ -304,9 +425,10 @@ export default function RegisterPage() {
       <section className="relative overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(173,200,147,0.18),_transparent_35%),radial-gradient(circle_at_top_right,_rgba(39,75,44,0.08),_transparent_30%)]" />
 
-        <div className="relative mx-auto flex min-h-screen max-w-7xl items-center justify-center px-6 py-12">
-          <div className="w-full max-w-2xl">
-            <div className="rounded-[28px] border border-qadder-border/30 bg-qadder-card p-8 shadow-[0_20px_60px_rgba(16,47,21,0.08)] sm:p-10">
+        <div className="relative mx-auto flex min-h-screen max-w-7xl items-center justify-center px-4 py-8 sm:px-6 sm:py-12">
+          <div className="w-full max-w-2xl min-w-0">
+            <div className="rounded-[28px] border border-qadder-border/30 bg-qadder-card p-6 shadow-[0_20px_60px_rgba(16,47,21,0.08)] sm:p-8 lg:p-10">
+              {/* Page header */}
               <div className="mb-8 text-center">
                 <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-qadder-light">
                   <img
@@ -316,7 +438,7 @@ export default function RegisterPage() {
                   />
                 </div>
 
-                <h1 className="text-3xl font-extrabold text-qadder-dark">
+                <h1 className="text-2xl font-extrabold text-qadder-dark sm:text-3xl">
                   إنشاء حساب
                 </h1>
 
@@ -325,8 +447,9 @@ export default function RegisterPage() {
                 </p>
               </div>
 
+              {/* Progress steps */}
               <div className="mb-8 overflow-x-auto pb-1">
-                <div className="flex min-w-[600px] items-start justify-between">
+                <div className="flex min-w-[520px] items-start justify-between gap-2 sm:min-w-[600px]">
                   {steps.map((step, index) => {
                     const active = index === currentStep;
                     const done = index < currentStep;
@@ -334,35 +457,38 @@ export default function RegisterPage() {
                     return (
                       <div key={step} className="flex flex-1 items-start">
                         <div className="flex flex-1 flex-col items-center text-center">
-
-                          {/* Circle */}
+                          {/* Step circle */}
                           <div
-                            className={`flex h-10 w-10 items-center justify-center rounded-full text-sm font-bold transition ${done
-                              ? "bg-qadder-primary text-white"
-                              : active
+                            className={`flex h-10 w-10 items-center justify-center rounded-full text-sm font-bold transition ${
+                              done
+                                ? "bg-qadder-primary text-white"
+                                : active
                                 ? "border border-qadder-primary bg-white text-qadder-primary ring-4 ring-qadder-secondary/25"
                                 : "border border-qadder-border/40 bg-white text-qadder-dark/55"
-                              }`}
+                            }`}
                           >
-                            {done ? <Check size={16} /> : index + 1}                          </div>
+                            {done ? <Check size={16} /> : index + 1}
+                          </div>
 
-                          {/* Text */}
+                          {/* Step label */}
                           <p
-                            className={`mt-2 text-xs md:text-sm ${active
-                              ? "font-bold text-qadder-dark"
-                              : "font-medium text-qadder-dark/60"
-                              }`}
+                            className={`mt-2 text-[11px] leading-5 sm:text-sm ${
+                              active
+                                ? "font-bold text-qadder-dark"
+                                : "font-medium text-qadder-dark/60"
+                            }`}
                           >
                             {step}
                           </p>
                         </div>
 
-                        {/* Line */}
+                        {/* Step connector */}
                         {index !== steps.length - 1 && (
                           <div className="mt-5 h-[2px] flex-1 bg-qadder-border/30">
                             <div
-                              className={`h-full ${done ? "bg-qadder-primary" : "bg-transparent"
-                                }`}
+                              className={`h-full ${
+                                done ? "bg-qadder-primary" : "bg-transparent"
+                              }`}
                             />
                           </div>
                         )}
@@ -372,12 +498,14 @@ export default function RegisterPage() {
                 </div>
               </div>
 
-              <form onSubmit={handleSubmit} className="space-y-5">
+              {/* Form body */}
+              <form onSubmit={handleSubmit} className="max-w-full space-y-5">
                 {currentStep === 0 && (
                   <>
-                    <div>
+                    {/* Email field */}
+                    <div className="min-w-0">
                       <label className="mb-2 block text-sm font-semibold text-qadder-dark">
-                        البريد الإلكتروني
+                        البريد الإلكتروني <span className="mr-1 text-red-500">*</span>
                       </label>
                       <input
                         name="email"
@@ -389,9 +517,10 @@ export default function RegisterPage() {
                       />
                     </div>
 
-                    <div>
+                    {/* Phone field */}
+                    <div className="min-w-0">
                       <label className="mb-2 block text-sm font-semibold text-qadder-dark">
-                        رقم الجوال
+                        رقم الجوال <span className="mr-1 text-red-500">*</span>
                       </label>
                       <input
                         name="phone_number"
@@ -403,9 +532,10 @@ export default function RegisterPage() {
                       />
                     </div>
 
-                    <div>
+                    {/* Password field */}
+                    <div className="min-w-0">
                       <label className="mb-2 block text-sm font-semibold text-qadder-dark">
-                        كلمة المرور
+                        كلمة المرور <span className="mr-1 text-red-500">*</span>
                       </label>
                       <input
                         name="password"
@@ -417,9 +547,10 @@ export default function RegisterPage() {
                       />
                     </div>
 
-                    <div>
+                    {/* Confirm password field */}
+                    <div className="min-w-0">
                       <label className="mb-2 block text-sm font-semibold text-qadder-dark">
-                        تأكيد كلمة المرور
+                        تأكيد كلمة المرور <span className="mr-1 text-red-500">*</span>
                       </label>
                       <input
                         name="confirmPassword"
@@ -435,9 +566,10 @@ export default function RegisterPage() {
 
                 {currentStep === 1 && (
                   <>
-                    <div>
+                    {/* National ID */}
+                    <div className="min-w-0">
                       <label className="mb-2 block text-sm font-semibold text-qadder-dark">
-                        رقم الهوية
+                        رقم الهوية <span className="mr-1 text-red-500">*</span>
                       </label>
                       <input
                         name="national_id"
@@ -449,9 +581,10 @@ export default function RegisterPage() {
                       />
                     </div>
 
-                    <div>
+                    {/* First name */}
+                    <div className="min-w-0">
                       <label className="mb-2 block text-sm font-semibold text-qadder-dark">
-                        الاسم الأول
+                        الاسم الأول <span className="mr-1 text-red-500">*</span>
                       </label>
                       <input
                         name="first_name"
@@ -463,9 +596,10 @@ export default function RegisterPage() {
                       />
                     </div>
 
-                    <div>
+                    {/* Second name */}
+                    <div className="min-w-0">
                       <label className="mb-2 block text-sm font-semibold text-qadder-dark">
-                        الاسم الثاني
+                        الاسم الثاني <span className="mr-1 text-red-500">*</span>
                       </label>
                       <input
                         name="second_name"
@@ -477,9 +611,10 @@ export default function RegisterPage() {
                       />
                     </div>
 
-                    <div>
+                    {/* Third name */}
+                    <div className="min-w-0">
                       <label className="mb-2 block text-sm font-semibold text-qadder-dark">
-                        الاسم الثالث
+                        الاسم الثالث <span className="mr-1 text-red-500">*</span>
                       </label>
                       <input
                         name="third_name"
@@ -491,9 +626,10 @@ export default function RegisterPage() {
                       />
                     </div>
 
-                    <div>
+                    {/* Last name */}
+                    <div className="min-w-0">
                       <label className="mb-2 block text-sm font-semibold text-qadder-dark">
-                        اسم العائلة
+                        اسم العائلة <span className="mr-1 text-red-500">*</span>
                       </label>
                       <input
                         name="last_name"
@@ -505,28 +641,25 @@ export default function RegisterPage() {
                       />
                     </div>
 
-                    <div>
+                    {/* Nationality field */}
+                    <div className="min-w-0">
                       <label className="mb-2 block text-sm font-semibold text-qadder-dark">
-                        الجنسية
+                        الجنسية <span className="mr-1 text-red-500">*</span>
                       </label>
-                      <select
-                        name="nationality"
+                      <CustomDropdown
                         value={form.nationality}
-                        onChange={handleChange}
-                        className={selectClass}
-                      >
-                        <option value="">اختر الجنسية</option>
-                        {nationalityOptions.map((nationality) => (
-                          <option key={nationality} value={nationality}>
-                            {nationality}
-                          </option>
-                        ))}
-                      </select>
+                        placeholder="اختر الجنسية"
+                        options={nationalityOptions}
+                        onChange={(value) =>
+                          handleDropdownChange("nationality", value)
+                        }
+                      />
                     </div>
 
-                    <div>
+                    {/* Birth date */}
+                    <div className="min-w-0">
                       <label className="mb-2 block text-sm font-semibold text-qadder-dark">
-                        تاريخ الميلاد
+                        تاريخ الميلاد <span className="mr-1 text-red-500">*</span>
                       </label>
                       <input
                         name="date_of_birth"
@@ -541,140 +674,105 @@ export default function RegisterPage() {
 
                 {currentStep === 2 && (
                   <>
-                    <div>
+                    {/* Vehicle brand */}
+                    <div className="min-w-0">
                       <label className="mb-2 block text-sm font-semibold text-qadder-dark">
-                        شركة الصنع
+                        شركة الصنع <span className="mr-1 text-red-500">*</span>
                       </label>
-                      <select
-                        name="brand"
+                      <CustomDropdown
                         value={form.brand}
-                        onChange={handleChange}
-                        className={selectClass}
-                      >
-                        <option value="">اختر شركة الصنع</option>
-                        {availableBrands.map((brand) => (
-                          <option key={brand} value={brand}>
-                            {brand}
-                          </option>
-                        ))}
-                      </select>
+                        placeholder="اختر شركة الصنع"
+                        options={availableBrands}
+                        onChange={(value) => handleDropdownChange("brand", value)}
+                      />
                     </div>
 
-                    <div>
+                    {/* Vehicle model */}
+                    <div className="min-w-0">
                       <label className="mb-2 block text-sm font-semibold text-qadder-dark">
-                        موديل السيارة
+                        موديل السيارة <span className="mr-1 text-red-500">*</span>
                       </label>
-                      <select
-                        name="model"
+                      <CustomDropdown
                         value={form.model}
-                        onChange={handleChange}
+                        placeholder="اختر الموديل"
+                        options={availableModels}
+                        onChange={(value) => handleDropdownChange("model", value)}
                         disabled={!form.brand}
-                        className={`${selectClass} disabled:opacity-60`}
-                      >
-                        <option value="">اختر الموديل</option>
-                        {availableModels.map((model) => (
-                          <option key={model} value={model}>
-                            {model}
-                          </option>
-                        ))}
-                      </select>
+                      />
                     </div>
 
-                    <div>
+                    {/* Vehicle year */}
+                    <div className="min-w-0">
                       <label className="mb-2 block text-sm font-semibold text-qadder-dark">
-                        سنة الصنع
+                        سنة الصنع <span className="mr-1 text-red-500">*</span>
                       </label>
-                      <select
-                        name="year"
+                      <CustomDropdown
                         value={form.year}
-                        onChange={handleChange}
+                        placeholder="اختر سنة الصنع"
+                        options={availableYears}
+                        onChange={(value) => handleDropdownChange("year", value)}
                         disabled={!form.model}
-                        className={`${selectClass} disabled:opacity-60`}
-                      >
-                        <option value="">اختر سنة الصنع</option>
-                        {availableYears.map((year) => (
-                          <option key={year} value={year}>
-                            {year}
-                          </option>
-                        ))}
-                      </select>
+                      />
                     </div>
 
-                    <div>
+                    {/* Vehicle color */}
+                    <div className="min-w-0">
                       <label className="mb-2 block text-sm font-semibold text-qadder-dark">
-                        اللون
+                        اللون <span className="mr-1 text-red-500">*</span>
                       </label>
-                      <select
-                        name="color"
+                      <CustomDropdown
                         value={form.color}
-                        onChange={handleChange}
-                        className={selectClass}
-                      >
-                        <option value="">اختر اللون</option>
-                        {colorOptions.map((color) => (
-                          <option key={color} value={color}>
-                            {color}
-                          </option>
-                        ))}
-                      </select>
+                        placeholder="اختر اللون"
+                        options={colorOptions}
+                        onChange={(value) => handleDropdownChange("color", value)}
+                      />
                     </div>
-                    <div className="rounded-3xl border border-qadder-border/20 bg-qadder-background/50 p-5">
+
+                    {/* Plate information */}
+                    <div className="rounded-3xl border border-qadder-border/20 bg-qadder-background/50 p-4 sm:p-5">
                       <h2 className="mb-4 text-right text-lg font-bold text-qadder-dark">
-                        بيانات اللوحة
+                        بيانات اللوحة <span className="mr-1 text-red-500">*</span>
                       </h2>
 
                       <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
-                        <div>
+                        {/* Plate letters */}
+                        <div className="min-w-0">
                           <label className="mb-2 block text-sm font-semibold text-qadder-dark">
                             حروف اللوحة
                           </label>
 
-                          <div className="grid grid-cols-3 gap-3">
-                            <select
-                              name="plate_letter_1"
+                          <div className="grid grid-cols-3 gap-2 sm:gap-3">
+                            <CustomDropdown
                               value={form.plate_letter_1}
-                              onChange={handleChange}
-                              className={inputClass}
-                            >
-                              <option value="">حرف1</option>
-                              {arabicPlateLetters.map((letter) => (
-                                <option key={`1-${letter}`} value={letter}>
-                                  {letter}
-                                </option>
-                              ))}
-                            </select>
+                              placeholder="-"
+                              options={arabicPlateLetters}
+                              onChange={(value) =>
+                                handleDropdownChange("plate_letter_1", value)
+                              }
+                            />
 
-                            <select
-                              name="plate_letter_2"
+                            <CustomDropdown
                               value={form.plate_letter_2}
-                              onChange={handleChange}
-                              className={inputClass}
-                            >
-                              <option value="">حرف2</option>
-                              {arabicPlateLetters.map((letter) => (
-                                <option key={`2-${letter}`} value={letter}>
-                                  {letter}
-                                </option>
-                              ))}
-                            </select>
+                              placeholder="-"
+                              options={arabicPlateLetters}
+                              onChange={(value) =>
+                                handleDropdownChange("plate_letter_2", value)
+                              }
+                            />
 
-                            <select
-                              name="plate_letter_3"
+                            <CustomDropdown
                               value={form.plate_letter_3}
-                              onChange={handleChange}
-                              className={inputClass}
-                            >
-                              <option value="">حرف3</option>
-                              {arabicPlateLetters.map((letter) => (
-                                <option key={`3-${letter}`} value={letter}>
-                                  {letter}
-                                </option>
-                              ))}
-                            </select>
+                              placeholder="-"
+                              options={arabicPlateLetters}
+                              onChange={(value) =>
+                                handleDropdownChange("plate_letter_3", value)
+                              }
+                            />
                           </div>
                         </div>
 
-                        <div>
+                        {/* Plate numbers */}
+                        <div className="min-w-0">
                           <label className="mb-2 block text-sm font-semibold text-qadder-dark">
                             أرقام اللوحة
                           </label>
@@ -689,25 +787,34 @@ export default function RegisterPage() {
                         </div>
                       </div>
 
+                      {/* Plate preview */}
                       <div className="mt-5 rounded-2xl bg-white p-4 text-right shadow-sm">
                         <p className="text-sm font-semibold text-qadder-dark/60">
                           رقم اللوحة النهائي
                         </p>
-                        <p className="mt-2 text-lg font-bold text-qadder-primary">
-                          {fullPlateNumber || "سيظهر هنا بعد اختيار الحروف والأرقام"}
-                        </p>
+
+                        {fullPlateNumber ? (
+                          <p className="mt-2 text-lg font-bold text-qadder-primary">
+                            {fullPlateNumber}
+                          </p>
+                        ) : (
+                          <p className="mt-2 text-lg font-bold text-qadder-dark/35">
+                            ستظهر اللوحه هنا بعد اختيار الحروف والأرقام
+                          </p>
+                        )}
                       </div>
                     </div>
                   </>
                 )}
 
-
+                {/* Error message */}
                 {error && (
                   <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
                     {error}
                   </div>
                 )}
 
+                {/* Form actions */}
                 <div className="mt-6 space-y-3">
                   {currentStep < steps.length - 1 ? (
                     <button
@@ -748,6 +855,7 @@ export default function RegisterPage() {
                 </div>
               </form>
 
+              {/* Login link */}
               {currentStep === 0 && (
                 <div className="mt-6 text-center text-sm text-qadder-dark/70">
                   لديك حساب؟{" "}

@@ -1,13 +1,19 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import AppNavbar from "@/components/AppNavbar";
 import PageLoader from "@/components/PageLoader";
 import ContactUs from "@/components/ContactUs";
-import { ChevronLeft, ChevronRight } from "lucide-react";
-
-import Link from "next/link";
+import {
+  Check,
+  ChevronLeft,
+  ChevronRight,
+  CircleAlert,
+  CircleCheckBig,
+  AlertTriangle,
+} from "lucide-react";
 
 type NajmReportData = {
   accident_id?: string;
@@ -64,11 +70,13 @@ export default function ReportReviewPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
+  // Handle user logout
   const handleLogout = () => {
     localStorage.removeItem("user");
     window.location.href = "/";
   };
 
+  // Load saved step 1 data from localStorage
   useEffect(() => {
     try {
       const stored = localStorage.getItem("latestNajmStep1");
@@ -92,49 +100,55 @@ export default function ReportReviewPage() {
       setLoading(false);
     }
   }, []);
-  /////////////////////////////////
-  const caseId = step1Data?.case_id;
-  const damageSide = step1Data?.najm_report?.damage_area_ar;
-  //////////////////////////////////
-  const validationItems = [
-    {
-      label: "مطابقة رقم الهوية",
-      value: step1Data?.validation?.national_id_match,
-    },
-    {
-      label: "مطابقة رقم الجوال",
-      value: step1Data?.validation?.mobile_match,
-    },
-    {
-      label: "مطابقة الجنسية",
-      value: step1Data?.validation?.nationality_match,
-    },
-    {
-      label: "مطابقة ماركة المركبة",
-      value: step1Data?.validation?.vehicle_brand_match,
-    },
-    {
-      label: "مطابقة موديل المركبة",
-      value: step1Data?.validation?.vehicle_model_match,
-    },
-    {
-      label: "مطابقة سنة المركبة",
-      value: step1Data?.validation?.vehicle_year_match,
-    },
-    {
-      label: "مطابقة لون المركبة",
-      value: step1Data?.validation?.vehicle_color_match,
-    },
-  ];
+
+  // Extract navigation values
+  const caseId = step1Data?.case_id || "";
+  const damageSide = step1Data?.najm_report?.damage_area_ar || "";
+
+  // Build validation items list
+  const validationMap = useMemo(
+    () => ({
+      national_id: step1Data?.validation?.national_id_match,
+      mobile: step1Data?.validation?.mobile_match,
+      nationality: step1Data?.validation?.nationality_match,
+      vehicle_brand: step1Data?.validation?.vehicle_brand_match,
+      vehicle_model: step1Data?.validation?.vehicle_model_match,
+      vehicle_year: step1Data?.validation?.vehicle_year_match,
+      vehicle_color: step1Data?.validation?.vehicle_color_match,
+    }),
+    [step1Data]
+  );
+
+  const hasAnyFalse = Object.values(validationMap).some((v) => v === false);
+  const hasAllTrue =
+    Object.values(validationMap).length > 0 &&
+    Object.values(validationMap).every((v) => v === true);
+
+  const matchTitle = useMemo(() => {
+    if (hasAllTrue) return "جميع البيانات متطابقة";
+    if (hasAnyFalse) return "يوجد بيانات غير متطابقة";
+    return "تعذر تحديد نتيجة المطابقة";
+  }, [hasAllTrue, hasAnyFalse]);
+
+  const matchDescription = useMemo(() => {
+    if (hasAllTrue) {
+      return "تمت مطابقة جميع البيانات بنجاح.";
+    }
+
+    if (hasAnyFalse) {
+      return "بعض البيانات غير متطابقة، يرجى الرجوع ورفع تقرير نجم مرة أخرى.";
+    }
+
+    return "تعذر التحقق من البيانات.";
+  }, [hasAllTrue, hasAnyFalse]);
 
   if (loading) {
     return (
-      <main dir="rtl"
-        className="min-h-screen bg-qadder-background text-qadder-dark">
+      <main className="min-h-screen bg-qadder-background text-qadder-dark">
         <AppNavbar isLoggedIn={true} handleLogout={handleLogout} />
 
         <section className="mx-auto max-w-7xl px-6 py-16">
-          <PageLoader text="  جاري تحميل بيانات التقرير..." />
+          <PageLoader text="جاري تحميل بيانات التقرير..." />
         </section>
       </main>
     );
@@ -142,9 +156,9 @@ export default function ReportReviewPage() {
 
   if (error || !step1Data) {
     return (
-      <main dir="rtl"
-        className="min-h-screen bg-qadder-background text-qadder-dark">
+      <main className="min-h-screen bg-qadder-background text-qadder-dark">
         <AppNavbar isLoggedIn={true} handleLogout={handleLogout} />
+
         <section className="mx-auto max-w-5xl px-6 py-16" dir="rtl">
           <div className="rounded-[28px] border border-red-200 bg-red-50 p-12 text-center shadow-sm">
             <p className="text-lg font-semibold text-red-600">
@@ -166,35 +180,24 @@ export default function ReportReviewPage() {
   }
 
   return (
-    <main dir="rtl"
-      className="min-h-screen bg-qadder-background text-qadder-dark">
+    <main className="min-h-screen bg-qadder-background text-qadder-dark">
       <AppNavbar
         isLoggedIn={true}
         handleLogout={handleLogout}
         contactHref="#contact"
       />
 
+      {/* Header and progress section */}
       <section
         className="relative overflow-hidden border-b border-qadder-border/20"
         dir="rtl"
       >
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(173,200,147,0.18),_transparent_35%),radial-gradient(circle_at_top_right,_rgba(39,75,44,0.08),_transparent_30%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(173,200,147,0.16),_transparent_35%),radial-gradient(circle_at_top_right,_rgba(39,75,44,0.08),_transparent_30%)]" />
 
-        <div className="relative mx-auto max-w-6xl px-6 py-12 md:py-16">
-          <div className="max-w-4xl text-right">
-
-            <h1 className="text-3xl font-extrabold leading-tight md:text-5xl">
-              مراجعة بيانات تقرير نجم
-            </h1>
-
-            <p className="mt-4 text-base leading-8 text-qadder-dark/70 md:text-lg">
-              تم استخراج البيانات من التقرير ومقارنتها تلقائيًا مع معلومات حسابك
-              والمركبة المسجلة. راجع النتيجة ثم انتقل للخطوة التالية.
-            </p>
-          </div>
-
-          <div className="mt-8 overflow-x-auto">
-            <div className="flex min-w-[850px] items-center gap-3">
+        <div className="relative mx-auto max-w-6xl px-6 py-6 md:py-8">
+          {/* Steps progress */}
+          <div className="overflow-x-auto pb-1">
+            <div className="mx-auto flex min-w-[860px] items-start justify-between gap-2">
               {steps.map((step, index) => {
                 const stepNumber = index + 1;
                 const done = stepNumber < 2;
@@ -204,21 +207,23 @@ export default function ReportReviewPage() {
                   <div key={step} className="flex flex-1 items-start">
                     <div className="flex flex-1 flex-col items-center text-center">
                       <div
-                        className={`flex h-12 w-12 items-center justify-center rounded-full border text-sm font-bold transition ${done
-                          ? "border-qadder-primary bg-white text-qadder-primary ring-4 ring-qadder-secondary/25"
-                          : active
+                        className={`flex h-12 w-12 items-center justify-center rounded-full border text-sm font-bold transition ${
+                          done
+                            ? "border-qadder-primary bg-qadder-primary text-white"
+                            : active
                             ? "border-qadder-primary bg-white text-qadder-primary ring-4 ring-qadder-secondary/25"
                             : "border border-qadder-border/40 bg-white text-qadder-dark/55"
-                          }`}
+                        }`}
                       >
-                        {stepNumber}
+                        {done ? <Check size={18} /> : stepNumber}
                       </div>
 
                       <p
-                        className={`mt-3 text-xs leading-6 md:text-sm ${active || done
-                          ? "font-bold text-qadder-dark"
-                          : "font-medium text-qadder-dark/65"
-                          }`}
+                        className={`mt-3 text-xs leading-6 md:text-sm ${
+                          active
+                            ? "font-bold text-qadder-dark"
+                            : "font-medium text-qadder-dark/65"
+                        }`}
                       >
                         {step}
                       </p>
@@ -228,8 +233,9 @@ export default function ReportReviewPage() {
                     {index !== steps.length - 1 && (
                       <div className="mt-6 h-[2px] flex-1 rounded-full bg-qadder-border/30">
                         <div
-                          className={`h-full rounded-full ${done ? "bg-qadder-primary" : "bg-transparent"
-                            }`}
+                          className={`h-full rounded-full ${
+                            done ? "bg-qadder-primary" : "bg-transparent"
+                          }`}
                         />
                       </div>
                     )}
@@ -238,27 +244,64 @@ export default function ReportReviewPage() {
               })}
             </div>
           </div>
+
+          {/* Title */}
+          <div className="mt-6 max-w-3xl text-right">
+            <h1 className="text-3xl font-extrabold leading-tight md:text-5xl">
+              مراجعة بيانات تقرير نجم
+            </h1>
+          </div>
         </div>
       </section>
 
-      <section className="mx-auto max-w-6xl px-6 py-10" dir="rtl">
-        <div className="mb-6 flex flex-wrap gap-3">
+      {/* Main content section */}
+      <section className="mx-auto max-w-6xl px-6 py-6 md:py-8" dir="rtl">
+        <div className="mx-auto max-w-4xl rounded-[32px] border border-qadder-border/20 bg-white p-5 shadow-sm md:p-8">
+          {/* Matching result */}
+          <div
+            className={`rounded-[28px] border p-5 shadow-sm md:p-6 ${
+              hasAllTrue
+                ? "border-green-200 bg-green-50"
+                : hasAnyFalse
+                ? "border-amber-200 bg-amber-50"
+                : "border-qadder-border/20 bg-qadder-background/40"
+            }`}
+          >
+            <div className="flex items-start gap-3">
+              <div
+                className={`mt-1 ${
+                  hasAllTrue
+                    ? "text-green-600"
+                    : hasAnyFalse
+                    ? "text-amber-600"
+                    : "text-qadder-primary"
+                }`}
+              >
+                {hasAllTrue ? (
+                  <CircleCheckBig size={22} />
+                ) : (
+                  <CircleAlert size={22} />
+                )}
+              </div>
 
-
-
-        </div>
-
-        <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
-          <div className="rounded-[28px] border border-qadder-border/20 bg-white p-6 shadow-sm md:p-8">
-            <div className="mb-6 flex items-center justify-between">
-
-
-              <h2 className="text-right text-2xl font-bold text-qadder-dark">
-                بيانات التقرير المستخرجة
-              </h2>
+              <div className="text-right">
+                <h2 className="text-lg font-bold text-qadder-dark md:text-xl">
+                  {matchTitle}
+                </h2>
+                <p className="mt-2 text-sm leading-7 text-qadder-dark/75">
+                  {matchDescription}
+                </p>
+              </div>
             </div>
+          </div>
 
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          {/* Report details */}
+          <div className="mt-6 rounded-[28px] border border-qadder-border/20 bg-white p-6 shadow-sm md:p-8">
+            <h2 className="mb-4 text-right text-2xl font-bold text-qadder-dark">
+              بيانات التقرير
+            </h2>
+
+            <div className="grid gap-4 md:grid-cols-2">
               <InfoCard
                 label="رقم الحالة"
                 value={step1Data.case_number || "غير متوفر"}
@@ -278,24 +321,24 @@ export default function ReportReviewPage() {
               <InfoCard
                 label="إحداثيات الحادث"
                 value={
-                  step1Data.najm_report?.accident_coordinates || "غير متوفر"
+                  step1Data.najm_report?.accident_coordinates || "غير متوفرة"
                 }
               />
               <InfoCard
                 label="نسبة الخطأ"
                 value={
                   step1Data.najm_report?.fault_percentage !== null &&
-                    step1Data.najm_report?.fault_percentage !== undefined
+                  step1Data.najm_report?.fault_percentage !== undefined
                     ? `${step1Data.najm_report.fault_percentage}%`
                     : "غير متوفرة"
                 }
               />
               <InfoCard
-                label="منطقة الضرر"
+                label="جهة الضرر"
                 value={step1Data.najm_report?.damage_area_ar || "غير متوفرة"}
               />
               <InfoCard
-                label="اسم الطرف"
+                label="الاسم الكامل"
                 value={step1Data.najm_report?.party_full_name || "غير متوفر"}
               />
               <InfoCard
@@ -303,26 +346,25 @@ export default function ReportReviewPage() {
                 value={step1Data.najm_report?.license_type || "غير متوفر"}
               />
               <InfoCard
-                label="انتهاء الرخصة"
+                label="تاريخ انتهاء الرخصة"
                 value={
                   step1Data.najm_report?.license_expiry_date || "غير متوفر"
                 }
               />
               <InfoCard
                 label="رقم الهوية"
-                value={
-                  step1Data.najm_report?.party_national_id || "غير متوفر"
-                }
+                value={step1Data.najm_report?.party_national_id || "غير متوفر"}
+                isMismatch={validationMap.national_id === false}
               />
               <InfoCard
                 label="رقم الجوال"
                 value={step1Data.najm_report?.party_mobile || "غير متوفر"}
+                isMismatch={validationMap.mobile === false}
               />
               <InfoCard
                 label="الجنسية"
-                value={
-                  step1Data.najm_report?.party_nationality || "غير متوفرة"
-                }
+                value={step1Data.najm_report?.party_nationality || "غير متوفرة"}
+                isMismatch={validationMap.nationality === false}
               />
               <InfoCard
                 label="رقم اللوحة"
@@ -333,10 +375,12 @@ export default function ReportReviewPage() {
               <InfoCard
                 label="ماركة المركبة"
                 value={step1Data.najm_report?.vehicle_brand || "غير متوفرة"}
+                isMismatch={validationMap.vehicle_brand === false}
               />
               <InfoCard
                 label="موديل المركبة"
                 value={step1Data.najm_report?.vehicle_model || "غير متوفر"}
+                isMismatch={validationMap.vehicle_model === false}
               />
               <InfoCard
                 label="سنة المركبة"
@@ -345,112 +389,100 @@ export default function ReportReviewPage() {
                     ? String(step1Data.najm_report.vehicle_year)
                     : "غير متوفرة"
                 }
+                isMismatch={validationMap.vehicle_year === false}
               />
               <InfoCard
                 label="لون المركبة"
                 value={step1Data.najm_report?.vehicle_color || "غير متوفر"}
+                isMismatch={validationMap.vehicle_color === false}
               />
             </div>
           </div>
 
-          <div className="grid gap-6">
-            {/* <div className="rounded-[28px] border border-qadder-border/20 bg-white p-6 shadow-sm md:p-8">
-              <h2 className="mb-4 text-right text-2xl font-bold text-qadder-dark">
-                نتيجة المطابقة
-              </h2>
+          {/* Actions */}
+          <div className="mt-6 space-y-3">
+            {hasAnyFalse && (
+  <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600 text-right">
+    يوجد بيانات غير متطابقة، لا يمكن المتابعة. يرجى رفع تقرير نجم مرة أخرى.
+  </div>
+)}
+<button
+  type="button"
+  disabled={hasAnyFalse} // Disable if any mismatch exists
+  onClick={() => {
+    if (hasAnyFalse) return; // Extra safety
+    router.push(
+      `/upload-images?case_id=${caseId}&damage=${encodeURIComponent(
+        damageSide || ""
+      )}`
+    );
+  }}
+  className={`inline-flex w-full items-center justify-center gap-2 rounded-2xl px-5 py-4 text-sm font-bold text-white transition
+    ${
+      hasAnyFalse
+        ? "cursor-not-allowed bg-gray-300 text-white"
+        : "bg-qadder-primary hover:bg-qadder-dark"
+    }`}
+>
+  التالي
+  <ChevronLeft size={18} />
+</button>
 
-              <div className="space-y-3">
-                {validationItems.map((item) => (
-                  <ValidationRow
-                    key={item.label}
-                    label={item.label}
-                    matched={item.value}
-                  />
-                ))}
-              </div>
-            </div> */}
-
-            <div className="rounded-[28px] border border-qadder-border/20 bg-white p-6 shadow-sm md:p-8">
- 
-              <p className="text-right text-sm leading-7 text-qadder-dark/70">
-                إذا كانت البيانات صحيحة، يمكنك المتابعة إلى خطوة رفع صورة الضرر
-              </p>
-
-              <div className="mt-6 space-y-3">
-                <button
-                  type="button"
-                  onClick={() => {
-                    router.push(
-                      `/upload-images?case_id=${caseId}&damage=${encodeURIComponent(
-                        damageSide || ""
-                      )}`
-                    );
-                  }}
-                  className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-qadder-primary px-5 py-4 text-sm font-bold text-white transition hover:bg-qadder-dark"
-                >
-                  التالي
-                  <ChevronLeft size={18} />
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => router.back()}
-                  className="inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-qadder-border/40 bg-white px-5 py-4 text-sm font-bold text-qadder-dark transition hover:bg-qadder-background"
-                >
-                  <ChevronRight size={18} />
-                  السابق
-                </button>
-              </div>
-
-
-            </div>
+            <button
+              type="button"
+              onClick={() => router.push("/upload-report")}
+              className="inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-qadder-border/40 bg-white px-5 py-4 text-sm font-bold text-qadder-dark transition hover:bg-qadder-background"
+            >
+              <ChevronRight size={18} />
+              السابق
+            </button>
           </div>
         </div>
       </section>
-      <ContactUs />
 
+      <ContactUs />
     </main>
   );
 }
 
-function InfoCard({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="rounded-2xl bg-qadder-background/50 p-4 text-right">
-      <p className="text-xs font-semibold text-qadder-dark/50">{label}</p>
-      <p className="mt-2 break-words text-sm font-bold text-qadder-dark">
-        {value}
-      </p>
-    </div>
-  );
-}
-
-function ValidationRow({
+function InfoCard({
   label,
-  matched,
+  value,
+  isMismatch,
 }: {
   label: string;
-  matched?: boolean;
+  value: string;
+  isMismatch?: boolean;
 }) {
-  let statusText = "غير متوفر";
-  let statusClass =
-    "border-qadder-border/20 bg-qadder-background/40 text-qadder-dark/70";
-
-  if (matched === true) {
-    statusText = "✔️";
-    statusClass = "border-green-200 bg-green-50 text-green-700";
-  } else if (matched === false) {
-    statusText = "❌";
-    statusClass = "border-red-200 bg-red-50 text-red-700";
-  }
-
   return (
-    <div className="flex items-center justify-between gap-4 rounded-2xl border border-qadder-border/15 bg-qadder-background/40 p-4">
-      <span className={`rounded-full border px-3 py-1 text-xs font-bold ${statusClass}`}>
-        {statusText}
-      </span>
-
-      <p className="text-right text-sm font-semibold text-qadder-dark">
+    <div
+      className={`rounded-2xl border p-4 text-right ${
+        isMismatch
+          ? "border-red-200 bg-red-50"
+          : "border-transparent bg-qadder-background/50"
+      }`}
+    >
+      <p
+        className={`text-xs font-semibold ${
+          isMismatch ? "text-red-500" : "text-qadder-dark/50"
+        }`}
+      >
         {label}
+      </p>
+
+      {isMismatch && (
+        <div className="mt-1 flex items-center gap-1 text-xs font-bold text-red-600">
+          <AlertTriangle className="h-3.5 w-3.5" />
+          غير متطابق
+        </div>
+      )}
+
+      <p
+        className={`mt-2 break-words text-sm font-bold ${
+          isMismatch ? "text-red-600" : "text-qadder-dark"
+        }`}
+      >
+        {value}
       </p>
     </div>
   );
