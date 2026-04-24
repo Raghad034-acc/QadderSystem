@@ -1,4 +1,5 @@
-// This page displays all previously generated reports for the user.
+// This page displays the final generated report for the user.
+// It loads report data, shows collapsible report sections, and allows downloading/sharing the report.
 
 "use client";
 
@@ -8,14 +9,15 @@ import AppNavbar from "@/components/AppNavbar";
 import ContactUs from "@/components/ContactUs";
 import PageLoader from "@/components/PageLoader";
 import { AlertTriangle, Check } from "lucide-react";
-import { ChevronRight, Download, Share2 } from "lucide-react";
+import { ChevronDown, Download, Home, Share2 } from "lucide-react";
 
 // Base URL for the backend server.
 const BACKEND_URL = "http://127.0.0.1:8000";
-// API endpoint to fetch reports
+
+// API endpoint to fetch reports.
 const REPORTS_API_URL = `${BACKEND_URL}/step8/reports`;
 
-// Type definition for a single report item returned from the backend.
+// Type definition for owner information.
 type OwnerData = {
   full_name?: string;
   nationality?: string;
@@ -26,6 +28,7 @@ type OwnerData = {
   license_expiry_date?: string;
 };
 
+// Type definition for vehicle information.
 type VehicleData = {
   make?: string;
   model?: string;
@@ -34,6 +37,7 @@ type VehicleData = {
   plate_number?: string;
 };
 
+// Type definition for accident information.
 type AccidentData = {
   accident_number?: string;
   accident_coordinates?: string;
@@ -43,6 +47,7 @@ type AccidentData = {
   fault_percentage?: string | number;
 };
 
+// Type definition for case information returned from the backend.
 type CaseData = {
   id?: string;
   case_number?: string;
@@ -95,6 +100,7 @@ type CaseData = {
   damage_area_ar?: string;
 };
 
+// Type definition for a single detected damage item.
 type DamageItem = {
   id?: string;
   damage_no?: number;
@@ -110,6 +116,7 @@ type DamageItem = {
   subtotal_after_fault?: number;
 };
 
+// Type definition for the final cost summary.
 type TotalData = {
   damages_count?: number;
   total_parts?: number;
@@ -119,6 +126,7 @@ type TotalData = {
   fault_percentage?: string | number;
 };
 
+// Type definition for the report response returned from the backend.
 type ReportResponse = {
   message?: string;
   case_id?: string;
@@ -131,16 +139,18 @@ type ReportResponse = {
   };
 };
 
-// Formats the date into a readable Arabic format.
+// Formats numbers as Saudi Riyal currency.
 function formatCurrency(value?: number) {
   return `${Number(value || 0).toFixed(2)} ريال`;
 }
 
+// Formats empty or missing values into a dash.
 function formatValue(value?: string | number | null) {
   if (value === undefined || value === null || value === "") return "-";
   return String(value);
 }
 
+// Formats dates into a readable Arabic date format.
 function formatDate(value?: string) {
   if (!value) return "-";
 
@@ -154,11 +164,13 @@ function formatDate(value?: string) {
   }).format(date);
 }
 
+// Converts a local backend file path into a full image URL.
 function toImageUrl(path?: string) {
   if (!path) return "";
   return `${BACKEND_URL}/${String(path).replace(/\\/g, "/")}`;
 }
 
+// Returns badge styling based on damage severity.
 function severityBadgeClass(severity: string) {
   const value = severity.trim().toLowerCase();
 
@@ -171,50 +183,65 @@ function severityBadgeClass(severity: string) {
     return "bg-red-50 text-red-700 border-red-200";
   }
 
-  if (
-    value === "medium" ||
-    value === "متوسط" ||
-    value === "متوسطة"
-  ) {
+  if (value === "medium" || value === "متوسط" || value === "متوسطة") {
     return "bg-amber-50 text-amber-700 border-amber-200";
   }
 
-  if (
-    value === "low" ||
-    value === "خفيف" ||
-    value === "خفيفة"
-  ) {
+  if (value === "low" || value === "خفيف" || value === "خفيفة") {
     return "bg-green-50 text-green-700 border-green-200";
   }
 
   return "bg-slate-50 text-slate-700 border-slate-200";
 }
 
-// Main page component for displaying previous reports.
+// Main page component for displaying the final report.
 export default function QadderReportPage() {
   const router = useRouter();
   const params = useSearchParams();
 
+  // Read case id and image path from URL parameters.
   const caseId = params.get("case_id") || "";
   const imagePathParam = params.get("image") || "";
 
+  // Prevents duplicate API calls when React re-renders.
   const hasSavedRef = useRef(false);
 
-  // Controls the loading state while fetching reports.
+  // Controls the loading state while saving and fetching report data.
   const [pageLoading, setPageLoading] = useState(true);
 
-  // Stores any error message if fetching reports fails.
+  // Stores any error message if saving or fetching the report fails.
   const [pageError, setPageError] = useState("");
+
+  // Stores temporary success message after report generation.
   const [saveMessage, setSaveMessage] = useState("");
 
+  // Stores report data returned from the backend.
   const [caseInfo, setCaseInfo] = useState<CaseData | null>(null);
   const [damages, setDamages] = useState<DamageItem[]>([]);
   const [total, setTotal] = useState<TotalData | null>(null);
   const [reportPath, setReportPath] = useState("");
 
-  const [successMessage, setSuccessMessage] = useState("");
+  // Stores which report sections are currently expanded or collapsed.
+  const [openSections, setOpenSections] = useState<Record<string, boolean>>({
+    report: false,
+    owner: false,
+    vehicle: false,
+    accident: false,
+    image: false,
+    status: false,
+    damages: false,
+    cost: false,
+  });
 
-  // Fetch reports when the page loads for the first time.
+  // Toggles a single section between opened and closed.
+  const toggleSection = (key: string) => {
+    setOpenSections((prev) => ({
+      ...prev,
+      [key]: !prev[key],
+    }));
+  };
+
+  // Saves the final report and loads its full data when the page opens.
   useEffect(() => {
     if (!caseId) {
       setPageError("معرّف الحالة غير موجود.");
@@ -222,60 +249,60 @@ export default function QadderReportPage() {
       return;
     }
 
-    // Prevent duplicate API calls if the report has already been saved
+    // Prevent duplicate API calls if the report has already been saved.
     if (hasSavedRef.current) return;
     hasSavedRef.current = true;
 
-    // Function to save the final report and then load its data
+    // Function to generate the report and fetch all report data.
     const saveAndLoadReport = async () => {
       try {
         setPageLoading(true);
         setPageError("");
-        // Reset success message before starting new process
+
+        // Reset success message before starting the process.
         setSaveMessage("");
 
-        // Send POST request to generate and save the final report
+        // Send POST request to generate and save the final report.
         const postRes = await fetch(`${BACKEND_URL}/step8/${caseId}`, {
           method: "POST",
         });
 
         const postResult = await postRes.json();
 
-        // Handle error if report saving fails
+        // Handle error if report generation fails.
         if (!postRes.ok) {
           throw new Error(
             postResult.detail ||
-            postResult.message ||
-            "فشل في حفظ التقرير النهائي"
+              postResult.message ||
+              "فشل في حفظ التقرير النهائي"
           );
         }
 
-        // Show success message after report is generated successfully
+        // Show success message after report is generated successfully.
         setSaveMessage("تم الانتهاء من إعداد التقرير بنجاح");
 
+        // Hide success message after a few seconds.
         setTimeout(() => {
           setSaveMessage("");
         }, 4000);
+
+        // Save report path returned from the generation endpoint.
         setReportPath(postResult?.data?.report_path || "");
 
-        // Fetch full report data (case info, damages, totals)
+        // Fetch full report data including case info, damages, and totals.
         const getRes = await fetch(`${BACKEND_URL}/step8/${caseId}/data`);
-
-        // Parse report data response
         const getResult: ReportResponse = await getRes.json();
 
-        // Handle error if fetching report data fails
+        // Handle error if fetching report data fails.
         if (!getRes.ok) {
           throw new Error(
             getResult.message || "فشل في تحميل بيانات التقرير النهائي"
           );
         }
 
-        // Save case information into state
+        // Save fetched report data into state.
         setCaseInfo(getResult.data?.case || null);
-        // Save detected damages list
         setDamages(getResult.data?.damages || []);
-        // Save total cost calculations
         setTotal(getResult.data?.total || null);
         setReportPath(
           getResult.report_path || postResult?.data?.report_path || ""
@@ -288,13 +315,13 @@ export default function QadderReportPage() {
       }
     };
 
-    // Execute report save and load process
     saveAndLoadReport();
   }, [caseId]);
 
+  // Normalize case status for easier checking.
   const caseStatus = String(caseInfo?.status || "").toLowerCase();
 
-  // Check if the case is classified as high severity (rejected cases)
+  // Check if the case is classified as high severity and should be rejected.
   const isHighSeverity = useMemo(() => {
     return (
       caseStatus === "step3_rejected_high_severity" ||
@@ -304,19 +331,25 @@ export default function QadderReportPage() {
     );
   }, [caseStatus]);
 
-  // Define progress steps based on severity status
+  // Define progress steps based on whether pricing exists or the case is rejected.
   const steps = useMemo(() => {
     return isHighSeverity
       ? ["رفع التقرير", "رفع الصورة", "تحليل الأضرار", "التقرير النهائي"]
-      : ["رفع التقرير", "رفع الصورة", "تحليل الأضرار", "حساب التكلفة", "التقرير النهائي"];
+      : [
+          "رفع التقرير",
+          "رفع الصورة",
+          "تحليل الأضرار",
+          "حساب التكلفة",
+          "التقرير النهائي",
+        ];
   }, [isHighSeverity]);
 
-  // Generate full image URL for displaying the uploaded image
+  // Generate the full image URL for displaying the uploaded vehicle damage image.
   const imageUrl = useMemo(() => {
     return toImageUrl(caseInfo?.original_image_path || imagePathParam);
   }, [caseInfo, imagePathParam]);
 
-  // Extract and normalize owner information from different possible sources
+  // Extract and normalize owner information from different possible backend fields.
   const ownerData = useMemo(() => {
     const fullName = [
       caseInfo?.first_name,
@@ -329,10 +362,7 @@ export default function QadderReportPage() {
       .trim();
 
     return {
-      full_name:
-        fullName ||
-        caseInfo?.owner?.full_name ||
-        caseInfo?.owner_name,
+      full_name: fullName || caseInfo?.owner?.full_name || caseInfo?.owner_name,
 
       nationality:
         caseInfo?.nationality ||
@@ -364,6 +394,7 @@ export default function QadderReportPage() {
     };
   }, [caseInfo]);
 
+  // Extract and normalize vehicle information from different possible backend fields.
   const vehicleData = useMemo(() => {
     return {
       make:
@@ -392,6 +423,7 @@ export default function QadderReportPage() {
     };
   }, [caseInfo]);
 
+  // Extract and normalize accident information from different possible backend fields.
   const accidentData = useMemo(() => {
     return {
       accident_number:
@@ -424,22 +456,15 @@ export default function QadderReportPage() {
     };
   }, [caseInfo, total]);
 
+  // Display request status in Arabic.
   const requestStatusText = isHighSeverity ? "مرفوض" : "مقبول";
 
-  const goPrevious = () => {
-    // Prevent duplicate API calls (run only once)
-    if (isHighSeverity) {
-      router.push(`/analysis?case_id=${caseId}`);
-      return;
-    }
-
-    router.push(
-      `/cost?case_id=${caseId}&image=${encodeURIComponent(imagePathParam || "")}`
-    );
+  // Navigate the user back to the home page.
+  const goHome = () => {
+    router.push("/");
   };
 
-  // Save the final report and then fetch its full data
-  // Save the final report and then fetch its full data
+  // Opens the generated PDF report in a new browser tab.
   const handleDownloadReport = () => {
     if (!reportPath) {
       setPageError("رابط التقرير غير موجود.");
@@ -454,6 +479,7 @@ export default function QadderReportPage() {
     <main dir="rtl" className="min-h-screen bg-qadder-background text-qadder-dark">
       <AppNavbar isLoggedIn={true} />
 
+      {/* Progress and page header section */}
       <section className="relative overflow-hidden border-b border-qadder-border/20">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(173,200,147,0.16),_transparent_35%),radial-gradient(circle_at_top_right,_rgba(39,75,44,0.08),_transparent_30%)]" />
 
@@ -469,21 +495,23 @@ export default function QadderReportPage() {
                   <div key={step} className="flex flex-1 items-start">
                     <div className="flex flex-1 flex-col items-center text-center">
                       <div
-                        className={`flex h-12 w-12 items-center justify-center rounded-full border text-sm font-bold transition ${done && !active
+                        className={`flex h-12 w-12 items-center justify-center rounded-full border text-sm font-bold transition ${
+                          done && !active
                             ? "border-qadder-primary bg-qadder-primary text-white"
                             : active
-                              ? "border-qadder-primary bg-white text-qadder-primary ring-4 ring-qadder-secondary/25"
-                              : "border border-qadder-border/40 bg-white text-qadder-dark/55"
-                          }`}
+                            ? "border-qadder-primary bg-white text-qadder-primary ring-4 ring-qadder-secondary/25"
+                            : "border border-qadder-border/40 bg-white text-qadder-dark/55"
+                        }`}
                       >
                         {done && !active ? <Check size={18} /> : stepNumber}
                       </div>
 
                       <p
-                        className={`mt-3 text-xs leading-6 md:text-sm ${active
+                        className={`mt-3 text-xs leading-6 md:text-sm ${
+                          active
                             ? "font-bold text-qadder-dark"
                             : "font-medium text-qadder-dark/65"
-                          }`}
+                        }`}
                       >
                         {step}
                       </p>
@@ -509,6 +537,7 @@ export default function QadderReportPage() {
         </div>
       </section>
 
+      {/* Main report content section */}
       <section className="mx-auto max-w-5xl px-6 py-6 md:py-8">
         {pageLoading ? (
           <div className="rounded-[28px] border border-qadder-border/30 bg-white p-8">
@@ -535,21 +564,33 @@ export default function QadderReportPage() {
                 {saveMessage}
               </div>
             )}
+
             <div className="rounded-[32px] border border-qadder-border/30 bg-white p-5 shadow-sm md:p-8">
               <div className="space-y-5">
-
-
-
-                {/* Report Information Section */}
-                <CardSection title="معلومات التقرير">
+                {/* Report information section */}
+                <CardSection
+                  title="معلومات التقرير"
+                  isOpen={openSections.report}
+                  onToggle={() => toggleSection("report")}
+                >
                   <InfoGrid>
-                    <InfoCard label="رقم الحالة" value={formatValue(caseInfo?.case_number)} />
-                    <InfoCard label="تاريخ الإنشاء" value={formatDate(caseInfo?.created_at)} />
+                    <InfoCard
+                      label="رقم الحالة"
+                      value={formatValue(caseInfo?.case_number)}
+                    />
+                    <InfoCard
+                      label="تاريخ الإنشاء"
+                      value={formatDate(caseInfo?.created_at)}
+                    />
                   </InfoGrid>
                 </CardSection>
 
-                {/* Owner Information Section */}
-                <CardSection title="معلومات مالك المركبة">
+                {/* Owner information section */}
+                <CardSection
+                  title="المعلومات الشخصية"
+                  isOpen={openSections.owner}
+                  onToggle={() => toggleSection("owner")}
+                >
                   <InfoGrid>
                     <InfoCard label="الاسم" value={formatValue(ownerData.full_name)} />
                     <InfoCard label="الجنسية" value={formatValue(ownerData.nationality)} />
@@ -564,7 +605,6 @@ export default function QadderReportPage() {
                       label="تاريخ انتهاء الرخصة"
                       value={formatDate(ownerData.license_expiry_date)}
                     />
-
                     <InfoCard
                       label="حالة الطلب"
                       value={requestStatusText}
@@ -577,22 +617,36 @@ export default function QadderReportPage() {
                   </InfoGrid>
                 </CardSection>
 
-                {/* Vehicle Information Section */}
-                <CardSection title="معلومات المركبة">
+                {/* Vehicle information section */}
+                <CardSection
+                  title="معلومات المركبة"
+                  isOpen={openSections.vehicle}
+                  onToggle={() => toggleSection("vehicle")}
+                >
                   <InfoGrid>
-                    <InfoCard label="العلامة التجارية" value={formatValue(vehicleData.make)} />
+                    <InfoCard
+                      label="العلامة التجارية"
+                      value={formatValue(vehicleData.make)}
+                    />
                     <InfoCard label="الموديل" value={formatValue(vehicleData.model)} />
                     <InfoCard label="اللون" value={formatValue(vehicleData.color)} />
                     <InfoCard
                       label="سنة الصنع"
                       value={formatValue(vehicleData.manufacture_year)}
                     />
-                    <InfoCard label="رقم اللوحة" value={formatValue(vehicleData.plate_number)} />
+                    <InfoCard
+                      label="رقم اللوحة"
+                      value={formatValue(vehicleData.plate_number)}
+                    />
                   </InfoGrid>
                 </CardSection>
 
-                {/* Accident Information Section */}
-                <CardSection title="معلومات الحادث من تقرير نجم">
+                {/* Accident information section */}
+                <CardSection
+                  title="معلومات الحادث من تقرير نجم"
+                  isOpen={openSections.accident}
+                  onToggle={() => toggleSection("accident")}
+                >
                   <InfoGrid>
                     <InfoCard
                       label="رقم الحادث"
@@ -618,19 +672,22 @@ export default function QadderReportPage() {
                       label="نسبة الخطأ"
                       value={
                         accidentData.fault_percentage !== undefined &&
-                          accidentData.fault_percentage !== null &&
-                          accidentData.fault_percentage !== ""
+                        accidentData.fault_percentage !== null &&
+                        accidentData.fault_percentage !== ""
                           ? `${accidentData.fault_percentage}%`
                           : "-"
                       }
                     />
                   </InfoGrid>
-
                 </CardSection>
-                {imageUrl && (
-                  <div className="rounded-[28px] border border-qadder-border/30 bg-white p-5 md:p-6">
 
-                    {/* Damage Image Section */}
+                {/* Uploaded damage image section */}
+                {imageUrl && (
+                  <CardSection
+                    title="صورة الضرر"
+                    isOpen={openSections.image}
+                    onToggle={() => toggleSection("image")}
+                  >
                     <div className="overflow-hidden rounded-[24px] border border-qadder-border/20 bg-qadder-background">
                       <img
                         src={imageUrl}
@@ -638,12 +695,16 @@ export default function QadderReportPage() {
                         className="h-[260px] w-full object-contain md:h-[420px]"
                       />
                     </div>
-                  </div>
+                  </CardSection>
                 )}
 
-                {/* Case Status Section (High Severity Rejection) */}
+                {/* Show rejection message if damage severity is high */}
                 {isHighSeverity ? (
-                  <CardSection title="حالة الطلب">
+                  <CardSection
+                    title="حالة الطلب"
+                    isOpen={openSections.status}
+                    onToggle={() => toggleSection("status")}
+                  >
                     <div className="rounded-[24px] border border-red-200 bg-red-50 p-5">
                       <h3 className="text-lg font-bold text-red-700">تم رفض الطلب</h3>
                       <p className="mt-3 text-sm leading-7 text-red-700/90">
@@ -653,8 +714,12 @@ export default function QadderReportPage() {
                   </CardSection>
                 ) : (
                   <>
-                    {/* Damages Details Section */}
-                    <CardSection title="تفاصيل الأضرار والتكاليف">
+                    {/* Damage details section */}
+                    <CardSection
+                      title="معلومات الأضرار"
+                      isOpen={openSections.damages}
+                      onToggle={() => toggleSection("damages")}
+                    >
                       <div className="space-y-4">
                         {damages.length > 0 ? (
                           damages.map((item, index) => (
@@ -707,8 +772,12 @@ export default function QadderReportPage() {
                       </div>
                     </CardSection>
 
-                    {/* Final Cost Summary Section */}
-                    <CardSection title="الملخص المالي النهائي">
+                    {/* Final financial summary section */}
+                    <CardSection
+                      title="الملخص المالي النهائي"
+                      isOpen={openSections.cost}
+                      onToggle={() => toggleSection("cost")}
+                    >
                       <InfoGrid>
                         <InfoCard
                           label="عدد الأضرار"
@@ -730,8 +799,8 @@ export default function QadderReportPage() {
                           label="نسبة الخطأ"
                           value={
                             accidentData.fault_percentage !== undefined &&
-                              accidentData.fault_percentage !== null &&
-                              accidentData.fault_percentage !== ""
+                            accidentData.fault_percentage !== null &&
+                            accidentData.fault_percentage !== ""
                               ? `${accidentData.fault_percentage}%`
                               : "-"
                           }
@@ -745,10 +814,9 @@ export default function QadderReportPage() {
                     </CardSection>
                   </>
                 )}
-                {/* Action Buttons Section */}
-                <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
 
-                  {/* تنزيل */}
+                {/* Action buttons section */}
+                <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
                   <button
                     onClick={handleDownloadReport}
                     className="inline-flex items-center justify-center gap-2 rounded-2xl bg-qadder-primary px-6 py-3 font-semibold text-white transition hover:bg-qadder-dark"
@@ -757,23 +825,18 @@ export default function QadderReportPage() {
                     تنزيل التقرير
                   </button>
 
-                  {/* مشاركة */}
-                  <button
-                    className="inline-flex items-center justify-center gap-2 rounded-2xl border border-qadder-primary px-6 py-3 font-semibold text-qadder-primary transition hover:bg-qadder-light"
-                  >
+                  <button className="inline-flex items-center justify-center gap-2 rounded-2xl border border-qadder-primary px-6 py-3 font-semibold text-qadder-primary transition hover:bg-qadder-light">
                     <Share2 size={18} />
                     مشاركة التقرير
                   </button>
 
-                  {/* السابق */}
                   <button
-                    onClick={goPrevious}
+                    onClick={goHome}
                     className="inline-flex items-center justify-center gap-2 rounded-2xl border border-qadder-primary px-6 py-3 font-semibold text-qadder-primary transition hover:bg-qadder-light"
                   >
-                    <ChevronRight size={18} />
-                    السابق
+                    <Home size={18} />
+                    العودة للصفحة الرئيسية
                   </button>
-
                 </div>
               </div>
             </div>
@@ -785,26 +848,49 @@ export default function QadderReportPage() {
     </main>
   );
 }
-// Reusable card container for grouping related report information
+
+// Reusable collapsible card section.
+// The section content appears only when the user clicks the section header.
 function CardSection({
   title,
   children,
+  isOpen,
+  onToggle,
 }: {
   title: string;
   children: React.ReactNode;
+  isOpen: boolean;
+  onToggle: () => void;
 }) {
   return (
     <div className="rounded-[28px] border border-qadder-border/30 bg-white p-5 md:p-6">
-      <h2 className="mb-4 text-lg font-bold text-qadder-dark">{title}</h2>
-      {children}
+      <button
+        type="button"
+        onClick={onToggle}
+        className="flex w-full items-center justify-between gap-4 text-right"
+      >
+        <h2 className="text-lg font-bold text-qadder-dark">{title}</h2>
+
+        <ChevronDown
+          size={22}
+          className={`shrink-0 text-qadder-primary transition-transform duration-200 ${
+            isOpen ? "rotate-180" : ""
+          }`}
+        />
+      </button>
+
+      {isOpen && <div className="mt-4">{children}</div>}
     </div>
   );
 }
-// Layout component to display information cards in a responsive grid
+
+// Layout component used to display report information in a responsive grid.
 function InfoGrid({ children }: { children: React.ReactNode }) {
   return <div className="grid gap-3 md:grid-cols-2">{children}</div>;
 }
-// Component to display a single label-value pair with flexible layout
+
+// Displays a single report field with its label and value.
+// It also supports badge styling for status and severity values.
 function InfoCard({
   label,
   value,
