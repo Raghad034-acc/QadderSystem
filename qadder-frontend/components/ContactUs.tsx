@@ -1,3 +1,4 @@
+// Contact section component Displays social media and communication links for users to reach Qadder
 export default function ContactUs() {
   return (
     <section id="contact" className="bg-white py-16 text-qadder-primary">

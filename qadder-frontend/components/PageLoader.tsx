@@ -2,6 +2,7 @@ type PageLoaderProps = {
   text?: string;
 };
 
+// Reusable loading component Displays animated bouncing dots with a customizable message
 export default function PageLoader({ text = "جاري التحميل..." }: PageLoaderProps) {
   return (
       <div className="flex flex-col items-center gap-6">

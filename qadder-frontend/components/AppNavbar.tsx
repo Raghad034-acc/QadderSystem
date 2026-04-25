@@ -1,3 +1,4 @@
+// Navigation bar component Provides a responsive top navbar with a mobile side menu for navigating between pages.
 "use client";
 
 import { useState } from "react";

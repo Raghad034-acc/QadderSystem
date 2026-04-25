@@ -457,6 +457,16 @@ export default function ReportReviewPage() {
               التالي
               <ChevronLeft size={18} />
             </button>
+      {hasAnyFalse && (
+  <button
+    type="button"
+    onClick={() => router.push("/upload-report")}
+    className="inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-qadder-border/40 bg-white px-5 py-4 text-sm font-bold text-qadder-dark transition hover:bg-qadder-background"
+  >
+    <ChevronRight size={18} />
+    السابق
+  </button>
+)}
           </div>
         </div>
       </section>

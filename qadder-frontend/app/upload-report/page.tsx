@@ -7,7 +7,7 @@ import {
   CircleCheckBig,
   Paperclip,
   Check,
-  ChevronRight,
+  Home,
   ChevronLeft,
   ChevronDown,
 } from "lucide-react";
@@ -16,11 +16,13 @@ import AppNavbar from "@/components/AppNavbar";
 import PageLoader from "@/components/PageLoader";
 import ContactUs from "@/components/ContactUs";
 
+// Type definition for the logged-in user stored in localStorage.
 type StoredUser = {
   user_profile_id?: string;
   first_name?: string;
 };
 
+// Type definition for vehicles fetched from the backend.
 type Vehicle = {
   id: string;
   brand: string;
@@ -30,6 +32,7 @@ type Vehicle = {
   plate_number: string;
 };
 
+// Progress steps shown at the top of the workflow.
 const steps = [
   "رفع التقرير",
   "رفع الصورة",
@@ -60,9 +63,12 @@ function CustomDropdown({
   onChange: (value: string) => void;
   disabled?: boolean;
 }) {
+  // Controls whether the dropdown menu is open or closed.
   const [open, setOpen] = useState(false);
+  // Reference used to detect clicks outside the dropdown.
   const dropdownRef = useRef<HTMLDivElement | null>(null);
 
+   // Close the dropdown when the user clicks outside of it.
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -79,8 +85,10 @@ function CustomDropdown({
     };
   }, []);
 
+   // Find the selected option label based on the current value.
   const selectedOption = options.find((option) => option.value === value);
 
+  // Select an option and close the dropdown menu.
   const handleSelect = (selectedValue: string) => {
     onChange(selectedValue);
     setOpen(false);
@@ -136,14 +144,22 @@ function CustomDropdown({
 export default function UploadReportPage() {
   const router = useRouter();
 
+  // Stores the logged-in user data.
   const [user, setUser] = useState<StoredUser | null>(null);
+  // Stores vehicles linked to the current user.
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
+  // Stores the selected vehicle id from the dropdown.
   const [selectedVehicleId, setSelectedVehicleId] = useState("");
+  // Stores the selected Najm PDF file.
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
+  // Controls full-page loading while user and vehicles are being loaded.
   const [pageLoading, setPageLoading] = useState(true);
+  // Controls upload button loading state.
   const [uploading, setUploading] = useState(false);
+  // Stores backend error messages.
   const [error, setError] = useState("");
+  // Stores successful upload message.
   const [success, setSuccess] = useState("");
 
   // Handle user logout
@@ -235,6 +251,7 @@ export default function UploadReportPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    // Validate data
     if (!user?.user_profile_id) {
       setError("معرف المستخدم غير موجود");
       return;
@@ -255,11 +272,13 @@ export default function UploadReportPage() {
       setError("");
       setSuccess("");
 
+      // Build form data for multipart file upload.
       const formData = new FormData();
       formData.append("user_profile_id", user.user_profile_id);
       formData.append("vehicle_id", selectedVehicleId);
       formData.append("file", selectedFile);
 
+      // Send Najm report to backend Step 1 endpoint.
       const res = await fetch(
         "http://127.0.0.1:8000/step1/upload-najm-report",
         {
@@ -270,6 +289,7 @@ export default function UploadReportPage() {
 
       const data = await res.json();
 
+      // Handle backend validation
       if (!res.ok) {
         if (typeof data?.detail === "string") {
           throw new Error(data.detail);
@@ -282,6 +302,7 @@ export default function UploadReportPage() {
         throw new Error("فشل في رفع التقرير");
       }
 
+      // Store Step 1 response for the next review page.
       localStorage.setItem("latestNajmStep1", JSON.stringify(data));
 
       setSuccess("تم رفع التقرير ومطابقة البيانات بنجاح");
@@ -491,8 +512,9 @@ export default function UploadReportPage() {
                 onClick={() => router.push("/")}
                 className="inline-flex w-full items-center justify-center rounded-2xl border border-qadder-border/40 bg-white px-5 py-4 text-sm font-bold text-qadder-dark transition hover:bg-qadder-background"
               >
-                <ChevronRight size={18} />
-                السابق
+                <Home size={18} />
+                                    العودة للصفحة الرئيسية
+
               </button>
             </div>
           </form>

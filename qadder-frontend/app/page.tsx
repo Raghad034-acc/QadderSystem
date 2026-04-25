@@ -1,3 +1,4 @@
+// Home page for Qadder Displays the landing hero, user statistics, feature cards, and contact section.
 "use client";
 
 import { useEffect, useState } from "react";
@@ -14,6 +15,7 @@ import {
   BadgeCheck,
 } from "lucide-react";
 
+// Type definition for the user data stored in localStorage.
 type StoredUser = {
   first_name?: string;
   last_name?: string;
@@ -26,6 +28,7 @@ type StoredUser = {
   reports_count?: number;
 };
 
+// Type definition for a vehicle linked to the user.
 type Vehicle = {
   id: string;
   brand: string;
@@ -35,6 +38,7 @@ type Vehicle = {
   plate_number: string;
 };
 
+// Props for the statistics card component.
 type StatCardProps = {
   title: string;
   value: React.ReactNode;
@@ -42,6 +46,7 @@ type StatCardProps = {
   delay?: number;
 };
 
+// Props for the feature card component.
 type FeatureCardProps = {
   title: string;
   description: string;
@@ -134,6 +139,7 @@ export default function HomePage() {
     }
   }, []);
 
+  // Logs out the user by clearing localStorage and refreshing the page.
   const handleLogout = () => {
     localStorage.removeItem("user");
     setUser(null);
@@ -240,6 +246,7 @@ export default function HomePage() {
         dir="rtl"
         className="min-h-screen bg-qadder-background text-qadder-dark"
       >
+         {/* Main navigation bar */}
         <AppNavbar
           isLoggedIn={!!user}
           handleLogout={user ? handleLogout : undefined}

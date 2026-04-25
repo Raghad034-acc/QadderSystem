@@ -10,11 +10,11 @@ import {
   PencilLine,
   CalendarDays,
   Palette,
-  BadgeInfo,
   CircleAlert,
   Car,
 } from "lucide-react";
 
+// Type definition for logged-in user data.
 type User = {
   auth_account_id?: string;
   user_profile_id?: string;
@@ -24,6 +24,7 @@ type User = {
   phone_number?: string;
 };
 
+// Type definition for a registered vehicle.
 type Vehicle = {
   id: string;
   brand: string;
@@ -34,9 +35,13 @@ type Vehicle = {
 };
 
 export default function VehiclesPage() {
+   // Stores the current logged-in user.
   const [user, setUser] = useState<User | null>(null);
+   // Stores the list of vehicles fetched from the backend.
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
+   // Controls the page loading state.
   const [loading, setLoading] = useState(true);
+  // Stores any loading or fetching error message.
   const [error, setError] = useState("");
 
   useEffect(() => {

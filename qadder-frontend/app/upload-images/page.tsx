@@ -8,7 +8,6 @@ import {
   AlertTriangle,
   Check,
   ChevronLeft,
-  ChevronRight,
   PencilLine,
   Trash2,
   UploadCloud,
@@ -368,14 +367,7 @@ export default function UploadImagesPage() {
               {!loading && <ChevronLeft size={18} />}
             </button>
 
-            <button
-              type="button"
-              onClick={() => router.push(`/report-review?case_id=${caseId}`)}
-              className="inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-qadder-border/40 bg-white px-5 py-4 text-sm font-bold text-qadder-dark transition hover:bg-qadder-background"
-            >
-              <ChevronRight size={18} />
-              السابق
-            </button>
+          
           </div>
         </div>
       </section>

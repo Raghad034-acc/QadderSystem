@@ -1,5 +1,7 @@
+/* Import Tailwind CSS base styles */
 @import "tailwindcss";
 
+/* Define custom theme variables for the Qadder design system */
 @theme {
   --color-qadder-black: #000000;
   --color-qadder-light: #FCFFE4;
@@ -19,6 +21,8 @@
   --color-qadder-error: #D32F2F;
   --color-qadder-info: #0288D1;
 }
+
+/* Enable smooth scrolling behavior across the application */
 html {
   scroll-behavior: smooth;
 }
