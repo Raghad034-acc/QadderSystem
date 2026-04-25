@@ -1,5 +1,6 @@
 "use client";
 
+// React hooks used for loading saved data, memoizing validation data, and managing state.
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -15,6 +16,7 @@ import {
   AlertTriangle,
 } from "lucide-react";
 
+// Data extracted from the Najm report.
 type NajmReportData = {
   accident_id?: string;
   accident_date?: string | null;
@@ -36,6 +38,7 @@ type NajmReportData = {
   vehicle_color?: string | null;
 };
 
+// Validation results comparing Najm report data with user/vehicle data.
 type ValidationData = {
   national_id_match?: boolean;
   mobile_match?: boolean;
@@ -46,6 +49,7 @@ type ValidationData = {
   vehicle_color_match?: boolean;
 };
 
+// Full Step 1 result saved after uploading and validating the Najm report.
 type Step1Result = {
   message?: string;
   case_id?: string;
@@ -55,6 +59,7 @@ type Step1Result = {
   validation?: ValidationData;
 };
 
+// Steps shown in the progress indicator.
 const steps = [
   "رفع التقرير",
   "رفع الصورة",
@@ -66,46 +71,56 @@ const steps = [
 export default function ReportReviewPage() {
   const router = useRouter();
 
+  // Stores the loaded Step 1 report data.
   const [step1Data, setStep1Data] = useState<Step1Result | null>(null);
+
+  // Controls the loading state while reading from localStorage.
   const [loading, setLoading] = useState(true);
+
+  // Stores any error message that happens while loading the report data.
   const [error, setError] = useState("");
 
-  // Handle user logout
+  // Handle user logout.
   const handleLogout = () => {
     localStorage.removeItem("user");
     window.location.href = "/";
   };
 
-  // Load saved step 1 data from localStorage
+  // Load saved step 1 data from localStorage.
   useEffect(() => {
     try {
       const stored = localStorage.getItem("latestNajmStep1");
 
+      // Stop the flow if no saved report data exists.
       if (!stored) {
         setError("لا توجد بيانات تقرير محفوظة. الرجاء رفع التقرير أولًا.");
         setLoading(false);
         return;
       }
 
+      // Parse and store the saved Step 1 result.
       const parsed: Step1Result = JSON.parse(stored);
       setStep1Data(parsed);
     } catch (err: unknown) {
       console.error(err);
+
+      // Show a readable error message if parsing or loading fails.
       setError(
         err instanceof Error
           ? err.message
           : "حدث خطأ أثناء تحميل بيانات التقرير"
       );
     } finally {
+      // Loading is finished whether the data was loaded successfully or not.
       setLoading(false);
     }
   }, []);
 
-  // Extract navigation values
+  // Extract navigation values.
   const caseId = step1Data?.case_id || "";
   const damageSide = step1Data?.najm_report?.damage_area_ar || "";
 
-  // Build validation items list
+  // Build validation items list.
   const validationMap = useMemo(
     () => ({
       national_id: step1Data?.validation?.national_id_match,
@@ -119,17 +134,22 @@ export default function ReportReviewPage() {
     [step1Data]
   );
 
+  // Checks if at least one validation field does not match.
   const hasAnyFalse = Object.values(validationMap).some((v) => v === false);
+
+  // Checks if all validation fields are matched successfully.
   const hasAllTrue =
     Object.values(validationMap).length > 0 &&
     Object.values(validationMap).every((v) => v === true);
 
+  // Determines the title shown in the validation result card.
   const matchTitle = useMemo(() => {
     if (hasAllTrue) return "جميع البيانات متطابقة";
     if (hasAnyFalse) return "يوجد بيانات غير متطابقة";
     return "تعذر تحديد نتيجة المطابقة";
   }, [hasAllTrue, hasAnyFalse]);
 
+  // Determines the description shown under the validation result title.
   const matchDescription = useMemo(() => {
     if (hasAllTrue) {
       return "تمت مطابقة جميع البيانات بنجاح.";
@@ -142,6 +162,7 @@ export default function ReportReviewPage() {
     return "تعذر التحقق من البيانات.";
   }, [hasAllTrue, hasAnyFalse]);
 
+  // Show a loading screen while the report data is being loaded.
   if (loading) {
     return (
       <main className="min-h-screen bg-qadder-background text-qadder-dark">
@@ -154,6 +175,7 @@ export default function ReportReviewPage() {
     );
   }
 
+  // Show an error message if the report data is missing or failed to load.
   if (error || !step1Data) {
     return (
       <main className="min-h-screen bg-qadder-background text-qadder-dark">
@@ -193,6 +215,7 @@ export default function ReportReviewPage() {
         className="relative overflow-hidden border-b border-qadder-border/20"
         dir="rtl"
       >
+        {/* Decorative background gradients */}
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(173,200,147,0.16),_transparent_35%),radial-gradient(circle_at_top_right,_rgba(39,75,44,0.08),_transparent_30%)]" />
 
         <div className="relative mx-auto max-w-6xl px-6 py-6 md:py-8">
@@ -201,12 +224,17 @@ export default function ReportReviewPage() {
             <div className="mx-auto flex min-w-[860px] items-start justify-between gap-2">
               {steps.map((step, index) => {
                 const stepNumber = index + 1;
+
+                // Previous steps are marked as completed.
                 const done = stepNumber < 2;
+
+                // The current page represents step 2 in the flow.
                 const active = stepNumber === 2;
 
                 return (
                   <div key={step} className="flex flex-1 items-start">
                     <div className="flex flex-1 flex-col items-center text-center">
+                      {/* Step circle */}
                       <div
                         className={`flex h-12 w-12 items-center justify-center rounded-full border text-sm font-bold transition ${done
                           ? "border-qadder-primary bg-qadder-primary text-white"
@@ -218,6 +246,7 @@ export default function ReportReviewPage() {
                         {done ? <Check size={18} /> : stepNumber}
                       </div>
 
+                      {/* Step label */}
                       <p
                         className={`mt-3 text-xs leading-6 md:text-sm ${active
                           ? "font-bold text-qadder-dark"
@@ -265,6 +294,7 @@ export default function ReportReviewPage() {
               }`}
           >
             <div className="flex items-start gap-3">
+              {/* Validation status icon */}
               <div
                 className={`mt-1 ${hasAllTrue
                   ? "text-green-600"
@@ -280,6 +310,7 @@ export default function ReportReviewPage() {
                 )}
               </div>
 
+              {/* Validation status text */}
               <div className="text-right">
                 <h2 className="text-lg font-bold text-qadder-dark md:text-xl">
                   {matchTitle}
@@ -297,6 +328,7 @@ export default function ReportReviewPage() {
               بيانات التقرير
             </h2>
 
+            {/* Report fields grid */}
             <div className="grid gap-4 md:grid-cols-2">
               <InfoCard
                 label="رقم الحالة"
@@ -397,11 +429,14 @@ export default function ReportReviewPage() {
 
           {/* Actions */}
           <div className="mt-6 space-y-3">
+            {/* Warning message shown when there are mismatched fields */}
             {hasAnyFalse && (
               <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600 text-right">
                 يوجد بيانات غير متطابقة، لا يمكن المتابعة. يرجى رفع تقرير نجم مرة أخرى.
               </div>
             )}
+
+            {/* Continue button is disabled when any validation mismatch exists */}
             <button
               type="button"
               disabled={hasAnyFalse} // Disable if any mismatch exists
@@ -422,15 +457,6 @@ export default function ReportReviewPage() {
               التالي
               <ChevronLeft size={18} />
             </button>
-
-            <button
-              type="button"
-              onClick={() => router.push("/upload-report")}
-              className="inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-qadder-border/40 bg-white px-5 py-4 text-sm font-bold text-qadder-dark transition hover:bg-qadder-background"
-            >
-              <ChevronRight size={18} />
-              السابق
-            </button>
           </div>
         </div>
       </section>
@@ -440,6 +466,7 @@ export default function ReportReviewPage() {
   );
 }
 
+// Reusable card for displaying a single report field.
 function InfoCard({
   label,
   value,
@@ -456,6 +483,7 @@ function InfoCard({
         : "border-transparent bg-qadder-background/50"
         }`}
     >
+      {/* Field label */}
       <p
         className={`text-xs font-semibold ${isMismatch ? "text-red-500" : "text-qadder-dark/50"
           }`}
@@ -463,6 +491,7 @@ function InfoCard({
         {label}
       </p>
 
+      {/* Mismatch indicator */}
       {isMismatch && (
         <div className="mt-1 flex items-center gap-1 text-xs font-bold text-red-600">
           <AlertTriangle className="h-3.5 w-3.5" />
@@ -470,6 +499,7 @@ function InfoCard({
         </div>
       )}
 
+      {/* Field value */}
       <p
         className={`mt-2 break-words text-sm font-bold ${isMismatch ? "text-red-600" : "text-qadder-dark"
           }`}

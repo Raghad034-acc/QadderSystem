@@ -1,6 +1,3 @@
-// This page displays the final generated report for the user.
-// It loads report data, shows collapsible report sections, and allows downloading/sharing the report.
-
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";

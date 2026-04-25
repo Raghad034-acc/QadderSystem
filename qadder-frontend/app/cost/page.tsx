@@ -242,17 +242,6 @@ export default function CostPage() {
             <p className="mt-3 text-sm leading-7 text-red-700/90">
               {pageError}
             </p>
-
-            {/* Error action */}
-            <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-center">
-              <button
-                onClick={goPrevious}
-                className="inline-flex items-center justify-center gap-2 rounded-2xl border border-qadder-primary px-6 py-3 font-semibold text-qadder-primary transition hover:bg-qadder-light"
-              >
-                <ChevronRight size={18} />
-                السابق
-              </button>
-            </div>
           </div>
         ) : (
           <div className="rounded-[28px] border border-qadder-border/30 bg-white p-5 md:p-6">
@@ -380,14 +369,6 @@ export default function CostPage() {
               >
                 التالي
                 <ChevronLeft size={18} />
-              </button>
-
-              <button
-                onClick={goPrevious}
-                className="inline-flex items-center justify-center gap-2 rounded-2xl border border-qadder-primary px-8 py-3 font-semibold text-qadder-primary transition hover:bg-qadder-light"
-              >
-                <ChevronRight size={18} />
-                السابق
               </button>
             </div>
           </div>

@@ -7,7 +7,7 @@ import PageLoader from "@/components/PageLoader";
 // Icons from lucide-react
 import { AlertTriangle, Eye, Download } from "lucide-react";
 
-// Icons from lucide-react
+// Base URL for the backend server.
 const BACKEND_URL = "http://127.0.0.1:8000";
 
 // API endpoint to fetch reports
@@ -17,7 +17,7 @@ const REPORTS_API_URL = `${BACKEND_URL}/step8/reports`;
 type ReportItem = {
   id: string;
   case_id: string;
-  case_number?: string; // ✨ أضيفي هذا
+  case_number?: string; 
   report_path: string;
   created_at?: string;
   vehicle_name?: string;
