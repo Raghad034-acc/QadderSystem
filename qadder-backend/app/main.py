@@ -1,22 +1,10 @@
 from fastapi import FastAPI
 from app.database import Base, engine
-from app.models import (
-    AuthAccount,
-    UserProfile,
-    Vehicle,
-    Case,
-    NajmReport,
-    Image,
-    Damage,
-    CostEstimateItem,
-    TotalCostEstimate,
-    QadderReport,
-)
-
 import psycopg2
 from dotenv import load_dotenv
 import os
-#hadeel added
+
+# Import API Routes
 from app.api.routes.step1_najm import router as step1_najm_router
 from app.api.routes.step2_image import router as step2_image_router
 from fastapi.middleware.cors import CORSMiddleware
@@ -33,7 +21,7 @@ from app.api.routes import vehicles
 from app.api.routes.account import router as account_router
 
 
-# تحميل المتغيرات
+# Load Environment Variables
 load_dotenv()
 
 DB_USER = os.getenv("DB_USER")
@@ -42,13 +30,19 @@ DB_HOST = os.getenv("DB_HOST")
 DB_PORT = os.getenv("DB_PORT")
 DB_NAME = os.getenv("DB_NAME")
 
+# Initialize FastAPI App
 app = FastAPI(title="Qadder Backend")
-#hadeel added
 
+# Register Routers (API Endpoints)
+
+# Authentication routes
 app.include_router(auth_router)
 
+# Step1 & Step2
 app.include_router(step1_najm_router)
 app.include_router(step2_image_router)
+
+# CORS Configuration (for frontend connection)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:3000"],
@@ -56,26 +50,32 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Step3 & Step4
 app.include_router(step3_severity_router)
 app.include_router(step4_type_router)
+
+# Static Files (uploaded images)
 app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
-#BY SHROUG
+
+# Step5 → Step8
 app.include_router(step5_router)
 app.include_router(step6_router)
 app.include_router(step7_pricing.router)
 app.include_router(step8_report.router)
 
+# Other routes
 app.include_router(vehicles.router)
 app.include_router(account_router)
 
 
-# ✅ عند تشغيل السيرفر
+# Startup Event (runs when server starts)
 @app.on_event("startup")
 def startup():
-    # إنشاء الجداول
+    # Create database tables
     Base.metadata.create_all(bind=engine)
 
-    # اختبار الاتصال (اختياري)
+    # Test database connection (optional)
     try:
         connection = psycopg2.connect(
             user=DB_USER,
@@ -84,7 +84,8 @@ def startup():
             port=DB_PORT,
             dbname=DB_NAME
         )
-
+        
+        # Execute simple query
         cursor = connection.cursor()
         cursor.execute("SELECT NOW();")
         result = cursor.fetchone()
@@ -99,7 +100,7 @@ def startup():
         print("❌ Database connection failed:", e)
 
 
-# ✅ API Test
+# Root Endpoint (Health Check)
 @app.get("/")
 def root():
     return {"message": "Qadder backend is running successfully"}

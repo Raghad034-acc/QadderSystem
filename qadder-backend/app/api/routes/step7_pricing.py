@@ -22,9 +22,10 @@ from app.services.step7_pricing import (
     LABOR_DATASET_PATH,
 )
 
+# Step7 Router Definition
 router = APIRouter(prefix="/step7", tags=["Step7 Pricing"])
 
-
+# Step7 API Endpoint
 @router.post("/{case_id}")
 def run_step7_pricing(
     case_id: str,
@@ -37,28 +38,39 @@ def run_step7_pricing(
     save result into DB.
     """
     try:
+        # Ensure required datasets exist
         ensure_datasets_exist()
-
+        
+        # Fetch case data and damages
         case_data = fetch_case_and_fault(db, case_id)
         damages = fetch_damages(db, case_id)
-
+        
+        # Prepare vehicle information
         vehicle = {
             "brand": case_data.get("brand"),
             "model": case_data.get("model"),
             "year": case_data.get("year"),
         }
-
+        
+        # Load datasets
         parts_df_all = load_parts_dataset(PARTS_DATASET_PATH)
         labor_df = pd.read_csv(LABOR_DATASET_PATH)
-
+        
+        # Filter parts based on vehicle
         parts_df_vehicle, vehicle_filter_debug = filter_parts_by_vehicle(parts_df_all, vehicle)
-
+     
+        # Build pricing rows
         rows = build_initial_rows(damages, parts_df_vehicle, labor_df)
+       
+        # Apply grouping rules (e.g. merge related damages)
         rows = apply_grouping_rules(rows)
+        # Apply fault percentage calculation
         rows, summary = apply_fault_formula(rows, case_data.get("fault_percentage"))
-
+        
+        # Clear previous Step7 data
         clear_previous_step7_data(db, case_id)
-
+        
+        # Insert cost estimate items (per damage)
         for row in rows:
             insert_cost_estimate_item(
                 db=db,
@@ -68,7 +80,8 @@ def run_step7_pricing(
                 subtotal_before_fault=row["subtotal_before_fault"],
                 subtotal_after_fault=row["subtotal_after_fault"],
             )
-
+            
+        # Insert total cost summary
         insert_total_cost_estimate(
             db=db,
             case_id=case_id,
@@ -78,11 +91,13 @@ def run_step7_pricing(
             total_estimated_cost=summary["total_estimated_cost"],
             adjusted_cost=summary["adjusted_cost"],
         )
-
+        # Update case status
         update_case_status(db, case_id, "step7_completed")
-
+        
+        # Commit all DB changes
         db.commit()
-
+        
+        # Return API response
         return {
             "message": "Step7 completed successfully",
             "case_id": case_id,
@@ -110,6 +125,7 @@ def run_step7_pricing(
             ],
         }
 
+    # Handle known errors 
     except ValueError as e:
         db.rollback()
         raise HTTPException(status_code=404, detail=str(e))
@@ -117,6 +133,7 @@ def run_step7_pricing(
     except HTTPException:
         raise
 
+    # Handle unexpected errors
     except Exception as exc:
         db.rollback()
         raise HTTPException(

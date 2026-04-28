@@ -9,10 +9,10 @@ from app.database import get_db
 from app.models import Case, Image, Damage
 from app.services.step6_damage_severity import predict_step6_damage_severity
 
-
+# Step6 Router Definition
 router = APIRouter(prefix="/step6", tags=["Step6 Damage Severity"])
 
-
+# Step6 API Endpoint
 @router.post("/predict-damage-severity")
 def run_step6_damage_severity(
     case_id: str = Form(...),
@@ -23,9 +23,7 @@ def run_step6_damage_severity(
     Predict severity for each damage crop created in Step4.
     """
 
-    # ---------------------------------------------------
-    # Check case exists
-    # ---------------------------------------------------
+    # Check if case exists
     case = db.query(Case).filter(Case.id == case_id).first()
     if not case:
         raise HTTPException(
@@ -33,9 +31,7 @@ def run_step6_damage_severity(
             detail="Case not found",
         )
 
-    # ---------------------------------------------------
-    # Check Step2 exists
-    # ---------------------------------------------------
+    # Check if Step2 image exists
     image_record = (
         db.query(Image)
         .filter(Image.case_id == case_id)
@@ -48,18 +44,14 @@ def run_step6_damage_severity(
             detail="Step2 must be completed first",
         )
 
-    # ---------------------------------------------------
-    # Step2 must be accepted
-    # ---------------------------------------------------
+    # Ensure Step2 image is accepted
     if image_record.is_accepted is not True:
         raise HTTPException(
             status_code=400,
             detail="Step2 image was rejected. Cannot continue to Step6.",
         )
-
-    # ---------------------------------------------------
-    # Check Step4 damages exist
-    # ---------------------------------------------------
+    
+    # Check if Step4 damages exist
     existing_damages = (
         db.query(Damage)
         .filter(Damage.case_id == case_id)
@@ -74,12 +66,16 @@ def run_step6_damage_severity(
         )
 
     try:
+        # Initialize tracking variables
         updated_damages = []
 
         predicted_count = 0
         failed_count = 0
-
+        
+        # Loop through each damage
         for damage_row in existing_damages:
+            
+            # If crop image is missing
             if not damage_row.crop_path:
                 damage_row.severity_status = "missing_crop"
                 failed_count += 1
@@ -101,6 +97,7 @@ def run_step6_damage_severity(
                 continue
 
             try:
+                # Call Step6 AI model
                 result = predict_step6_damage_severity(
                     crop_path=damage_row.crop_path
                 )
@@ -108,12 +105,14 @@ def run_step6_damage_severity(
                 prediction = result.get("prediction", {})
                 severity_info = prediction.get("severity", {})
                 policy_info = prediction.get("policy", {})
-
+                
+                # Save prediction results
                 damage_row.severity_en = severity_info.get("en")
                 damage_row.severity_ar = severity_info.get("ar")
                 damage_row.severity_confidence = prediction.get("confidence")
                 damage_row.severity_raw_label = prediction.get("raw_label")
-                # Policy logic (مثل الكود الأصلي)
+                
+                # Apply policy rules
                 severity = damage_row.severity_en
 
                 if severity in ["low", "medium"]:
@@ -122,7 +121,9 @@ def run_step6_damage_severity(
                   damage_row.severity_policy_status = "rejected"
                 else:
                   damage_row.severity_policy_status = None
-
+                  
+        
+                # Save probabilities as JSON
                 probabilities = prediction.get("probabilities")
                 if probabilities is not None:
                     damage_row.severity_probabilities = json.dumps(
@@ -131,7 +132,8 @@ def run_step6_damage_severity(
                     )
                 else:
                     damage_row.severity_probabilities = None
-
+                    
+                # Determine API status
                 api_status = str(result.get("status", "")).lower()
                 if api_status in ("predicted", "extracted", "success", "connected"):
                     damage_row.severity_status = "predicted"
@@ -141,9 +143,11 @@ def run_step6_damage_severity(
                     failed_count += 1
 
             except Exception:
+                # Handle prediction failure
                 damage_row.severity_status = "failed"
                 failed_count += 1
 
+            # Prepare response object
             updated_damages.append({
                 "damage_no": damage_row.damage_no,
                 "severity_en": damage_row.severity_en,
@@ -158,12 +162,14 @@ def run_step6_damage_severity(
                 "severity_policy_status": damage_row.severity_policy_status,
                 "severity_probabilities": damage_row.severity_probabilities,
             })
-
+            
+        # Update case status
         case.status = "step6_completed"
 
         db.commit()
         db.refresh(case)
-
+        
+        # Return final response
         return {
             "message": "Step6 completed successfully",
             "case_id": str(case.id),
@@ -178,7 +184,8 @@ def run_step6_damage_severity(
 
     except HTTPException:
         raise
-
+    
+    # Handle unexpected errors
     except Exception as exc:
         db.rollback()
         raise HTTPException(

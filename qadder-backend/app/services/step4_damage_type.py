@@ -15,19 +15,18 @@ Flow
 """
 
 from __future__ import annotations
-
 import os
 from typing import Any
-
 import requests
 from dotenv import load_dotenv
 
-
+# Load environment variables
 load_dotenv()
 
+# Step4 API endpoint from .env
 STEP4_DAMAGE_TYPE_API_URL = os.getenv("DAMAGE_TYPE_API_URL")
 
-
+# Step4 Prediction Function
 def predict_step4_damage_type(image_path: str, timeout: int = 120) -> dict[str, Any]:
     """
     Send accepted Step2 image to Hugging Face Step4 API.
@@ -44,12 +43,14 @@ def predict_step4_damage_type(image_path: str, timeout: int = 120) -> dict[str, 
     }
     """
 
+    # Validate API URL
     if not STEP4_DAMAGE_TYPE_API_URL:
         raise ValueError("STEP4_DAMAGE_TYPE_API_URL is missing in .env")
-
+    # Validate image path
     if not os.path.exists(image_path):
         raise FileNotFoundError(f"Accepted image not found: {image_path}")
 
+    # Send request to Step4 API
     with open(image_path, "rb") as f:
         files = {
             "image": ("image.png", f, "image/png")
@@ -61,6 +62,7 @@ def predict_step4_damage_type(image_path: str, timeout: int = 120) -> dict[str, 
             timeout=timeout,
         )
 
+    # Handle non-200 responses
     if response.status_code != 200:
         try:
             detail = response.json()
@@ -68,13 +70,16 @@ def predict_step4_damage_type(image_path: str, timeout: int = 120) -> dict[str, 
             detail = response.text
 
         raise RuntimeError(f"Step4 API failed: status={response.status_code}, detail={detail}")
-
+ 
+    # Parse JSON response
     try:
         data = response.json()
     except Exception as exc:
         raise RuntimeError(f"Invalid JSON returned from Step4 API: {exc}")
 
+    # Validate response structure
     if "status" not in data or "damages" not in data:
         raise RuntimeError(f"Unexpected Step4 API response format: {data}")
-
+    
+    # Return parsed data
     return data
