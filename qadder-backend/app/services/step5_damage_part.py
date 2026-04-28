@@ -2,7 +2,6 @@ from __future__ import annotations
 import os
 import numpy as np
 from typing import Any
-
 from gradio_client import Client
 from PIL import Image
 
@@ -148,9 +147,10 @@ ALLOWED_BY_SIDE = {
 
 # Glass damage types
 GLASS_DAMAGE_TYPES = {"glass shatter"}
+
+
 # Rear light correction rule
-# If Step2 accepted side is "rear" but model predicted front light,
-# convert it to back left/right light based on bbox center position
+# If Step2 side is rear but model predicts front light, convert to back light using bbox center
 def force_rear_light_if_needed(
     accepted_side: str | None,
     raw_name: str | None,
@@ -169,8 +169,7 @@ def force_rear_light_if_needed(
     return None, None
 
 # Lamp broken rule
-# If damage type indicates broken lamp, prefer light parts
-# even if they are not the top voted part
+# If damage type indicates broken lamp, prefer light parts even if not top voted
 def prefer_light_for_lamp_broken(
     matched_parts: list[tuple[str, int]],
     total_non_background: int,
@@ -200,9 +199,8 @@ def prefer_light_for_lamp_broken(
 
     return None, None
 
-# Side gating logic
-# Ensures predicted part is consistent with accepted side from Step2
-# If not allowed, try to select best allowed alternative
+# Side gating rule
+# Ensure predicted part matches accepted side, otherwise pick best valid alternative
 def choose_with_side_gating(
     top_part: str,
     vote_ratio: float,
@@ -273,9 +271,8 @@ def choose_with_side_gating(
         "allowed_groups": [],
     }
 
-# Normalize trunk family
-# Merge tailgate and trunk into single class "trunk"
-# to avoid duplicate categories
+# Trunk normalization rule
+# Merge trunk and tailgate into a single class to avoid duplicate categories
 def normalize_trunk_family(
     chosen: dict[str, Any] | None,
 ) -> tuple[dict[str, Any] | None, str | None]:
@@ -292,8 +289,7 @@ def normalize_trunk_family(
     return chosen, None
 
 # Glass damage rule
-# If damage type is glass shatter and part is door
-# convert to door glass virtual class
+# Convert door parts to door glass when damage type indicates glass shatter
 def prefer_door_glass_for_glass_damage(
     chosen: dict[str, Any] | None,
     damage_type_en: str | None,
@@ -315,11 +311,9 @@ def prefer_door_glass_for_glass_damage(
 
     return chosen, None
 
-# Apply post processing rules
-# Applies:
-# - glass rule
-# - trunk normalization
-# after main part selection
+
+# Post-processing rules
+# Apply additional rules (glass, trunk normalization) after part selection
 def apply_post_rules(
     chosen: dict[str, Any] | None,
     damage_type_en: str | None,
@@ -339,7 +333,8 @@ def apply_post_rules(
 
     return chosen, "; ".join(rules) if rules else None
 
-# Extract parts from segmentation mask
+# Segmentation extraction
+# Parse segmentation mask and return unique detected parts
 def extract_parts_from_segment_image(segment_image_path: str) -> list[str]:
     if not segment_image_path:
         return []
@@ -359,7 +354,7 @@ def extract_parts_from_segment_image(segment_image_path: str) -> list[str]:
     return sorted(set(parts))
 
 
-# Call HuggingFace segmentation model
+# Call HuggingFace segmentation model and return detected parts with output paths
 def predict_step5_damage_part(image_path: str, timeout: int = 120) -> dict[str, Any]:
     try:
         client = Client(PARTS_SPACE)
@@ -391,8 +386,7 @@ def predict_step5_damage_part(image_path: str, timeout: int = 120) -> dict[str, 
     except Exception as exc:
         raise RuntimeError(f"Step5 HF Space call failed: {type(exc).__name__}: {exc}")
    
-# Clip bbox coordinates to image boundaries
-# Ensures bbox does not exceed image size
+# Clip bounding box coordinates to stay within image boundaries
 def clip_xyxy(x1: int, y1: int, x2: int, y2: int, w: int, h: int) -> tuple[int, int, int, int]:
     x1 = max(0, min(w - 1, int(x1)))
     y1 = max(0, min(h - 1, int(y1)))
@@ -406,13 +400,13 @@ def clip_xyxy(x1: int, y1: int, x2: int, y2: int, w: int, h: int) -> tuple[int, 
 
     return x1, y1, x2, y2
 
-# Add padding to bbox
-# Used for multi-padding voting
+
+# Expand bounding box by padding value (used for multi-padding voting)
 def pad_xyxy(x1: int, y1: int, x2: int, y2: int, pad: int) -> tuple[int, int, int, int]:
     return x1 - pad, y1 - pad, x2 + pad, y2 + pad
 
-# Extract parts and pixel counts from cropped segmentation area
-# Returns matched parts and total non background pixels
+
+# Extract detected parts and pixel counts from a cropped segmentation region
 def build_matched_parts_from_crop(crop: np.ndarray) -> tuple[list[tuple[str, int]], int]:
     pixels = crop.reshape(-1, 3)
     uniq, counts = np.unique(pixels, axis=0, return_counts=True)
@@ -431,10 +425,9 @@ def build_matched_parts_from_crop(crop: np.ndarray) -> tuple[list[tuple[str, int
     matched_parts.sort(key=lambda x: x[1], reverse=True)
     return matched_parts, total_non_background
 
-# Voting logic inside bbox
-# Performs majority voting on cropped segmentation
-# Applies thresholds to determine:
-# extracted / ambiguous / failed
+
+# Perform majority voting inside bbox crop
+# Apply thresholds to determine extracted / ambiguous / failed
 def vote_group_from_crop(
     arr: np.ndarray,
     bbox_xyxy: list[int],
@@ -499,8 +492,8 @@ def vote_group_from_crop(
         "dist_top6": dist[:6],
     }
 
-# Score voting result
-# Used to select best vote among multi padding attempts
+
+# Score voting result to select the best candidate from multi-padding votes
 def score_vote(vote_obj: dict[str, Any]) -> float:
     if vote_obj.get("status") == "failed":
         return -1e9
@@ -515,6 +508,7 @@ def score_vote(vote_obj: dict[str, Any]) -> float:
 
     return top_ratio + 0.30 * margin + 1e-5 * non_bg
 
+# Detect dominant part inside bbox using segmentation with voting and rule-based corrections
 def detect_part_in_bbox(
     segment_image_path: str,
     bbox_x1: int,
@@ -574,7 +568,7 @@ def detect_part_in_bbox(
 
     raw_bbox = [x1, y1, x2, y2]
     # Multi-padding voting
-    # Try different bbox paddings and choose best vote
+    # Try multiple bbox paddings and select the best vote
     votes = [vote_group_from_crop(arr, raw_bbox, pad_px=p) for p in PAD_TRIES]
     best_vote = max(votes, key=score_vote)
 
@@ -616,9 +610,10 @@ def detect_part_in_bbox(
             "allowed_groups": allowed_groups,
         }
 
+# Apply lamp rule first for broken light cases
+# Otherwise apply side gating to ensure valid part selection
     chosen = None
     meta = None
-    # Apply lamp broken rule if damage type indicates broken light
     damage_type_norm = (damage_type_en or "").strip().lower()
     if damage_type_norm in ("lamp broken", "light broken", "broken lamp"):
         chosen, meta = prefer_light_for_lamp_broken(
@@ -626,7 +621,6 @@ def detect_part_in_bbox(
             total_non_background=total_non_background,
             accepted_side=accepted_side,
         )
-    # Apply side gating if lamp rule not triggered
     if chosen is None:
         chosen, meta = choose_with_side_gating(
             top_part=top_part,
@@ -638,7 +632,8 @@ def detect_part_in_bbox(
             image_width=w,
         )
     
-    # Apply post rules after selecting final part
+# Apply post-processing rules after final part selection
+# Return fallback if no valid part remains after rules
     post_rules = None
     chosen, post_rules = apply_post_rules(chosen, damage_type_en)
     
@@ -655,11 +650,12 @@ def detect_part_in_bbox(
             "quality_status": meta.get("status", "conflict_with_step2"),
             "allowed_groups": meta.get("allowed_groups", []),
         }
-
+        
+# Prepare final output with confidence label based on vote ratio
     final_part_name_en = chosen["name_en"]
     final_part_name_ar = chosen["name_ar"]
     final_vote_ratio = float(chosen["vote_ratio"])
-    # Assign confidence label based on vote ratio
+    
     vote_label = "high" if final_vote_ratio >= 0.50 else "low"
 
     return {

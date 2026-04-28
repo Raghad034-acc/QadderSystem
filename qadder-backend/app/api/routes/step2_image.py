@@ -122,7 +122,7 @@ def upload_step2_image(
             najm_damage_area=najm_report.damage_area,
         )
 
-                # ---------------------------------------------------
+        # ---------------------------------------------------
         # Save Step2 result in images table
         # ---------------------------------------------------
         image_record = Image(

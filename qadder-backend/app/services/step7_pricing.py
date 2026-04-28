@@ -1,10 +1,8 @@
 from __future__ import annotations
-
 import re
 from difflib import SequenceMatcher
 from pathlib import Path
 from uuid import uuid4
-
 import pandas as pd
 from sqlalchemy import text
 from sqlalchemy.orm import Session
@@ -20,7 +18,6 @@ LABOR_DATASET_PATH = DATA_DIR / "filtered_parts_repair_costs.csv"
 # Text helpers
 # ============================================================
 _AR_DIACRITICS = re.compile(r"[\u0610-\u061A\u064B-\u065F\u0670\u06D6-\u06ED]")
-
 
 def norm_text(s: str) -> str:
     if s is None:
@@ -108,6 +105,8 @@ def _part_query_variants(part_en: str, part_ar: str) -> list[str]:
 # ============================================================
 # Dataset helpers
 # ============================================================
+
+# Ensure required datasets (parts and labor) exist before processing
 def ensure_datasets_exist():
     if not PARTS_DATASET_PATH.exists():
         raise FileNotFoundError(f"Parts dataset not found: {PARTS_DATASET_PATH}")
@@ -115,14 +114,14 @@ def ensure_datasets_exist():
     if not LABOR_DATASET_PATH.exists():
         raise FileNotFoundError(f"Labor dataset not found: {LABOR_DATASET_PATH}")
 
-
+# Load parts dataset from file (supports CSV and Parquet formats)
 def load_parts_dataset(path: Path) -> pd.DataFrame:
     ext = path.suffix.lower()
     if ext in [".parquet", ".pq"]:
         return pd.read_parquet(path)
     return pd.read_csv(path)
 
-
+# Return the first matching column name from a list of candidate names
 def pick_col(df: pd.DataFrame, candidates: list[str]) -> str | None:
     cols = set(df.columns)
     for c in candidates:
@@ -130,7 +129,7 @@ def pick_col(df: pd.DataFrame, candidates: list[str]) -> str | None:
             return c
     return None
 
-
+# Filter parts dataset based on vehicle (brand, model, year) using fuzzy matching with fallback handling
 def filter_parts_by_vehicle(parts_df: pd.DataFrame, vehicle: dict) -> tuple[pd.DataFrame, dict]:
     df = parts_df.copy()
     debug = {
@@ -190,7 +189,7 @@ def filter_parts_by_vehicle(parts_df: pd.DataFrame, vehicle: dict) -> tuple[pd.D
     debug["final_rows"] = int(len(df))
     return df, debug
 
-
+# Find labor cost for a part based on severity using fuzzy matching
 def labor_lookup(labor_df: pd.DataFrame, part_name_en: str, part_name_ar: str, severity_en: str):
     candidates = []
     for _, row in labor_df.iterrows():
@@ -230,7 +229,7 @@ def labor_lookup(labor_df: pd.DataFrame, part_name_en: str, part_name_ar: str, s
         },
     }
 
-
+# Find part price from dataset using exact/fuzzy matching with fallback strategies
 def part_price_lookup(parts_df: pd.DataFrame, part_name_en: str, part_name_ar: str):
     df = parts_df
 
@@ -341,6 +340,8 @@ def part_price_lookup(parts_df: pd.DataFrame, part_name_en: str, part_name_ar: s
 # ============================================================
 # DB helpers
 # ============================================================
+
+# Fetch case details along with vehicle info and fault percentage
 def fetch_case_and_fault(db: Session, case_id: str):
     case_row = db.execute(
         text("""
@@ -365,7 +366,7 @@ def fetch_case_and_fault(db: Session, case_id: str):
 
     return dict(case_row)
 
-
+# Retrieve all damages for a case ordered by damage number
 def fetch_damages(db: Session, case_id: str):
     rows = db.execute(
         text("""
@@ -403,7 +404,7 @@ def fetch_damages(db: Session, case_id: str):
 
     return [dict(r) for r in rows]
 
-
+# Clear previous pricing records (items and totals) for the given case
 def clear_previous_step7_data(db: Session, case_id: str):
     db.execute(
         text("""
@@ -423,7 +424,7 @@ def clear_previous_step7_data(db: Session, case_id: str):
         {"case_id": case_id}
     )
 
-
+# Insert a cost estimate item for a damage with calculated pricing values
 def insert_cost_estimate_item(
     db: Session,
     damage_id: str,
@@ -461,7 +462,7 @@ def insert_cost_estimate_item(
         }
     )
 
-
+# Insert total cost summary for a case including parts, labor, and adjusted cost
 def insert_total_cost_estimate(
     db: Session,
     case_id: str,
@@ -503,7 +504,7 @@ def insert_total_cost_estimate(
         }
     )
 
-
+# Update case status and set the updated timestamp
 def update_case_status(db: Session, case_id: str, status_value: str):
     db.execute(
         text("""
@@ -522,6 +523,8 @@ def update_case_status(db: Session, case_id: str, status_value: str):
 # ============================================================
 # Business logic
 # ============================================================
+
+# Build initial pricing rows by matching each damage with part price and labor cost
 def build_initial_rows(damages: list[dict], parts_df_vehicle: pd.DataFrame, labor_df: pd.DataFrame):
     rows = []
 
@@ -557,17 +560,16 @@ def build_initial_rows(damages: list[dict], parts_df_vehicle: pd.DataFrame, labo
 
     return rows
 
-
+# Apply grouping rules to avoid charging the same damaged part more than once
 def apply_grouping_rules(rows: list[dict]):
     """
-    لأن جدول cost_estimate_items مرتبط بكل damage واحد لواحد،
-    لكن Business Rule يقول لا نكرر سعر القطعة لنفس الجزء أكثر من مرة.
+    Although each damage is stored individually, pricing must avoid duplication.
 
-    لذلك:
-    - لكل part نعمل group
-    - نحسب part_price مرة واحدة فقط
-    - نحسب labor_cost مرة واحدة فقط على damage صاحب أعلى severity
-    - باقي الصفوف لنفس القطعة تنحفظ بقيم 0
+    Therefore:
+    - Group damages by part
+    - Apply part_price only once per part
+    - Apply labor_cost once (on the highest severity damage)
+    - Set remaining rows for the same part to 0
     """
     sev_rank = {"low": 1, "medium": 2, "high": 3}
 
@@ -613,7 +615,7 @@ def apply_grouping_rules(rows: list[dict]):
     processed.sort(key=lambda x: (x.get("damage_no") is None, x.get("damage_no") or 999999))
     return processed
 
-
+# Apply fault percentage formula and calculate final pricing summary
 def apply_fault_formula(rows: list[dict], fault_percentage: float | None):
     fault_percentage = float(fault_percentage or 0.0)
     fault_multiplier = (100.0 - fault_percentage) / 100.0

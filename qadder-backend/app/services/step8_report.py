@@ -1,5 +1,4 @@
 from __future__ import annotations
-
 import asyncio
 import base64
 import html
@@ -7,7 +6,6 @@ import mimetypes
 from datetime import datetime
 from pathlib import Path
 from uuid import uuid4
-
 from playwright.async_api import async_playwright
 from sqlalchemy import text
 from sqlalchemy.orm import Session
@@ -21,9 +19,7 @@ LOGO_PATH = PROJECT_ROOT / "assets" / "qadder_logo.png"
 FONT_PATH = PROJECT_ROOT / "fonts" / "Cairo-Regular.ttf"
 
 
-# ============================================================
-# DB helpers
-# ============================================================
+# Fetch complete report data for the given case_id
 def fetch_case_report_data(db: Session, case_id: str) -> dict:
     case_row = db.execute(
         text(
@@ -160,7 +156,7 @@ def fetch_case_report_data(db: Session, case_id: str) -> dict:
         "total": dict(total_row) if total_row else None,
     }
 
-
+# Insert or update report for the given case_id
 def upsert_qadder_report(db: Session, case_id: str, report_path: str) -> None:
     existing = db.execute(
         text(
@@ -212,7 +208,7 @@ def upsert_qadder_report(db: Session, case_id: str, report_path: str) -> None:
             },
         )
 
-
+# Update case status and last modified time
 def update_case_status(db: Session, case_id: str, status_value: str) -> None:
     db.execute(
         text(
@@ -295,9 +291,7 @@ def build_label_value_row(label: str, value=None) -> str:
     """
 
 
-# ============================================================
 # HTML report builder
-# ============================================================
 def build_html_report(report_data: dict) -> str:
     case = report_data["case"]
     damages = report_data["damages"]
@@ -867,7 +861,6 @@ def build_html_report(report_data: dict) -> str:
     </html>
     """
 
-
 # ============================================================
 # PDF generation from HTML
 # ============================================================
@@ -902,9 +895,8 @@ def build_pdf(report_data: dict, output_path: Path) -> None:
     generate_pdf_from_html(html_content, output_path)
 
 
-# ============================================================
 # MAIN STEP 8
-# ============================================================
+# Generate and save final report while updating case status
 def run_step8(db: Session, case_id: str) -> dict:
     report_data = fetch_case_report_data(db, case_id)
     current_status = report_data["case"].get("status")
