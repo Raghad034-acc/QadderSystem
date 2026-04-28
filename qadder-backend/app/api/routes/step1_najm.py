@@ -16,6 +16,9 @@ Flow
 11. Return structured response
 """
 
+# --------------------------------------------------
+# Imports
+# --------------------------------------------------
 from __future__ import annotations
 import re
 import unicodedata
@@ -61,6 +64,9 @@ UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 def generate_case_number() -> str:
     return f"CASE-{uuid4().hex[:10].upper()}"
 
+# ---------------------------------------------------
+# Normalize Arabic text (remove variations and unify format)
+# ---------------------------------------------------
 def normalize_arabic_text(value: str) -> str:
     if not value:
         return ""
@@ -84,7 +90,9 @@ def normalize_arabic_text(value: str) -> str:
     value = " ".join(value.split())
     return value
 
-
+# ---------------------------------------------------
+# Normalize vehicle brand names (Arabic → English mapping)
+# ---------------------------------------------------
 def normalize_brand(value: str) -> str:
     value = normalize_arabic_text(value)
 
@@ -100,6 +108,9 @@ def normalize_brand(value: str) -> str:
     return mapping.get(value, value)
 
 
+# ---------------------------------------------------
+# Normalize vehicle model names (handle spelling variations)
+# ---------------------------------------------------
 def normalize_model(value: str) -> str:
     value = normalize_arabic_text(value)
 

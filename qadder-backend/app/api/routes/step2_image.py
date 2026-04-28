@@ -1,17 +1,33 @@
+# --------------------------------------------------
+# Imports
+# --------------------------------------------------
+
+# FastAPI components (routing, file upload, form handling, dependencies, exceptions)
 from fastapi import APIRouter, UploadFile, File, Form, Depends, HTTPException
+
+# Database session (used to interact with DB)
 from sqlalchemy.orm import Session
+
+# Standard libraries 
 import os
 import uuid
 import shutil
 
+# Database connection
 from app.database import get_db
+
+# Database models
 from app.models import Case, NajmReport, Image
+
+# Damage verification service (AI logic)
 from app.services.step2_damage_location import verify_damage_location
 
-
+# --------------------------------------------------
+# Router Setup
+# --------------------------------------------------
 router = APIRouter(prefix="/step2", tags=["Step2 Image"])
 
-
+# Setup upload directory for Step 2 images
 UPLOAD_DIR = "uploads/step2"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 

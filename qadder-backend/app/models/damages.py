@@ -1,8 +1,10 @@
+# --------------------------------------------------
+# Imports
+# --------------------------------------------------
 import uuid
 from sqlalchemy import Column, String, Text, Integer, DateTime, ForeignKey, Numeric, UniqueConstraint, Boolean
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.sql import func
-
 from app.database import Base
 
 # Damage Model Definition

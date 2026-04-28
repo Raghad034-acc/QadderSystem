@@ -57,7 +57,10 @@ def norm(s: str) -> str:
     s = re.sub(r"[ \t]+", " ", s)
     return s.strip()
 
-
+# ---------------------------------------------------
+# Clean Extracted Text Value
+# Removes unwanted labels and extra text from OCR output
+# ---------------------------------------------------
 def cleanup_value(v: str) -> str:
     """Clean extracted value from leaked labels, headers, and extra sections."""
     v = norm(v)
@@ -76,12 +79,18 @@ def cleanup_value(v: str) -> str:
     v = re.sub(r"\s+", " ", v).strip()
     return v
 
-
+# ---------------------------------------------------
+# Select Correct Party Value
+# Choose party2 based on report layout
+# ---------------------------------------------------
 def pick_party(p1: str, p2: str) -> str:
     """Pick the correct party value based on report layout."""
     return p2 if PARTY2_IS_SECOND else p1
 
-
+# ---------------------------------------------------
+# Convert Date Parts to DD/MM/YYYY
+# Formats year, month, and day into standard date string
+# ---------------------------------------------------
 def to_ddmmyyyy_from_parts(y: str, mo: str, d: str) -> str:
     """Convert Y/M/D parts into DD/MM/YYYY format."""
     try:
@@ -89,7 +98,10 @@ def to_ddmmyyyy_from_parts(y: str, mo: str, d: str) -> str:
     except Exception:
         return ""
 
-
+# ---------------------------------------------------
+# Normalize Slash Date Format
+# Converts dates like "YYYY / M / D" into "DD/MM/YYYY"
+# ---------------------------------------------------
 def normalize_slash_date_to_ddmmyyyy(s: str) -> str:
     """Normalize slash-formatted date like 1450 / 7 / 24 -> 24/07/1450."""
     s = norm(s)
@@ -145,12 +157,18 @@ def get_lines_from_blocks(page: fitz.Page, y_tol: float = 3.0) -> list[list[dict
 
     return lines
 
-
+# ---------------------------------------------------
+# Convert Line Segments to Text
+# Joins grouped text segments into a single readable line
+# ---------------------------------------------------
 def line_text(line: list[dict[str, Any]]) -> str:
     """Join a clustered line into a readable string."""
     return norm(" ".join([s["text"] for s in line]))
 
-
+# ---------------------------------------------------
+# Build Label-Value Rows from Lines
+# Extracts structured (label, value) pairs from PDF lines
+# ---------------------------------------------------
 def build_rows(lines: list[list[dict[str, Any]]]) -> list[tuple[str, str]]:
     """
     Build (label, value) rows from extracted lines.
@@ -175,7 +193,10 @@ def build_rows(lines: list[list[dict[str, Any]]]) -> list[tuple[str, str]]:
 
     return rows
 
-
+# ---------------------------------------------------
+# Get Row Value by Label Keywords
+# Finds and returns the value matching given label keywords
+# ---------------------------------------------------
 def get_row_value(rows: list[tuple[str, str]], label_keywords: list[str]) -> str:
     """Return the first matching row value whose label contains one of the keywords."""
     for label, raw in rows:
@@ -188,6 +209,11 @@ def get_row_value(rows: list[tuple[str, str]], label_keywords: list[str]) -> str
 # ---------------------------------------------------
 # Split helpers for rows containing both parties
 # ---------------------------------------------------
+
+# ---------------------------------------------------
+# Split Full Name into Two Parties
+# Splits combined names into two separate party names
+# --------------------------------------------------
 def split_name_two(rest: str) -> tuple[str, str]:
     words = rest.split()
     if len(words) >= 8:
@@ -197,6 +223,10 @@ def split_name_two(rest: str) -> tuple[str, str]:
     return " ".join(words[:mid]), " ".join(words[mid:])
 
 
+# ---------------------------------------------------
+# Split Two Numbers
+# Extracts two numeric values (e.g., phone or ID)
+# ---------------------------------------------------
 def split_two_numbers(rest: str) -> tuple[str, str]:
     nums = re.findall(r"\d{7,}", rest)
     if len(nums) >= 2:
@@ -205,7 +235,10 @@ def split_two_numbers(rest: str) -> tuple[str, str]:
         return nums[0], ""
     return "", ""
 
-
+# ---------------------------------------------------
+# Split Two Dates
+# Extracts and normalizes two date values
+# ---------------------------------------------------
 def split_two_dates(rest: str) -> tuple[str, str]:
     dates = re.findall(r"\d{4}\s*/\s*\d{1,2}\s*/\s*\d{1,2}", rest)
 
@@ -214,7 +247,10 @@ def split_two_dates(rest: str) -> tuple[str, str]:
 
     return d1, d2
 
-
+# ---------------------------------------------------
+# Split Two Percentages
+# Extracts fault percentages for two parties
+# ---------------------------------------------------
 def split_two_perc(rest: str) -> tuple[str, str]:
     percentages = re.findall(r"(\d{1,3})\s*%", rest)
     if len(percentages) >= 2:
@@ -223,7 +259,10 @@ def split_two_perc(rest: str) -> tuple[str, str]:
         return percentages[0], ""
     return "", ""
 
-
+# ---------------------------------------------------
+# Split Two Damage Areas
+# Extracts damage area for both parties
+# ---------------------------------------------------
 def split_two_damage(rest: str) -> tuple[str, str]:
     matches = re.findall(
         r"([ء-ي]+)\s*[,،]?\s*(Rear|Front|Left|Right)",
@@ -237,7 +276,10 @@ def split_two_damage(rest: str) -> tuple[str, str]:
         return f"{matches[0][0]} , {matches[0][1]}", ""
     return "", ""
 
-
+# ---------------------------------------------------
+# Split Two Plate Numbers
+# Extracts and separates vehicle plate numbers
+# ---------------------------------------------------
 def split_two_plate(rest: str) -> tuple[str, str]:
     pattern = r"(?:[^\n]+?/\s*(?:خصوصي|عمومي|نقل|دبلوماسي|مؤقت))"
     chunks = re.findall(pattern, rest)
@@ -253,7 +295,10 @@ def split_two_plate(rest: str) -> tuple[str, str]:
 
     return rest.strip(), ""
 
-
+# ---------------------------------------------------
+# Split Make and Model
+# Separates vehicle brand and model for two parties
+# ---------------------------------------------------
 def split_make_model(rest: str) -> tuple[str, str]:
     parts = [p.strip() for p in rest.split("/") if p.strip()]
 
@@ -271,7 +316,10 @@ def split_make_model(rest: str) -> tuple[str, str]:
     half = len(parts) // 2
     return " / ".join(parts[:half]).strip(), " / ".join(parts[half:]).strip()
 
-
+# ---------------------------------------------------
+# Split Year and Color
+# Extracts vehicle year and color values
+# ---------------------------------------------------
 def split_year_color(rest: str) -> tuple[str, str]:
     s = norm(rest)
 
@@ -308,7 +356,10 @@ def split_year_color(rest: str) -> tuple[str, str]:
         return uniq[0], ""
     return s.strip(), ""
 
-
+# ---------------------------------------------------
+# Split Owner Name (Two Words)
+# Extracts owner names for both parties
+# ---------------------------------------------------
 def split_owner_two_words(raw: str) -> tuple[str, str]:
     raw = cleanup_value(raw)
     raw = re.sub(r"\s*معلومات.*$", "", raw).strip()
@@ -322,6 +373,11 @@ def split_owner_two_words(raw: str) -> tuple[str, str]:
 
 # ---------------------------------------------------
 # Value mapping helpers
+# ---------------------------------------------------
+
+# ---------------------------------------------------
+# Map Damage Area Values
+# Converts mixed Arabic/English damage text into standardized values
 # ---------------------------------------------------
 def damage_area_map(mixed_text: str) -> tuple[str, str]:
     """Map Arabic/English damage area text into normalized enum + Arabic label."""
@@ -348,7 +404,10 @@ def damage_area_map(mixed_text: str) -> tuple[str, str]:
 
     return "", ""
 
-
+# ---------------------------------------------------
+# Normalize Plate Number Format
+# Converts extracted plate text into standardized old-style format
+# ---------------------------------------------------
 def normalize_plate_to_old_style(plate_chunk: str) -> str:
     """Convert plate chunk into a normalized old-style plate format if possible."""
     plate_chunk = cleanup_value(plate_chunk.replace("،", " "))
@@ -594,6 +653,11 @@ def extract_step1_najm_report_blocks(pdf_path: str, page_index: int = 0) -> tupl
 # ---------------------------------------------------
 # Post-processing helpers
 # ---------------------------------------------------
+
+# ---------------------------------------------------
+# Parse Accident Date and Time
+# Converts extracted datetime text into datetime and date objects
+# ---------------------------------------------------
 def parse_datetime_value(value: str) -> tuple[datetime | None, date | None]:
     """Parse Najm accident datetime string into datetime and date objects."""
     if not value:
@@ -610,7 +674,10 @@ def parse_datetime_value(value: str) -> tuple[datetime | None, date | None]:
 
     return None, None
 
-
+# ---------------------------------------------------
+# Split Vehicle Brand and Model
+# Separates extracted make/model text into brand and model fields
+# ---------------------------------------------------
 def split_brand_model(value: str) -> tuple[str, str]:
     """Split combined make/model value into brand and model."""
     value = cleanup_value(value)
@@ -623,7 +690,10 @@ def split_brand_model(value: str) -> tuple[str, str]:
 
     return value, ""
 
-
+# ---------------------------------------------------
+# Split Vehicle Year and Color
+# Extracts vehicle year and color into separate fields
+# ---------------------------------------------------
 def split_year_color_value(value: str) -> tuple[int | None, str]:
     """Split combined year/color value into separate fields."""
     value = cleanup_value(value)
@@ -639,7 +709,10 @@ def split_year_color_value(value: str) -> tuple[int | None, str]:
 
     return year, color
 
-
+# ---------------------------------------------------
+# Parse Fault Percentage
+# Converts extracted fault percentage into Decimal format
+# ---------------------------------------------------
 def parse_fault_percentage(value: Any) -> Decimal | None:
     """Convert extracted fault percentage into Decimal."""
     if value in (None, ""):
@@ -650,7 +723,10 @@ def parse_fault_percentage(value: Any) -> Decimal | None:
     except Exception:
         return None
 
-
+# ---------------------------------------------------
+# Convert Extracted Data to NajmReport Record
+# Maps raw extracted values into database-ready fields
+# ---------------------------------------------------
 def to_najm_report_record(extracted_record: dict[str, Any], report_file_path: str) -> dict[str, Any]:
     """Convert raw extracted Najm data into database-ready record."""
     accident_datetime, accident_date = parse_datetime_value(extracted_record.get("accident_time", ""))
@@ -684,7 +760,10 @@ def to_najm_report_record(extracted_record: dict[str, Any], report_file_path: st
         "vehicle_color": vehicle_color,
     }
 
-
+# ---------------------------------------------------
+# Validate Required Najm Fields
+# Checks missing required fields before database insert
+# ---------------------------------------------------
 def validate_required_najm_fields(record: dict[str, Any]) -> list[str]:
     """Validate required Najm fields before DB insert."""
     required_fields = [

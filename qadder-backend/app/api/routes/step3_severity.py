@@ -1,16 +1,31 @@
+# ---------------------------------------------------
+# Imports
+# ---------------------------------------------------
+
+# Enable postponed evaluation of type hints (for better type handling)
 from __future__ import annotations
 
+# FastAPI components (routing, form handling, dependencies, exceptions)
 from fastapi import APIRouter, Depends, Form, HTTPException
+
+# Database session
 from sqlalchemy.orm import Session
 
+# Database connection
 from app.database import get_db
+
+# Database models
 from app.models import Case, Image
+
+# Severity prediction service (AI model)
 from app.services.step3_severity import predict_step3_severity
 
-
+# Configure router for Step 3 severity prediction endpoints
 router = APIRouter(prefix="/step3", tags=["Step3 Severity"])
 
-
+# ---------------------------------------------------
+# Predict Damage Severity
+# ---------------------------------------------------
 @router.post("/predict-severity")
 def run_step3_severity(
     case_id: str = Form(...),

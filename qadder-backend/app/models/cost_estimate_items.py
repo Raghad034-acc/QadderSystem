@@ -1,8 +1,10 @@
+# --------------------------------------------------
+# Imports
+# --------------------------------------------------
 import uuid
 from sqlalchemy import Column, DateTime, ForeignKey, Numeric
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.sql import func
-
 from app.database import Base
 
 # Cost Estimate Item Model (Step7 Pricing)

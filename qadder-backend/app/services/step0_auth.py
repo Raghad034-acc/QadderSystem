@@ -1,3 +1,6 @@
+# --------------------------------------------------
+# Imports
+# --------------------------------------------------
 from uuid import uuid4
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
@@ -11,17 +14,27 @@ from app.models.cases import Case
 
 from app.schemas.auth import RegisterRequest, LoginRequest
 
+# --------------------------------------------------
+# Password Hashing Setup
+# --------------------------------------------------
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-
+# --------------------------------------------------
+# Hash Password
+# --------------------------------------------------
 def hash_password(password: str) -> str:
     return pwd_context.hash(password)
 
-
+# --------------------------------------------------
+# Verify Password
+# --------------------------------------------------
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     return pwd_context.verify(plain_password, hashed_password)
 
-
+# --------------------------------------------------
+# Register User Service
+# Creates account, profile, and vehicle records
+# --------------------------------------------------
 def register_user(db: Session, payload: RegisterRequest):
 
     # email check
@@ -83,7 +96,15 @@ def register_user(db: Session, payload: RegisterRequest):
     }
 
 
+# --------------------------------------------------
+# Login User Service
+# Authenticates user and returns account data
+# --------------------------------------------------
 def login_user(db: Session, payload: LoginRequest):
+
+    # --------------------------------------------------
+    # Find Account by Email or Phone Number
+    # --------------------------------------------------
     account = db.query(AuthAccount).filter(
         or_(
             AuthAccount.email == payload.login,
@@ -94,24 +115,39 @@ def login_user(db: Session, payload: LoginRequest):
     if not account:
         raise HTTPException(status_code=404, detail="account not found")
 
+    # --------------------------------------------------
+    # Validate Account Status and Password
+    # --------------------------------------------------
     if account.account_status != "active":
         raise HTTPException(status_code=403, detail="account is not active")
 
     if not verify_password(payload.password, account.password_hash):
         raise HTTPException(status_code=401, detail="invalid password")
 
+    # --------------------------------------------------
+    # Fetch User Profile
+    # --------------------------------------------------
     profile = db.query(UserProfile).filter(
         UserProfile.auth_account_id == account.id
     ).first()
 
+    # --------------------------------------------------
+    # Fetch User Vehicles
+    # --------------------------------------------------
     vehicles = []
     if profile:
         vehicles = db.query(Vehicle).filter(
             Vehicle.user_profile_id == profile.id
         ).all()
-        
+
+    # --------------------------------------------------
+    # Fetch User Reports
+    # -------------------------------------------------- 
     reports = db.query(Case).filter(Case.user_profile_id == profile.id).all()
-                
+
+    # --------------------------------------------------
+    # Build Login Response
+    # --------------------------------------------------       
     return {
         "message": "login successful",
         "auth_account_id": str(account.id),

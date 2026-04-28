@@ -20,6 +20,10 @@ Notes
 - Only Roboflow API + Hugging Face fallback
 """
 
+# ---------------------------------------------------
+# Imports
+# ---------------------------------------------------
+
 # Standard library
 import os
 from typing import Any
@@ -77,7 +81,9 @@ def normalize_side(value: str) -> str:
 
     return mapping.get(value, value)
 
-
+# ---------------------------------------------------
+# Compare Najm and predicted damage sides
+# ---------------------------------------------------
 def is_side_match(najm_side: str, predicted_side: str) -> bool:
     """Compare Najm side with predicted side."""
     najm_side = normalize_side(najm_side)
@@ -105,10 +111,13 @@ def run_orientation_api(image_path: str, conf_min: float = 0.50) -> dict[str, An
         }
 
     try:
+        # Send image to Roboflow model for inference
         result = RF_CLIENT.infer(image_path, model_id=ROBOFLOW_MODEL_ID)
 
+         # Extract predictions from response
         preds = result.get("predictions", []) if isinstance(result, dict) else []
 
+        # Handle case with no predictions
         if not preds:
             return {
                 "orientation": "unknown",
@@ -117,7 +126,8 @@ def run_orientation_api(image_path: str, conf_min: float = 0.50) -> dict[str, An
                 "error": None,
                 "raw": result,
             }
-
+        
+         # Select prediction with highest confidence
         best = max(preds, key=lambda p: float(p.get("confidence", 0) or 0))
 
         orientation = normalize_side(best.get("class", "unknown"))
@@ -196,6 +206,9 @@ C = [
     "wheel",
 ]
 
+# ---------------------------------------------------
+# Color Palette for Visualization
+# ---------------------------------------------------
 COLORS = [
     (245, 255, 250),
     (75, 0, 130),
@@ -259,8 +272,10 @@ def extract_parts_from_segment_image(segment_image_path: str) -> list[str]:
 def orientation_from_parts(parts: list[str]) -> str:
     """Infer car orientation from detected parts."""
 
+    # Normalize parts list (lowercase + clean)
     p = set(str(x).strip().lower() for x in parts)
 
+    # Define keywords for rear side parts
     rear_keywords = {
         "trunk",
         "back_bumper",
@@ -270,6 +285,7 @@ def orientation_from_parts(parts: list[str]) -> str:
         "back_glass",
     }
 
+    # Define keywords for front side parts
     front_keywords = {
         "hood",
         "front_bumper",
@@ -277,13 +293,16 @@ def orientation_from_parts(parts: list[str]) -> str:
         "front_right_light",
         "front_glass",
     }
-
+    
+    # Count matching parts for each side
     rear_score = sum(1 for k in rear_keywords if k in p)
     front_score = sum(1 for k in front_keywords if k in p)
 
+    # Check side mirrors for left/right
     left_score = 1 if "left_mirror" in p else 0
     right_score = 1 if "right_mirror" in p else 0
 
+    # Determine orientation based on scores
     if rear_score >= 2 and rear_score > front_score:
         return "rear"
 
@@ -314,14 +333,19 @@ def verify_damage_location(
     # ---------------------------
     # Orientation API
     # ---------------------------
+
+    # Run orientation detection model on the uploaded image
     api_result = run_orientation_api(image_path, api_conf_min)
 
+    # Extract and normalize API prediction result
     api_side = normalize_side(api_result.get("orientation", "unknown"))
     api_confidence = float(api_result.get("confidence", 0.0) or 0.0)
-
+    
+    # Store API errors if any
     if api_result.get("error"):
         errors.append(api_result["error"])
 
+    # Accept the image if Najm side matches API predicted side
     if is_side_match(najm_side, api_side):
         return {
             "status": "accepted",
@@ -339,14 +363,19 @@ def verify_damage_location(
     # ---------------------------
     # HF fallback
     # ---------------------------
+
+    # Run HuggingFace segmentation model as fallback
     _, segment_img_path = run_parts_segmentation_hf(image_path)
 
+    # Extract detected parts from segmented image
     detected_parts = extract_parts_from_segment_image(segment_img_path)
     part_side = orientation_from_parts(detected_parts)
 
+    # Handle segmentation failure
     if segment_img_path is None:
         errors.append("hf_parts_failed")
 
+    # Accept if Najm side matches parts-based orientation
     if is_side_match(najm_side, part_side):
         return {
             "status": "accepted",
@@ -364,11 +393,15 @@ def verify_damage_location(
     # ---------------------------
     # Reject
     # ---------------------------
+
+    # Determine rejection reason if no match
     rejection_reason = "side_mismatch"
 
+    # Update rejection reason if both methods failed to detect orientation
     if api_side == "unknown" and part_side == "unknown":
         rejection_reason = "orientation_unknown"
 
+    # Return final rejection result
     return {
         "status": "rejected",
         "accepted_side": None,
