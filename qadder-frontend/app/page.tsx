@@ -17,15 +17,20 @@ import {
 
 // Type definition for the user data stored in localStorage.
 type StoredUser = {
+  id?: string;
   first_name?: string;
   last_name?: string;
   email?: string;
   phone_number?: string;
+
   brand?: string;
   model?: string;
   year?: number | string;
+
   vehicles?: Vehicle[];
+
   reports_count?: number;
+  reports?: unknown[];
 };
 
 // Type definition for a vehicle linked to the user.
@@ -146,16 +151,27 @@ export default function HomePage() {
     window.location.reload();
   };
 
+  // Calculate vehicles count
+  const vehiclesCount =
+    user?.vehicles?.length ??
+    (user?.brand && user?.model ? 1 : 0);
+
+  // Calculate reports count
+  const reportsCount =
+    user?.reports_count ??
+    user?.reports?.length ??
+    0;
+
   // Stats shown for logged-in users
   const statsLoggedIn = [
     {
       title: "عدد المركبات",
-      value: <CountUp end={user?.vehicles?.length ?? 0} duration={1.5} />,
+      value: <CountUp end={vehiclesCount} duration={1.5} />,
       icon: <CarFront size={24} />,
     },
     {
       title: "عدد التقارير",
-      value: <CountUp end={user?.reports_count ?? 0} duration={1.5} />,
+      value: <CountUp end={reportsCount} duration={1.5} />,
       icon: <FileText size={24} />,
     },
     {
@@ -246,7 +262,7 @@ export default function HomePage() {
         dir="rtl"
         className="min-h-screen bg-qadder-background text-qadder-dark"
       >
-         {/* Main navigation bar */}
+        {/* Main navigation bar */}
         <AppNavbar
           isLoggedIn={!!user}
           handleLogout={user ? handleLogout : undefined}
@@ -262,7 +278,7 @@ export default function HomePage() {
           <div className="relative mx-auto flex max-w-7xl flex-col items-center px-6 pb-20 pt-16 text-center md:pt-24">
             {/* Welcome badge for returning users */}
             {user && (
-              <div className="animate-fade-up mb-6 inline-flex items-center gap-2 rounded-full border border-qadder-border bg-white/80 px-4 py-2 text-sm font-semibold text-qadder-dark shadow-sm backdrop-blur">   
+              <div className="animate-fade-up mb-6 inline-flex items-center gap-2 rounded-full border border-qadder-border bg-white/80 px-4 py-2 text-sm font-semibold text-qadder-dark shadow-sm backdrop-blur">
                 <span>الحمدلله على السلامة {user.first_name || ""}، جاهزين نخدمك</span>
                 <Sparkles size={16} className="text-qadder-primary" />
               </div>
@@ -272,16 +288,14 @@ export default function HomePage() {
             <img
               src="/images/logo.png"
               alt="شعار قدر"
-              className={`h-50 w-200 object-contain transition duration-700 ${
-                mounted ? "translate-y-0 opacity-100" : "translate-y-3 opacity-0"
-              }`}
+              className={`h-50 w-200 object-contain transition duration-700 ${mounted ? "translate-y-0 opacity-100" : "translate-y-3 opacity-0"
+                }`}
             />
 
             {/* Hero title */}
             <h2
-              className={`max-w-4xl text-4xl font-extrabold leading-tight tracking-tight text-qadder-dark transition duration-700 md:text-6xl ${
-                mounted ? "translate-y-0 opacity-100" : "translate-y-3 opacity-0"
-              }`}
+              className={`max-w-4xl text-4xl font-extrabold leading-tight tracking-tight text-qadder-dark transition duration-700 md:text-6xl ${mounted ? "translate-y-0 opacity-100" : "translate-y-3 opacity-0"
+                }`}
             >
               قدّر أضرار مركبتك
               <span className="block text-qadder-primary">بسهولة ودقة</span>
@@ -289,9 +303,8 @@ export default function HomePage() {
 
             {/* Hero subtitle */}
             <p
-              className={`mt-5 max-w-2xl text-base leading-8 text-qadder-dark/70 transition duration-700 md:text-lg ${
-                mounted ? "translate-y-0 opacity-100" : "translate-y-3 opacity-0"
-              }`}
+              className={`mt-5 max-w-2xl text-base leading-8 text-qadder-dark/70 transition duration-700 md:text-lg ${mounted ? "translate-y-0 opacity-100" : "translate-y-3 opacity-0"
+                }`}
               style={{ transitionDelay: "120ms" }}
             >
               حل رقمي متكامل لتقدير أضرار المركبات في المملكة خلال دقائق
@@ -303,12 +316,11 @@ export default function HomePage() {
               className="mt-8 block"
             >
               <button
-                className={`group inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-qadder-primary px-5 py-4 text-sm font-bold text-white shadow-lg shadow-qadder-primary/20 transition duration-300 hover:-translate-y-1 hover:bg-qadder-dark ${
-                  mounted ? "translate-y-0 opacity-100" : "translate-y-3 opacity-0"
-                }`}
+                className={`group inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-qadder-primary px-5 py-4 text-sm font-bold text-white shadow-lg shadow-qadder-primary/20 transition duration-300 hover:-translate-y-1 hover:bg-qadder-dark ${mounted ? "translate-y-0 opacity-100" : "translate-y-3 opacity-0"
+                  }`}
                 style={{ transitionDelay: "180ms" }}
               >
-                 ابدأ التقدير الآن               
+                ابدأ التقدير الآن
               </button>
             </a>
 
