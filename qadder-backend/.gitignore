@@ -6,3 +6,6 @@ __pycache__/
 .env
 # Requirements file
 requirements.txt
+
+# Uploads folder
+uploads/
